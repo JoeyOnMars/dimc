@@ -1,0 +1,42 @@
+# Python / Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv
+pip-log.txt
+*.log
+
+# Distribution / Build
+build/
+dist/
+*.egg-info/
+
+# Testing / Quality
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# IDE / System
+.DS_Store
+.idea/
+.vscode/
+
+# Project Specific
+.logger-config
+.index.db
+conversation/
+coverage.xml
+
+# 内部文档与 AI 协作（不开源）
+
+.agent/*
+!.agent/workflows/
+!.agent/rules/
+tmp/

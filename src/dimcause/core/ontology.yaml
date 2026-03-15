@@ -1,0 +1,330 @@
+# Dimcause Dev-Ontology v1.0
+# 软件工程开发本体定义
+# 创建日期: 2026-02-10
+
+version: "1.0.0"
+namespace: "https://schema.dimcause.dev/v1#"
+
+# ============================================
+# 类定义 (Classes)
+# ============================================
+classes:
+  - name: Requirement
+    description: "用户需求、产品需求或技术需求的正式声明"
+    uri_prefix: "dev://requirement/"
+    properties:
+      summary:
+        type: string
+        required: true
+        description: "需求摘要"
+      source:
+        type: string
+        required: false
+        description: "来源 (PRD文档、用户反馈、技术债务)"
+      priority:
+        type: enum
+        values: [P0, P1, P2, P3]
+        default: P2
+        description: "优先级"
+      timestamp:
+        type: datetime
+        required: true
+        description: "需求提出时间"
+
+  - name: Decision
+    description: "开发过程中的技术决策或架构选择"
+    uri_prefix: "dev://decision/"
+    properties:
+      summary:
+        type: string
+        required: true
+        description: "决策摘要"
+      rationale:
+        type: string
+        required: false
+        description: "决策理由"
+      alternatives:
+        type: list[string]
+        required: false
+        description: "被否决的备选方案"
+      timestamp:
+        type: datetime
+        required: true
+        description: "决策时间"
+      status:
+        type: enum
+        values: [proposed, accepted, rejected, superseded]
+        default: accepted
+        description: "决策状态"
+
+  - name: Commit
+    description: "Git版本控制系统中的原子提交单元"
+    uri_prefix: "dev://commit/"
+    properties:
+      hash:
+        type: string
+        required: true
+        description: "Git SHA"
+      message:
+        type: string
+        required: true
+        description: "提交说明"
+      author:
+        type: string
+        required: true
+        description: "提交者"
+      timestamp:
+        type: datetime
+        required: true
+        description: "提交时间"
+      files_changed:
+        type: list[string]
+        required: false
+        description: "修改的文件列表"
+
+  - name: Function
+    description: "代码中的函数、方法或类"
+    uri_prefix: "dev://function/"
+    properties:
+      name:
+        type: string
+        required: true
+        description: "符号名称"
+      file:
+        type: string
+        required: true
+        description: "所在文件路径"
+      line_range:
+        type: string
+        required: false
+        description: "行范围 (如 L45-L67)"
+      signature:
+        type: string
+        required: false
+        description: "函数签名"
+      language:
+        type: string
+        required: false
+        description: "编程语言"
+
+  - name: Incident
+    description: "生产环境或测试中发现的故障"
+    uri_prefix: "dev://incident/"
+    properties:
+      id:
+        type: string
+        required: true
+        description: "事故ID (如 INC-042)"
+      severity:
+        type: enum
+        values: [Critical, High, Medium, Low]
+        required: true
+        description: "严重程度"
+      summary:
+        type: string
+        required: true
+        description: "事故描述"
+      root_cause:
+        type: string
+        required: false
+        description: "根本原因分析"
+      timestamp:
+        type: datetime
+        required: true
+        description: "事故发生时间"
+
+  - name: Experiment
+    description: "A/B测试、POC或临时尝试"
+    uri_prefix: "dev://experiment/"
+    properties:
+      id:
+        type: string
+        required: true
+        description: "实验ID"
+      hypothesis:
+        type: string
+        required: true
+        description: "假设"
+      result:
+        type: string
+        required: false
+        description: "实验结果"
+      resolution:
+        type: string
+        required: false
+        description: "结论"
+      timestamp:
+        type: datetime
+        required: true
+        description: "实验时间"
+
+  - name: CausalEngine
+    description: "驱动系统核心因果逻辑与拓扑存储的引擎组件"
+    uri_prefix: "dev://engine/"
+    properties:
+      version:
+        type: string
+        required: true
+        description: "引擎迭代版本"
+      capabilities:
+        type: list[string]
+        required: false
+        description: "核心能力特征集"
+
+# ============================================
+# 关系定义 (Relations)
+# ============================================
+relations:
+  - name: implements
+    description: "Decision实现某个Requirement"
+    domain: Decision
+    range: Requirement
+    cardinality: "many-to-many"
+    inverse: implemented_by
+    semantics: "该决策是为了实现某需求"
+
+  - name: realizes
+    description: "Commit落地某个Decision"
+    domain: Commit
+    range: Decision
+    cardinality: "many-to-many"
+    inverse: realized_by
+    semantics: "该提交实现了某决策"
+
+  - name: modifies
+    description: "Commit修改了某个Function"
+    domain: Commit
+    range: Function
+    cardinality: "many-to-many"
+    inverse: modified_by
+    semantics: "该提交修改了某函数"
+
+  - name: triggers
+    description: "Incident触发新的Decision"
+    domain: Incident
+    range: Decision
+    cardinality: "one-to-many"
+    inverse: triggered_by
+    semantics: "该事故促使我们做出新决策"
+
+  - name: validates
+    description: "Experiment验证某个Decision"
+    domain: Experiment
+    range: Decision
+    cardinality: "many-to-one"
+    inverse: validated_by
+    semantics: "该实验验证了某决策的可行性"
+
+  - name: overrides
+    description: "Decision覆盖之前的Decision"
+    domain: Decision
+    range: Decision
+    cardinality: "many-to-one"
+    inverse: overridden_by
+    semantics: "新决策取代旧决策"
+
+  - name: fixes
+    description: "Commit修复某个Incident"
+    domain: Commit
+    range: Incident
+    cardinality: "many-to-many"
+    inverse: fixed_by
+    semantics: "该提交修复了某事故"
+
+# ============================================
+# 公理定义 (Axioms)
+# ============================================
+axioms:
+  - id: commit_must_have_cause
+    description: "每个Commit必须至少realize一个Decision或fix一个Incident"
+    severity: warning
+    check_type: existence
+    rule: |
+      for each commit in Commits:
+        assert (
+          exists decision where commit realizes decision
+          OR
+          exists incident where commit fixes incident
+        )
+    error_message: "Commit {commit_id} 缺少因果关联，建议关联Decision或Incident"
+
+  - id: no_decision_cycle
+    description: "Decision的overrides关系不能形成环"
+    severity: error
+    check_type: graph_topology
+    rule: |
+      graph = build_graph(nodes=Decisions, edges=overrides_relations)
+      assert is_acyclic(graph)
+    error_message: "检测到Decision循环依赖：{cycle_path}"
+
+  - id: function_traceability
+    description: "Function修改必须可回溯到Decision"
+    severity: warning
+    check_type: path_existence
+    rule: |
+      for each function in Functions:
+        commits = get_modifying_commits(function)
+        for each commit in commits:
+          assert exists decision where commit realizes decision
+    error_message: "Function {function_name} 包含孤立修改 (Commit {commit_id} 无Decision关联)"
+
+# ============================================
+# JSON-LD Context (用于跨工具互操作)
+# ============================================
+jsonld_context:
+  "@context":
+    dev: "https://schema.dimcause.dev/v1#"
+    prov: "http://www.w3.org/ns/prov#"
+    
+    Requirement: "dev:Requirement"
+    Decision: "dev:Decision"
+    Commit: "dev:Commit"
+    Function: "dev:Function"
+    Incident: "dev:Incident"
+    Experiment: "dev:Experiment"
+    CausalEngine: "dev:CausalEngine"
+    
+    implements:
+      "@id": "dev:implements"
+      "@type": "@id"
+    realizes:
+      "@id": "dev:realizes"
+      "@type": "@id"
+    modifies:
+      "@id": "dev:modifies"
+      "@type": "@id"
+    triggers:
+      "@id": "dev:triggers"
+      "@type": "@id"
+    validates:
+      "@id": "dev:validates"
+      "@type": "@id"
+    overrides:
+      "@id": "dev:overrides"
+      "@type": "@id"
+    fixes:
+      "@id": "dev:fixes"
+      "@type": "@id"
+
+
+    # 属性映射
+    summary: "dev:summary"
+    timestamp: "prov:generatedAtTime"
+    source: "dev:source"
+    content: "dev:content"
+    tags: "dev:tags"
+
+# ============================================
+# 元数据
+# ============================================
+metadata:
+  author: "AI Agent (Antigravity)"
+  license: "MIT"
+  changelog:
+    - version: "1.0.0"
+      date: "2026-02-10"
+      changes:
+        - "初始版本"
+        - "定义6个核心类"
+        - "定义7个关系"
+        - "定义3个公理"

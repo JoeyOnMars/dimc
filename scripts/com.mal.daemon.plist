@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Service Label (唯一标识) -->
+    <key>Label</key>
+    <string>com.mal.daemon</string>
+    
+    <!-- 程序路径 -->
+    <key>ProgramArguments</key>
+    <array>
+        <!-- Python解释器路径 (需要替换) -->
+        <string>/Users/YOUR_USERNAME/.pyenv/versions/3.13.7/bin/python</string>
+        <!-- MAL CLI路径 (需要替换) -->
+        <string>/Users/YOUR_USERNAME/projects/multi-agent-logger/.venv/bin/mal</string>
+        <string>daemon</string>
+        <string>start</string>
+    </array>
+    
+    <!-- 工作目录 -->
+    <key>WorkingDirectory</key>
+    <string>/Users/YOUR_USERNAME/projects/multi-agent-logger</string>
+    
+    <!-- 标准输出日志 -->
+    <key>StandardOutPath</key>
+    <string>/Users/YOUR_USERNAME/.mal/daemon.log</string>
+    
+    <!-- 错误输出日志 -->
+    <key>StandardErrorPath</key>
+    <string>/Users/YOUR_USERNAME/.mal/daemon.error.log</string>
+    
+    <!-- 自动启动 -->
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <!-- 崩溃后自动重启 -->
+    <key>KeepAlive</key>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+    </dict>
+    
+    <!-- 环境变量 -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <!-- 添加API Keys等环境变量 -->
+        <key>MAL_ENV</key>
+        <string>production</string>
+        <!-- 
+        <key>OPENAI_API_KEY</key>
+        <string>your_api_key_here</string>
+        -->
+    </dict>
+    
+    <!-- 资源限制 -->
+    <key>SoftResourceLimits</key>
+    <dict>
+        <key>NumberOfFiles</key>
+        <integer>1024</integer>
+    </dict>
+    
+    <!-- 进程优先级 (nice值: -20到20, 默认0) -->
+    <key>Nice</key>
+    <integer>-5</integer>
+    
+    <!-- 启用全磁盘访问权限提示 -->
+    <key>AbandonProcessGroup</key>
+    <true/>
+</dict>
+</plist>

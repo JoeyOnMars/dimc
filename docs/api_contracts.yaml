@@ -1,0 +1,211 @@
+# DIMCAUSE Function Contracts
+# 本文件是 DIMCAUSE 项目中“对外函数”的唯一契约真相源。
+# 代码实现、测试、CLI、文档都必须与这里描述的签名和返回结构保持一致。
+
+version: 2
+updated_by: "AI_Auditor"
+updated_at: "2026-01-21"
+
+functions:
+
+  # --- Security Module ---
+
+  sanitize:
+    module: "dimcause.utils.security"
+    signature: "sanitize(text: str) -> tuple[str, list[SensitiveFinding]]"
+    args:
+      - name: "text"
+        type: "str"
+        description: "待脱敏文本"
+    returns:
+      - name: "text"
+        type: "str"
+        description: "脱敏后的文本"
+      - name: "matches"
+        type: "list[SensitiveFinding]"
+        description: "敏感信息发现列表"
+    status: "stable"
+    notes: |
+      - 不得改变返回为单一 str。
+      - 测试应按 (text, matches) 形式解包。
+
+  sanitize_file:
+    module: "dimcause.utils.security"
+    signature: "sanitize_file(file_path: str, dry_run: bool = False) -> dict[str, any]"
+    args:
+      - name: "file_path"
+        type: "str"
+        description: "文件路径"
+      - name: "dry_run"
+        type: "bool"
+        default: false
+        description: "仅检测不写回文件"
+    returns:
+      - name: "file"
+        type: "str"
+        description: "文件路径（回显）"
+      - name: "matches"
+        type: "int"
+        description: "发现的敏感项数量"
+      - name: "details"
+        type: "list[dict]"
+        description: "敏感项详情列表"
+      - name: "content"
+        type: "str"
+        description: "脱敏后的文件内容"
+      - name: "sanitized"
+        type: "bool"
+        description: "是否已写回磁盘"
+    status: "stable"
+    notes: |
+      - 返回类型必须是 dict。
+
+  # --- Indexing & Search Core ---
+
+  index_file:
+    module: "dimcause.core.code_indexer"
+    class: "CodeIndexer"
+    signature: "index_file(file_path: str) -> bool"
+    args:
+      - name: "file_path"
+        type: "str"
+        description: "要索引的文件路径"
+    returns:
+      - type: "bool"
+        description: "索引是否成功"
+    status: "missing_implementation"  # From failing tests (test_trace_edge_cases.py)
+
+  find_symbol:
+    module: "dimcause.core.code_indexer"
+    class: "CodeIndexer"
+    signature: "find_symbol(query: str) -> List[Any]"
+    args:
+      - name: "query"
+        type: "str"
+    returns:
+      - type: "List[Any]"
+    status: "missing_implementation"  # From failing tests (test_trace_edge_cases.py)
+
+  trace_symbol:
+    module: "dimcause.core.code_indexer"
+    class: "CodeIndexer"
+    signature: "trace_symbol(query: str) -> Dict[str, List[Any]]"
+    args:
+      - name: "query"
+        type: "str"
+    returns:
+      - type: "Dict"
+        description: "{definitions: [], references: []}"
+    status: "stable"
+
+  search_vectors:
+    actual_name: "search"
+    module: "dimcause.storage.vector_store"
+    class: "VectorStore"
+    signature: "search(query: str, top_k: int = 10) -> List[Event]"
+    args:
+      - name: "query"
+        type: "str"
+      - name: "top_k"
+        type: "int"
+        default: 10
+    returns:
+      - type: "List[Event]"
+        description: "返回 Event 对象列表"
+    status: "broken_implementation"   # Audit: Returns empty list currently
+
+  search_engine_search:
+    actual_name: "search"
+    module: "dimcause.search.engine"
+    class: "SearchEngine"
+    signature: "search(query: str, mode: str = 'hybrid', top_k: int = 10, use_reranker: bool = True) -> List[Event]"
+    args:
+      - name: "query"
+        type: "str"
+      - name: "mode"
+        type: "str"
+        default: "hybrid"
+      - name: "top_k"
+        type: "int"
+        default: 10
+      - name: "use_reranker"
+        type: "bool"
+        default: true
+    returns:
+      - type: "List[Event]"
+    status: "stable"
+    notes: "CLI 'dimc search' 的主要入口"
+
+  # --- Causal Core & Storage (Added for Phase 6.0/Task 007) ---
+
+  add_structural_relation:
+    module: "dimcause.storage.graph_store"
+    class: "GraphStore"
+    signature: "add_structural_relation(self, source: str, target: str, relation: str, weight: float = 1.0, metadata: Optional[Dict] = None) -> None"
+    args:
+      - name: "source"
+        type: "str"
+      - name: "target"
+        type: "str"
+      - name: "relation"
+        type: "str"
+        description: "必须在白名单 STRUCTURAL_RELATIONS 中"
+      - name: "weight"
+        type: "float"
+        default: 1.0
+      - name: "metadata"
+        type: "Optional[Dict]"
+        default: null
+    returns:
+      - type: "None"
+    status: "stable"
+    notes: "GraphStore 对外唯一公开的关系写入接口，因果边写入必须走 CausalEngine"
+
+  _internal_add_relation:
+    module: "dimcause.storage.graph_store"
+    class: "GraphStore"
+    signature: "_internal_add_relation(self, source: str, target: str, relation: str, weight: float = 1.0, metadata: Optional[Dict] = None) -> None"
+    args:
+      - name: "source"
+        type: "str"
+      - name: "target"
+        type: "str"
+      - name: "relation"
+        type: "str"
+      - name: "weight"
+        type: "float"
+        default: 1.0
+      - name: "metadata"
+        type: "Optional[Dict]"
+        default: null
+    returns:
+      - type: "None"
+    status: "experimental"
+    notes: "由 CausalEngine 或 add_structural_relation 调用的隐式底座，含时间锁并发写入机制，不对外暴露"
+
+  link_causal:
+    module: "dimcause.reasoning.causal_engine"
+    class: "CausalEngine"
+    signature: "link_causal(self, source: Event, target: Event, relation: str, weight: float = 1.0, metadata: Optional[Dict] = None) -> dict"
+    args:
+      - name: "source"
+        type: "dimcause.core.models.Event"
+        description: "Event 实例"
+      - name: "target"
+        type: "dimcause.core.models.Event"
+        description: "Event 实例"
+      - name: "relation"
+        type: "str"
+      - name: "weight"
+        type: "float"
+        default: 1.0
+      - name: "metadata"
+        type: "Optional[Dict]"
+        default: null
+    returns:
+      - type: "dict"
+        description: "包含 source_id, target_id, relation 等结果摘要"
+    status: "stable"
+    notes: |
+      全库写入因果边的唯一合法入口。注意依赖 from dimcause.core.models import Event。
+      此方法受底层时空硬锁保护，如判定违规必定主动抛出 `CausalTimeReversedError`（时间倒流）或 `TopologicalIsolationError`（结构断链）等异常。调用方必须显式能够 catch 并进行降权降级处理（如转为 logger.warning 或丢弃），严禁静默忽视或制造死代码。
