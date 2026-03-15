@@ -1,0 +1,76 @@
+daily-start:
+	@./scripts/daily_prompt.sh start
+
+# 使用方式: make daily-end 或 make daily-end SESSION=2
+daily-end:
+ifdef SESSION
+	@./scripts/daily_prompt.sh end --session=$(SESSION)
+else
+	@./scripts/daily_prompt.sh end
+endif
+.PHONY: daily-start-copy daily-end-copy
+
+daily-start-copy:
+	@./scripts/daily_prompt.sh start --copy
+
+daily-end-copy:
+	@./scripts/daily_prompt.sh end --copy
+.PHONY: dsc dec
+
+dsc:
+	@./scripts/daily_prompt.sh start --copy
+
+dec:
+	@./scripts/daily_prompt.sh end --copy
+.PHONY: help sync-env-doc check-env-doc
+
+help:
+	@echo "Available targets:"
+	@echo "  sync-env-doc    Regenerate docs/ENVIRONMENT.md dependency section"
+	@echo "  check-env-doc   Verify dependency section is up to date"
+
+sync-env-doc:
+	python3 scripts/generate_env_doc.py --requirements backend/requirements.txt --doc docs/ENVIRONMENT.md
+
+check-env-doc:
+	python3 scripts/generate_env_doc.py --requirements backend/requirements.txt --doc docs/ENVIRONMENT.md --check
+
+# 日志维护
+.PHONY: log-rotate
+log-rotate:
+	python3 scripts/log_rotation.py
+
+.PHONY: log-check
+log-check:
+	python3 scripts/log_rotation.py --dry-run
+
+# Job (Sub-agent) 管理
+# 使用方式: make job-start JOB=1-i18n
+.PHONY: job-start
+job-start:
+ifndef JOB
+	@echo "错误：请指定任务名称，如 make job-start JOB=1-i18n"
+	@exit 1
+else
+	@./scripts/job_prompt.sh start --job=$(JOB)
+endif
+
+# 使用方式: make job-end 或 make job-end JOB=1-i18n
+.PHONY: job-end
+job-end:
+ifdef JOB
+	@./scripts/job_prompt.sh end --job=$(JOB)
+else
+	@./scripts/job_prompt.sh end
+endif
+
+# Daily Summary (Supervisor)
+# 扫描当日所有 job 并生成汇总
+# 使用方式: make daily-end-summary 或 make daily-end-summary FORCE=1
+.PHONY: daily-end-summary
+daily-end-summary:
+ifdef FORCE
+	@./scripts/daily_summary.sh --force
+else
+	@./scripts/daily_summary.sh
+endif

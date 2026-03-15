@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# DIMCAUSE Pre-commit Hook
+# 物理闸门：禁止在 main 上直接提交
+#
+# 安装方式:
+#   cp scripts/hooks/pre-commit .git/hooks/pre-commit
+#   chmod +x .git/hooks/pre-commit
+#
+# 或运行:
+#   bash scripts/hooks/install.sh
+
+set -euo pipefail
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# === 防线 1: 禁止在 main 上直接提交 ===
+if [ "$BRANCH" = "main" ]; then
+  echo ""
+  echo "╔═══════════════════════════════════════════════════╗"
+  echo "║  [DIMC] 禁止在 main 上直接提交！                 ║"
+  echo "║  请先切到功能分支:                                ║"
+  echo "║    git checkout -b feat/xxx                       ║"
+  echo "║    git checkout -b fix/xxx                        ║"
+  echo "╚═══════════════════════════════════════════════════╝"
+  echo ""
+  exit 1
+fi
+
+exit 0

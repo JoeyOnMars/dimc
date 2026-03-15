@@ -1,0 +1,92 @@
+╭────────────────────────────────────────╮
+│  Dimcause Audit Gate (Experience Mode) │
+╰────────────────────────────────────────╯
+
+ TYPE_CHECK: Mypy not installed (skipped)
+   pip install mypy
+ BANDIT: Bandit not installed (skipped)
+   pip install bandit
+ TIMELINE_INTEGRITY: 📅 Today's Activity: 0 events | 
+🏷️  Types: 
+ FORMAT: Files need formatting (run with --fix)
+   Would reformat: debug_menu.py
+   Would reformat: demo_code_index.py
+   Would reformat: scripts/apply_typer_fix.py
+   Would reformat: scripts/audit_phase3.py
+   Would reformat: scripts/benchmark_graph.py
+   Would reformat: scripts/context_loader.py
+   Would reformat: scripts/drill_v1_migration.py
+   Would reformat: scripts/find_unclosed_string.py
+   Would reformat: scripts/import_ag_export.py
+   Would reformat: scripts/log_indexer.py
+   ... and 178 more
+ LINT: Found 65 issues
+   I001 [*] Import block is un-sorted or un-formatted
+    --> demo_code_index.py:1:1
+     |
+   1 | / from dimcause.core.code_indexer import 
+trace_code
+   2 | | from rich.console import Console
+   3 | | from rich.panel import Panel
+     | |____________________________^
+   4 |
+   5 |   console = Console()
+     |
+   ... and 6220 more
+  DRY_VIOLATION: 发现 25 个 DRY 
+违规（同名函数多模块定义）
+   '_extract_date_from_path()' 在 2 个模块中重复定义:
+  - src/dimcause/core/indexer.py:209
+  - src/dimcause/core/stats.py:187
+   '_get_graph_store()' 在 2 个模块中重复定义:
+  - src/dimcause/protocols/mcp_server.py:112
+  - tmp/Perplexity/mcp_server.py:112
+   '_get_services()' 在 2 个模块中重复定义:
+  - src/dimcause/protocols/mcp_server.py:18
+  - tmp/Perplexity/mcp_server.py:18
+   'add_event()' 在 2 个模块中重复定义:
+  - src/dimcause/protocols/mcp_server.py:40
+  - tmp/Perplexity/mcp_server.py:40
+   'audit_check()' 在 2 个模块中重复定义:
+  - src/dimcause/protocols/mcp_server.py:150
+  - tmp/Perplexity/mcp_server.py:150
+   'create_graph_store()' 在 2 个模块中重复定义:
+  - src/dimcause/storage/graph_store.py:405
+  - tmp/Perplexity/graph_store.py:384
+   'extract_todos_from_file()' 在 2 个模块中重复定义:
+  - scripts/context_loader.py:103
+  - src/dimcause/core/context.py:140
+   'find_recent_end_files()' 在 2 个模块中重复定义:
+  - scripts/context_loader.py:134
+  - src/dimcause/core/context.py:172
+   'format_history_timeline()' 在 2 个模块中重复定义:
+  - src/dimcause/core/history.py:148
+  - src/dimcause/extractors/git_history.py:221
+   'get_causal_chain()' 在 2 个模块中重复定义:
+  - src/dimcause/protocols/mcp_server.py:119
+  - tmp/Perplexity/mcp_server.py:119
+   ... and 15 more
+  SENSITIVE_DATA: Scanned 156 files. Found 356 items.
+   [HIGH] .coverage: Found aws_secret_key (pos: 
+(16479, 16519))
+   [HIGH] .coverage: Found aws_secret_key (pos: 
+(16564, 16604))
+   [HIGH] .coverage: Found aws_secret_key (pos: 
+(16644, 16684))
+   [HIGH] .coverage: Found aws_secret_key (pos: 
+(16719, 16759))
+   [HIGH] .coverage: Found aws_secret_key (pos: 
+(16801, 16841))
+   [HIGH] .coverage: Found aws_secret_key (pos: 
+(16878, 16918))
+   [HIGH] .coverage: Found aws_secret_key (pos: 
+(16958, 16998))
+   [HIGH] .coverage: Found aws_secret_key (pos: 
+(17033, 17073))
+   [HIGH] .coverage: Found aws_secret_key (pos: 
+(17111, 17151))
+   [HIGH] .coverage: Found aws_secret_key (pos: 
+(17188, 17228))
+   ... and 346 more
+
+ Audit Failed (Exit Code: 1)
