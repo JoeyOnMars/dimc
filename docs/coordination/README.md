@@ -19,3 +19,4 @@
 2. `integration_log.template.md`
 3. `agent_context_transfer_template.md`
 4. Task Packet 模板位于 `docs/PROPOSALS/TASK_PACKET_TEMPLATE.md`
+5. `codex_cli_multi_agent_playbook.md`：当前仓库的 `Codex CLI + worktree + Task Packet` 最小作战手册
