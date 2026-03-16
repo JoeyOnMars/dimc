@@ -33,10 +33,10 @@ htmlcov/
 .index.db
 conversation/
 coverage.xml
+docs/logs/
+.claude/
 
 # 内部文档与 AI 协作（不开源）
-
-.agent/*
-!.agent/workflows/
-!.agent/rules/
+.agent/
+tasks/
 tmp/
