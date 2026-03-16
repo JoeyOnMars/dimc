@@ -8,6 +8,14 @@ HF_HUB_OFFLINE=1 可完全阻断该行为。
 """
 
 import os
+import sys
+from pathlib import Path
+
+# 公开导出仓库默认不依赖 editable install，这里显式注入 src 布局路径。
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
 # 必须在 transformers 等库导入前设置，确保所有测试进程都不联网访问 HF Hub
 os.environ.setdefault("HF_HUB_OFFLINE", "1")

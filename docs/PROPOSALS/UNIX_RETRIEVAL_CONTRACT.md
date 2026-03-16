@@ -94,7 +94,7 @@ UNIX 通道不能只绑定事件库 Markdown。
 1. `events`
    - DIMCAUSE 事件 Markdown / 原始事件文件
 2. `docs`
-   - `docs/`, `tmp/discussion/`, 以及其他被明确纳入知识面的文档
+   - `docs/`，以及其他被当前 workspace/profile 显式纳入的正式文档目录
 3. `code`
    - `src/`, `tests/`, `scripts/`, 必要时含 `.agent/`
 
@@ -233,12 +233,12 @@ SearchResult / Event projection / upper-layer reasoning
 候选根：
 
 1. `docs/`
-2. `tmp/discussion/`
+2. 其他通过 source config 显式声明的共享文档目录
 
 说明：
 
-1. `tmp/` 不是正式知识面，但 `tmp/discussion/` 已经实际承担设计讨论面
-2. 第一阶段只纳入 `tmp/discussion/`，不扩大到整个 `tmp/`
+1. `tmp/` 默认不属于正式知识面
+2. 第一阶段不把本地讨论目录或临时协调目录写入默认 `docs` roots
 
 #### `code`
 

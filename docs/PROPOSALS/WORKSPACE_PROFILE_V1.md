@@ -23,7 +23,7 @@
    - `src/dimcause/` 及其子模块，承载产品内核实现的主要代码表面
    - `docs/logs/` 与 `docs/logs/raw/` 这类本地材料与证据承载面
    - `docs/audit/`、`docs/audit_reports/`、`docs/reports/` 这类生成型报告与审计工件承载面
-   - `.agent/rules/`、`docs/coordination/`、`tmp/coordination/`、`tmp/discussion/`、`scripts/check.zsh`、`scripts/preflight_guard.py` 这类仓库治理与协作表面
+   - `.agent/rules/`、`docs/coordination/`、本地开发控制层中的临时协作目录、`scripts/check.zsh`、`scripts/preflight_guard.py` 这类仓库治理与协作表面
 8. 当前仓库中的 `docs/` 并不是单一职责目录。它同时包含产品正式设计文档、proposal、研究材料、日志材料、报告工件和协作模板，因此 `docs/` 本身不能直接等同于某一产品层。
 9. 当前仓库中的 `tmp/` 也不是产品层专属目录。它同时包含讨论、协调、救援、测试沙箱等临时表面，因此 `tmp/` 本身不能被写成产品架构或 workspace profile 的稳定语义。
 
@@ -82,7 +82,7 @@
    - 当前仓库里一部分生成型证据工件和报告工件也会出现在 `docs/audit/`、`docs/audit_reports/`、`docs/reports/` 这类目录中。
    - 当前仓库中的本地索引、知识建模与检索能力则主要通过 `src/dimcause/core/`、`src/dimcause/storage/`、`src/dimcause/reasoning/`、`src/dimcause/search/` 这些代码表面来实现。
 3. **当前 repo 内部治理**
-   - 主要承载面包括 `.agent/rules/`、`docs/coordination/`、`tmp/coordination/`、`tmp/discussion/`、`scripts/check.zsh`、`scripts/preflight_guard.py` 等。
+   - 主要承载面包括 `.agent/rules/`、`docs/coordination/`、本地开发控制层中的临时协作目录、`scripts/check.zsh`、`scripts/preflight_guard.py` 等。
    - 它们属于当前仓库的协作与门禁现实，不属于 workspace profile 本体。
 
 ### 4. 当前 Default Workspace Profile 回答的核心问题
@@ -201,7 +201,7 @@
 1. `.agent/rules/`
 2. `docs/coordination/`
 3. `tmp/coordination/`
-4. `tmp/discussion/`
+4. 本地开发控制层中的临时讨论与协调目录
 5. `scripts/check.zsh`
 6. `scripts/preflight_guard.py`
 7. 其他用于当前仓库门禁、审查、流程治理和临时协作的脚本与目录
@@ -243,11 +243,11 @@
    - `docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md`
    - `docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md`
    - `docs/PROPOSALS/EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md`
-   - `tmp/discussion/THREAD_HANDOFF_2026-03-12.md`
-   - `tmp/discussion/WORKSPACE_PROFILE_THREAD_PROMPT_2026-03-12.md`
+   - `docs/ARCHITECTURE_INDEX.md`
+   - `docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md`
 3. 本文对当前仓库现实的映射，额外基于以下已核对事实：
    - 当前仓库现实已核对
-   - 当前仓库中确实存在 `src/dimcause/`、`docs/logs/`、`docs/logs/raw/`、`docs/audit/`、`docs/audit_reports/`、`docs/reports/`、`.agent/rules/`、`docs/coordination/`、`tmp/coordination/`、`tmp/discussion/`、`scripts/check.zsh`、`scripts/preflight_guard.py` 等相关表面
+   - 当前仓库中确实存在 `src/dimcause/`、`docs/logs/`、`docs/logs/raw/`、`docs/audit/`、`docs/audit_reports/`、`docs/reports/`、`.agent/rules/`、`docs/coordination/`、本地开发控制层中的临时协作目录、`scripts/check.zsh`、`scripts/preflight_guard.py` 等相关表面
 4. 本文没有修改受保护设计文档：
    - `docs/PROJECT_ARCHITECTURE.md`
    - `docs/STORAGE_ARCHITECTURE.md`
