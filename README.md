@@ -5,8 +5,7 @@
 > An evidence-backed causal investigation system for local heterogeneous materials.
 > Engineering materials are the current strongest profile, not the only possible domain.
 
-[![PyPI](https://img.shields.io/pypi/v/dimcause)](https://pypi.org/project/dimcause/)
-[![CLI](https://img.shields.io/badge/CLI-dimc-blue.svg)](https://pypi.org/project/dimcause/)
+[![CLI](https://img.shields.io/badge/CLI-dimc-blue.svg)](docs/USER_GUIDE.md)
 [English](README.md) | [中文](README_zh-CN.md)
 
 ## 📦 What is Dimcause?
@@ -40,8 +39,12 @@ Start here if you want the current architecture rather than historical taglines:
 
 ## 🚀 Installation
 
+PyPI release is not available yet. Install from source:
+
 ```bash
-pip install dimcause
+git clone https://github.com/JoeyOnMars/dimc.git
+cd dimc
+pip install -e .
 ```
 
 ## 🛠️ Usage

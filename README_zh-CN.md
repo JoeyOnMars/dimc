@@ -5,8 +5,7 @@
 > 一套面向本地异构材料的证据驱动因果调查系统。
 > 当前最强的 profile 是工程材料，而不是唯一领域。
 
-[![PyPI](https://img.shields.io/pypi/v/dimcause)](https://pypi.org/project/dimcause/)
-[![CLI](https://img.shields.io/badge/CLI-dimc-blue.svg)](https://pypi.org/project/dimcause/)
+[![CLI](https://img.shields.io/badge/CLI-dimc-blue.svg)](docs/USER_GUIDE.md)
 [English](README.md) | [中文](README_zh-CN.md)
 
 ## 📦 什么是 Dimcause?
@@ -40,8 +39,12 @@
 
 ## 🚀 安装
 
+当前尚未发布 PyPI 包，请先按源码方式安装：
+
 ```bash
-pip install dimcause
+git clone https://github.com/JoeyOnMars/dimc.git
+cd dimc
+pip install -e .
 ```
 
 ## 🛠️ 使用方法

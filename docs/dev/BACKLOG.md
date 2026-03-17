@@ -151,8 +151,11 @@
 - **后续说明**: 后续若继续扩展，只剩特定外部客户端接入验证；这不再属于“配置修复未完成”。
 
 ### P2-5: README 和发布文档对齐（任务 1.9）
-- `README.md` / `README_zh-CN.md` 已同步当前架构入口与仓库角色。
-- 剩余工作是发布清单核销：PyPI 发布说明、roadmap/release 勾选状态与最终对外发布面一致性。
+- **修复事实**:
+  - `README.md` / `README_zh-CN.md` 已同步当前架构入口与仓库角色。
+  - README 安装说明已按 live 发布事实改为源码安装，不再提前宣称 `pip install dimcause` 可用。
+  - `docs/dev/V6.0_ROADMAP.md` 与 `docs/STATUS.md` 已拆开“文档对齐完成”和“PyPI 尚未发布”两个状态。
+- **后续说明**: 剩余未完成项只属于 `Release 准备`，不再属于“任务 1.9 文档对齐”。
 
 ---
 
