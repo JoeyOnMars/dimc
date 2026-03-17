@@ -5,7 +5,7 @@
 > **提交**: `f795106`  
 > **执行环境**: macOS, Python 3.13.7, pytest 9.0.2, pluggy 1.6.0  
 > **虚拟环境**: `/Users/mini/projects/GithubRepos/dimc/.venv`  
-> **pytest 原始输出**: [test_output_2026-02-19.txt](test_output_2026-02-19.txt)
+> **说明**: 原始 `pytest` 输出文本已从共享文档面移除；本文仅保留报告摘要。
 
 ---
 
