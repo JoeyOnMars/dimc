@@ -2,7 +2,7 @@
 
 > 依据 `fix-all-bugs.md` 规则 3 创建。  
 > 统一登记所有超出当前分支 Scope 的全局 Bug、历史技术债、以及因"妥协"而遗留的未实现设计。  
-> **最后更新**: 2026-03-17（Why 对象证据显示 / 解释层接线对齐）
+> **最后更新**: 2026-03-18（risk_level 落地 / MCP 配置状态纠偏）
 
 ---
 
@@ -67,8 +67,22 @@
 - **处理顺序**:
   1. 先清零过时测试
   2. 再把受保护测试迁出默认套件
-  3. 明确依赖门槛
-  4. 最后按产品路线补齐未实现测试
+ 3. 明确依赖门槛
+ 4. 最后按产品路线补齐未实现测试
+
+### ~~P1-10: 信任梯度 risk_level 未落地~~ (FIXED)
+- **修复事实**:
+  - `docs/coordination/task_packet.template.md` 已将 `risk_level: low | medium | high` 收为正式字段
+  - `scheduler intake` / `kickoff` 生成的任务卡 frontmatter 已默认写入 `risk_level`
+  - `load_task_card()`、`session bundle` 与 `scheduler summary/closeout` 已统一读取并使用 `risk_level`
+  - 自动收口现在以 `risk_level` 为准：`low` 默认自动候选，`medium` 进入人工 review，`high` 进入人工 approval
+- **回归测试**:
+  - `tests/scheduler/test_cli_scheduler.py`
+  - `tests/scheduler/test_orchestrator_closeout.py`
+  - `tests/scheduler/test_runner.py`
+  - `tests/test_pr_ready.py`
+  - `tests/test_preflight_guard.py`
+- **后续说明**: 当前已形成个人本地半自动的风险分级底座；更细的团队审批流属于后续 P3/P4 档位扩展，不再属于“未落地”。
 
 ### ~~P1-4: LLMLinker 模型名硬编码（`deepseek-chat`）~~ (FIXED)
 - **修复事实**:
@@ -121,8 +135,12 @@
 - **修复事实**: `dimc timeline` 现已具备 `session_id/job_id` 边界追踪与展示，不再只是裸时间排序。
 - **剩余缺口**: Session 级衰减、跨 session 聚合压缩等更高阶时间线分析仍未实现。
 
-### P2-4: MCP Server 配置修复（任务 1.7）
-- 外部 AI 链路（MCP 客户端兼容性）待修复。
+### ~~P2-4: MCP Server 配置修复（任务 1.7）~~ (FIXED)
+- **修复事实**:
+  - `dimc mcp serve` 已支持 `stdio` / `http` 两种传输模式
+  - `docs/guides/MCP_SETUP.md`、`docs/USER_GUIDE.md` 与 `docs/IDE_INTEGRATION.md` 已按 live 代码口径纠偏
+  - `tests/test_mcp.py` 与 `tests/test_mcp_server.py` 当前为 `12/12` 通过
+- **后续说明**: 后续若继续扩展，只剩特定外部客户端接入验证；这不再属于“配置修复未完成”。
 
 ### P2-5: README 和发布文档对齐（任务 1.9）
 - `README.md` / `README_zh-CN.md` 已同步当前架构入口与仓库角色。

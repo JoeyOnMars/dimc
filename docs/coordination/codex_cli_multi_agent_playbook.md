@@ -38,6 +38,7 @@
 3. 一个分支对应一个 worktree。
 4. 一个 worktree 对应一个 CLI 会话。
 5. 不在共享工作区里并行跑多个实现任务。
+6. Task Packet 必须显式写 `risk_level`；只有 `low` 风险任务才能进入自动收口候选。
 
 ## 5. 模式
 

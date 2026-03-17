@@ -11,6 +11,7 @@
 - `owner`:
 - `priority`:
 - `status`:
+- `risk_level`: low | medium | high
 - `protected_doc_override`: false
 - `user_approval_note`:
 - `design_change_reason`:
@@ -52,8 +53,15 @@
 默认必须保持：
 
 ```text
+- `risk_level`: low | medium | high
 - `protected_doc_override`: false
 ```
+
+推荐约定：
+
+- `low`：文档、治理、测试等低风险收口任务，可进入自动收口候选。
+- `medium`：默认实现任务等级；允许自动检查，但默认不自动收口。
+- `high`：高破坏性或高不确定性任务；必须人工把关，不能自动收口。
 
 只有在 **User 当前回合明确批准** 的 RFC / 设计变更任务中，才允许改为 `true`，并同时补齐：
 

@@ -2,7 +2,6 @@ import importlib.util
 import sys
 from pathlib import Path
 
-
 SCRIPT_PATH = Path(__file__).resolve().parents[1] / "scripts" / "pr_ready.py"
 SPEC = importlib.util.spec_from_file_location("pr_ready_script", SCRIPT_PATH)
 MODULE = importlib.util.module_from_spec(SPEC)
@@ -18,6 +17,7 @@ def test_parse_task_packet_extracts_task_id_and_allowed_files(tmp_path):
             [
                 "# Task Packet",
                 "- `task_id`: task-031",
+                "- `risk_level`: low",
                 "- `protected_doc_override`: false",
                 "",
                 "## 4. Allowed Files",
@@ -34,6 +34,7 @@ def test_parse_task_packet_extracts_task_id_and_allowed_files(tmp_path):
 
     assert parsed.task_id == "task-031"
     assert parsed.allowed_files == ["src/dimcause/search/", "tests/test_pr_ready.py"]
+    assert parsed.risk_level == "low"
     assert parsed.protected_doc_override is False
     assert parsed.user_approval_note is None
     assert parsed.design_change_reason is None
@@ -46,6 +47,7 @@ def test_parse_task_packet_extracts_protected_doc_metadata(tmp_path):
             [
                 "# Task Packet",
                 "- `task_id`: task-rfc-001",
+                "- `risk_level`: high",
                 "- `protected_doc_override`: true",
                 "- `user_approval_note`: User approved this RFC in the current turn.",
                 "- `design_change_reason`: Need to update the target architecture contract.",
@@ -61,6 +63,7 @@ def test_parse_task_packet_extracts_protected_doc_metadata(tmp_path):
 
     parsed = MODULE.parse_task_packet(packet)
 
+    assert parsed.risk_level == "high"
     assert parsed.protected_doc_override is True
     assert parsed.user_approval_note == "User approved this RFC in the current turn."
     assert parsed.design_change_reason == "Need to update the target architecture contract."

@@ -14,7 +14,6 @@ from typing import Iterable
 
 import yaml
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_REPORT_PATH = REPO_ROOT / "tmp" / "check-report.json"
 DEFAULT_PROTECTED_DOC_FILES = [
@@ -33,6 +32,7 @@ DEFAULT_PROTECTED_DOC_BRANCH_PREFIXES = [
 class TaskPacket:
     task_id: str | None
     allowed_files: list[str]
+    risk_level: str | None
     protected_doc_override: bool
     user_approval_note: str | None
     design_change_reason: str | None
@@ -46,6 +46,9 @@ class ProtectedDocPolicy:
     default_override: bool
     approval_note_field: str
     design_change_reason_field: str
+
+
+VALID_RISK_LEVELS = {"low", "medium", "high"}
 
 
 def _normalize_path(value: str) -> str:
@@ -68,11 +71,17 @@ def parse_task_packet(path: Path) -> TaskPacket:
     text = path.read_text(encoding="utf-8")
     task_id: str | None = None
     allowed_files: list[str] = []
+    risk_level: str | None = None
     protected_doc_override = False
     user_approval_note: str | None = None
     design_change_reason: str | None = None
 
     task_id = _extract_markdown_field(text, "task_id")
+    risk_candidate = _extract_markdown_field(text, "risk_level")
+    if risk_candidate is not None:
+        normalized_risk = risk_candidate.lower()
+        if normalized_risk in VALID_RISK_LEVELS:
+            risk_level = normalized_risk
 
     protected_candidate = _extract_markdown_field(text, "protected_doc_override")
     if protected_candidate is not None:
@@ -105,6 +114,7 @@ def parse_task_packet(path: Path) -> TaskPacket:
     return TaskPacket(
         task_id=task_id,
         allowed_files=allowed_files,
+        risk_level=risk_level,
         protected_doc_override=protected_doc_override,
         user_approval_note=user_approval_note,
         design_change_reason=design_change_reason,
@@ -190,16 +200,16 @@ def file_is_allowed(changed_file: str, allowed_entries: Iterable[str]) -> bool:
     return False
 
 
-def evaluate_whitelist(changed_files: Iterable[str], allowed_entries: Iterable[str]) -> tuple[str, list[str]]:
+def evaluate_whitelist(
+    changed_files: Iterable[str], allowed_entries: Iterable[str]
+) -> tuple[str, list[str]]:
     allowed_list = [entry for entry in allowed_entries if _normalize_path(entry)]
     violations = [path for path in changed_files if not file_is_allowed(path, allowed_list)]
     status = "pass" if not violations else "fail"
     return status, violations
 
 
-def branch_is_allowed_for_protected_docs(
-    branch: str, allowed_prefixes: Iterable[str]
-) -> bool:
+def branch_is_allowed_for_protected_docs(branch: str, allowed_prefixes: Iterable[str]) -> bool:
     return any(branch.startswith(prefix) for prefix in allowed_prefixes if prefix)
 
 
@@ -222,7 +232,10 @@ def validate_protected_doc_override_context(
         return "fail", f"protected design docs require a non-empty {policy.approval_note_field}"
 
     if not _has_meaningful_text(design_change_reason):
-        return "fail", f"protected design docs require a non-empty {policy.design_change_reason_field}"
+        return (
+            "fail",
+            f"protected design docs require a non-empty {policy.design_change_reason_field}",
+        )
 
     return "pass", None
 
@@ -359,7 +372,9 @@ def build_parser() -> argparse.ArgumentParser:
         help="Allowed file or directory prefix; repeat for multiple entries.",
     )
     parser.add_argument("--risk", action="append", default=[], help="Residual risk to include.")
-    parser.add_argument("--base-ref", default="main", help="Base ref used to compute changed files.")
+    parser.add_argument(
+        "--base-ref", default="main", help="Base ref used to compute changed files."
+    )
     parser.add_argument(
         "--report-file",
         type=Path,
@@ -386,6 +401,7 @@ def main() -> int:
     packet = TaskPacket(
         task_id=None,
         allowed_files=[],
+        risk_level=None,
         protected_doc_override=False,
         user_approval_note=None,
         design_change_reason=None,
@@ -405,7 +421,9 @@ def main() -> int:
         branch = get_current_branch()
         if not args.allow_dirty:
             ensure_clean_worktree()
-        report = load_check_report(args.report_file) if args.skip_check else run_check(args.report_file)
+        report = (
+            load_check_report(args.report_file) if args.skip_check else run_check(args.report_file)
+        )
         if report.get("status") != "pass":
             raise RuntimeError("check report status is not pass")
         changed_files = get_changed_files(args.base_ref)

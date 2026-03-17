@@ -54,6 +54,9 @@ class TaskPriority(Enum):
     P3 = 3  # 低优先级
 
 
+VALID_TASK_RISK_LEVELS = {"low", "medium", "high"}
+
+
 @dataclass
 class TaskInfo:
     """任务信息"""
@@ -127,6 +130,22 @@ class Orchestrator:
             "src/dimcause/cli.py",
         ],
     }
+
+    @staticmethod
+    def _default_risk_level_for_task_class(task_class: str) -> str:
+        normalized = task_class.strip().lower()
+        if normalized in {"docs", "governance", "test"}:
+            return "low"
+        if normalized == "implementation":
+            return "medium"
+        return "medium"
+
+    def _normalize_task_risk_level(self, value: object, *, task_class: str) -> str:
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in VALID_TASK_RISK_LEVELS:
+                return normalized
+        return self._default_risk_level_for_task_class(task_class)
 
     def __init__(self, project_root: Path = None):
         self.root = project_root or Path.cwd()
@@ -419,15 +438,24 @@ class Orchestrator:
                 artifacts = [artifact for artifact in raw_artifacts if isinstance(artifact, dict)]
 
         task_class = str(task_card.get("task_class") or "").strip().lower() or "implementation"
+        risk_level = self._normalize_task_risk_level(
+            task_card.get("risk_level"),
+            task_class=task_class,
+        )
         cli_hint = str(task_card.get("cli_hint") or "-").strip() or "-"
         branch = str(runtime.get("branch") or "").strip()
         report_path = Path(str(runtime["report_path"])) if runtime.get("report_path") else None
         report_exists = bool(report_path and report_path.exists())
         pr_ready_report = str(runtime.get("pr_ready_report") or "").strip()
         pr_ready_present = bool(pr_ready_report)
-        low_risk_by_class = task_class in {"docs", "governance", "test"}
+        low_risk = risk_level == "low"
         explicit_auto_closeout = self._frontmatter_bool(task_card.get("auto_closeout"))
-        closeout_policy = "auto" if (low_risk_by_class or explicit_auto_closeout) else "manual"
+        if risk_level == "high":
+            closeout_policy = "manual_approval"
+        elif low_risk:
+            closeout_policy = "auto"
+        else:
+            closeout_policy = "manual_review"
         ahead_behind = self._ahead_behind_counts(base_ref, branch) if branch else None
         changed_files = self._changed_files_between_refs(base_ref, branch) if branch else []
         progress_docs_touched = [
@@ -464,13 +492,18 @@ class Orchestrator:
                 blocking_reasons.append("task_branch_has_no_new_commits")
         if progress_doc_sync_required and not progress_doc_sync_ok:
             blocking_reasons.append("missing_progress_doc_sync")
-        if closeout_policy != "auto" and not allow_implementation:
-            blocking_reasons.append("task_class_not_low_risk")
+        if explicit_auto_closeout and risk_level != "low":
+            blocking_reasons.append("auto_closeout_requires_low_risk_level")
+        if closeout_policy == "manual_approval":
+            blocking_reasons.append("task_risk_requires_approval")
+        elif closeout_policy == "manual_review" and not allow_implementation:
+            blocking_reasons.append("task_risk_requires_review")
 
         return {
             "task_id": task_id,
             "title": str(task_card.get("name") or task_id),
             "task_class": task_class,
+            "risk_level": risk_level,
             "cli_hint": cli_hint,
             "base_ref": base_ref,
             "current_branch": self._current_branch(),
@@ -485,6 +518,7 @@ class Orchestrator:
             "launch_running": launch_running,
             "closeout_policy": closeout_policy,
             "allow_implementation": allow_implementation,
+            "explicit_auto_closeout": explicit_auto_closeout,
             "ahead_behind": ahead_behind,
             "changed_files": changed_files,
             "progress_doc_sync_required": progress_doc_sync_required,
@@ -2691,6 +2725,7 @@ class Orchestrator:
             f"- `owner`: {job_id}",
             f"- `priority`: {task_card.get('priority', 'P2')}",
             "- `status`: running",
+            f"- `risk_level`: {self._normalize_task_risk_level(task_card.get('risk_level'), task_class=str(task_card.get('task_class') or 'implementation'))}",
             "- `protected_doc_override`: false",
             "- `user_approval_note`: ",
             "- `design_change_reason`: ",
@@ -3157,6 +3192,7 @@ class Orchestrator:
             f"priority: {normalized_priority}",
             "status: Open",
             f"task_class: {task_class}",
+            f"risk_level: {self._default_risk_level_for_task_class(task_class)}",
         ]
         if cli_hint != "-":
             frontmatter_lines.append(f"cli_hint: {cli_hint}")
@@ -3285,6 +3321,10 @@ class Orchestrator:
             "title": resolved_title,
             "card_path": str(card_path),
             "task_class": str(task_card.get("task_class") or inferred_class),
+            "risk_level": str(
+                task_card.get("risk_level")
+                or self._default_risk_level_for_task_class(inferred_class)
+            ),
             "cli_hint": str(task_card.get("cli_hint") or "-"),
         }
 
@@ -3351,6 +3391,11 @@ class Orchestrator:
             "path": str(task_card_path.relative_to(self.root)),
         }
 
+        result["risk_level"] = self._normalize_task_risk_level(
+            frontmatter.get("risk_level"),
+            task_class=str(result["task_class"]),
+        )
+
         return result
 
     def infer_work_class_for_task(self, task_id: str) -> str:
@@ -3406,6 +3451,7 @@ class Orchestrator:
             "name": task.name,
             "priority": task.priority.name,
             "status": task.status.value,
+            "risk_level": self._default_risk_level_for_task_class("implementation"),
             "description": description,
             "deliverables": deliverables,
             "acceptance_criteria": acceptance_criteria,

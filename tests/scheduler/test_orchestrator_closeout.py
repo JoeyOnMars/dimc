@@ -59,6 +59,7 @@ def _write_runtime_and_task_card(
     task_id: str,
     branch: str,
     task_class: str,
+    risk_level: str = "medium",
 ) -> None:
     report_path = repo / "tmp" / "reports" / f"{task_id}.json"
     job_dir = repo / "docs" / "logs" / "2026" / "03-17" / "jobs" / f"{task_id}-auto"
@@ -73,6 +74,7 @@ def _write_runtime_and_task_card(
                 "priority: P1",
                 "status: Open",
                 f"task_class: {task_class}",
+                f"risk_level: {risk_level}",
                 "cli_hint: dimc scheduler",
                 "---",
                 "",
@@ -127,13 +129,20 @@ def _commit_branch_change(repo: Path, branch: str, relpath: str, content: str) -
 def test_summarize_task_closeout_marks_governance_task_eligible(tmp_path: Path) -> None:
     branch = "codex/ops-gov-closeout"
     repo = _init_repo_with_feature_branch(tmp_path, branch=branch)
-    _write_runtime_and_task_card(repo, task_id="GOV-1", branch=branch, task_class="governance")
+    _write_runtime_and_task_card(
+        repo,
+        task_id="GOV-1",
+        branch=branch,
+        task_class="governance",
+        risk_level="low",
+    )
 
     orchestrator = Orchestrator(project_root=repo)
     summary = orchestrator.summarize_task_closeout("GOV-1")
 
     assert summary["eligible"] is True
     assert summary["task_class"] == "governance"
+    assert summary["risk_level"] == "low"
     assert summary["closeout_policy"] == "auto"
     assert summary["ahead_behind"] == {"base_only": 0, "branch_only": 1}
 
@@ -141,7 +150,13 @@ def test_summarize_task_closeout_marks_governance_task_eligible(tmp_path: Path) 
 def test_auto_closeout_task_merges_branch_and_updates_runtime(tmp_path: Path) -> None:
     branch = "codex/ops-gov-closeout"
     repo = _init_repo_with_feature_branch(tmp_path, branch=branch)
-    _write_runtime_and_task_card(repo, task_id="GOV-1", branch=branch, task_class="governance")
+    _write_runtime_and_task_card(
+        repo,
+        task_id="GOV-1",
+        branch=branch,
+        task_class="governance",
+        risk_level="low",
+    )
 
     orchestrator = Orchestrator(project_root=repo)
     result = orchestrator.auto_closeout_task("GOV-1")
@@ -162,13 +177,21 @@ def test_summarize_task_closeout_blocks_implementation_task_by_default(tmp_path:
     branch = "codex/task-impl-closeout"
     repo = _init_repo_with_feature_branch(tmp_path, branch=branch)
     _commit_branch_change(repo, branch, "src/app.py", "print('impl')\n")
-    _write_runtime_and_task_card(repo, task_id="IMPL-1", branch=branch, task_class="implementation")
+    _write_runtime_and_task_card(
+        repo,
+        task_id="IMPL-1",
+        branch=branch,
+        task_class="implementation",
+        risk_level="medium",
+    )
 
     orchestrator = Orchestrator(project_root=repo)
     summary = orchestrator.summarize_task_closeout("IMPL-1")
 
     assert summary["eligible"] is False
-    assert "task_class_not_low_risk" in summary["blocking_reasons"]
+    assert summary["risk_level"] == "medium"
+    assert summary["closeout_policy"] == "manual_review"
+    assert "task_risk_requires_review" in summary["blocking_reasons"]
     assert "missing_progress_doc_sync" in summary["blocking_reasons"]
     assert summary["progress_doc_sync_required"] is True
     assert summary["progress_doc_sync_ok"] is False
@@ -180,7 +203,13 @@ def test_summarize_task_closeout_blocks_implementation_without_progress_docs(
     branch = "codex/task-impl-closeout"
     repo = _init_repo_with_feature_branch(tmp_path, branch=branch)
     _commit_branch_change(repo, branch, "src/app.py", "print('impl')\n")
-    _write_runtime_and_task_card(repo, task_id="IMPL-1", branch=branch, task_class="implementation")
+    _write_runtime_and_task_card(
+        repo,
+        task_id="IMPL-1",
+        branch=branch,
+        task_class="implementation",
+        risk_level="medium",
+    )
 
     orchestrator = Orchestrator(project_root=repo)
     summary = orchestrator.summarize_task_closeout("IMPL-1", allow_implementation=True)
@@ -216,7 +245,13 @@ def test_summarize_task_closeout_allows_implementation_with_progress_docs(
         )
         + "\n",
     )
-    _write_runtime_and_task_card(repo, task_id="IMPL-1", branch=branch, task_class="implementation")
+    _write_runtime_and_task_card(
+        repo,
+        task_id="IMPL-1",
+        branch=branch,
+        task_class="implementation",
+        risk_level="medium",
+    )
 
     orchestrator = Orchestrator(project_root=repo)
     summary = orchestrator.summarize_task_closeout("IMPL-1", allow_implementation=True)
@@ -225,3 +260,53 @@ def test_summarize_task_closeout_allows_implementation_with_progress_docs(
     assert summary["progress_doc_sync_required"] is True
     assert summary["progress_doc_sync_ok"] is True
     assert "docs/STATUS.md" in summary["progress_docs_touched"]
+
+
+def test_summarize_task_closeout_blocks_high_risk_governance_task(tmp_path: Path) -> None:
+    branch = "codex/ops-gov-closeout"
+    repo = _init_repo_with_feature_branch(tmp_path, branch=branch)
+    _write_runtime_and_task_card(
+        repo,
+        task_id="GOV-2",
+        branch=branch,
+        task_class="governance",
+        risk_level="high",
+    )
+
+    orchestrator = Orchestrator(project_root=repo)
+    summary = orchestrator.summarize_task_closeout("GOV-2")
+
+    assert summary["eligible"] is False
+    assert summary["risk_level"] == "high"
+    assert summary["closeout_policy"] == "manual_approval"
+    assert "task_risk_requires_approval" in summary["blocking_reasons"]
+
+
+def test_summarize_task_closeout_blocks_explicit_auto_closeout_without_low_risk(
+    tmp_path: Path,
+) -> None:
+    branch = "codex/ops-gov-closeout"
+    repo = _init_repo_with_feature_branch(tmp_path, branch=branch)
+    _write_runtime_and_task_card(
+        repo,
+        task_id="GOV-3",
+        branch=branch,
+        task_class="governance",
+        risk_level="medium",
+    )
+    task_card = repo / ".agent" / "agent-tasks" / "agent_gov-3_demo.md"
+    task_card.write_text(
+        task_card.read_text(encoding="utf-8").replace(
+            "cli_hint: dimc scheduler",
+            "auto_closeout: true\ncli_hint: dimc scheduler",
+        ),
+        encoding="utf-8",
+    )
+
+    orchestrator = Orchestrator(project_root=repo)
+    summary = orchestrator.summarize_task_closeout("GOV-3")
+
+    assert summary["eligible"] is False
+    assert summary["closeout_policy"] == "manual_review"
+    assert summary["explicit_auto_closeout"] is True
+    assert "auto_closeout_requires_low_risk_level" in summary["blocking_reasons"]

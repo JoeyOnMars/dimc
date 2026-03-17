@@ -20,6 +20,7 @@
 3. `agent_context_transfer_template.md`
 4. Task Packet 模板位于 `docs/coordination/task_packet.template.md`
 5. `codex_cli_multi_agent_playbook.md`：当前仓库的 `Codex CLI + worktree + Task Packet` 最小作战手册
+6. Task Packet 现在包含 `risk_level`，用于区分低风险自动收口候选与必须人工把关的任务。
 
 最小可执行入口：
 

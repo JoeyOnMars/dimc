@@ -4690,6 +4690,7 @@ def _render_scheduler_closeout_summary(summary: dict) -> None:
     console.print(f"  task: {summary.get('task_id')}")
     console.print(f"  title: {summary.get('title')}")
     console.print(f"  task_class: {summary.get('task_class')}")
+    console.print(f"  risk_level: {summary.get('risk_level')}")
     console.print(f"  cli_hint: {summary.get('cli_hint')}")
     console.print(f"  runtime_status: {summary.get('runtime_status')}")
     console.print(f"  branch: {summary.get('branch') or '-'}")

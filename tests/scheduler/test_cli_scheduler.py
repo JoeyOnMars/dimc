@@ -36,7 +36,7 @@ def test_scheduler_status_displays_active_session_bundle(tmp_path, monkeypatch):
     launch_log = session_dir / "launch.log"
     (runtime_dir / "scheduler_state.json").write_text(
         (
-            '{\n'
+            "{\n"
             '  "tasks": {\n'
             '    "L0 调度": {\n'
             '      "status": "running",\n'
@@ -134,7 +134,13 @@ def test_scheduler_inspect_renders_runtime_and_artifacts(tmp_path, monkeypatch):
                 "session_launch_command": "bash -lc echo launched",
                 "session_launch_pid": 43210,
                 "session_launch_log": str(
-                    tmp_path / "worktrees" / "scheduler-l0" / ".agent" / "sessions" / "l0-调度-auto" / "launch.log"
+                    tmp_path
+                    / "worktrees"
+                    / "scheduler-l0"
+                    / ".agent"
+                    / "sessions"
+                    / "l0-调度-auto"
+                    / "launch.log"
                 ),
             },
             "launch_running": False,
@@ -147,7 +153,13 @@ def test_scheduler_inspect_renders_runtime_and_artifacts(tmp_path, monkeypatch):
                 {
                     "name": "session_preflight_script",
                     "path": str(
-                        tmp_path / "worktrees" / "scheduler-l0" / ".agent" / "sessions" / "l0-调度-auto" / "preflight.sh"
+                        tmp_path
+                        / "worktrees"
+                        / "scheduler-l0"
+                        / ".agent"
+                        / "sessions"
+                        / "l0-调度-auto"
+                        / "preflight.sh"
                     ),
                     "exists": False,
                 },
@@ -355,11 +367,14 @@ def test_scheduler_intake_materializes_local_task_card(tmp_path, monkeypatch):
     assert result.exit_code == 0, result.stdout
     assert "Task card created." in result.stdout
     assert "dimc scheduler run 'why-object-evidence-v1' --yes" in result.stdout
-    card_files = list((tmp_path / ".agent" / "agent-tasks").glob("agent_why-object-evidence-v1_*.md"))
+    card_files = list(
+        (tmp_path / ".agent" / "agent-tasks").glob("agent_why-object-evidence-v1_*.md")
+    )
     assert len(card_files) == 1
     content = card_files[0].read_text(encoding="utf-8")
     assert "priority: P1" in content
     assert "task_class: implementation" in content
+    assert "risk_level: medium" in content
     assert "cli_hint: dimc why" in content
     assert "## 目标" in content
     assert "让 why 链路先落出最小对象证据视图。" in content
@@ -402,6 +417,7 @@ def test_scheduler_kickoff_materializes_goal_and_runs_task(tmp_path, monkeypatch
     assert len(card_files) == 1
     content = card_files[0].read_text(encoding="utf-8")
     assert "task_class: governance" in content
+    assert "risk_level: low" in content
     assert "cli_hint: dimc scheduler" in content
     assert "补齐 scheduler 的高层目标入口，并直接启动调度执行。" in content
 
@@ -423,10 +439,13 @@ def test_scheduler_intake_infers_governance_defaults_and_related_files(tmp_path,
     )
 
     assert result.exit_code == 0, result.stdout
-    card_files = list((tmp_path / ".agent" / "agent-tasks").glob("agent_scheduler-intake-defaults-v1_*.md"))
+    card_files = list(
+        (tmp_path / ".agent" / "agent-tasks").glob("agent_scheduler-intake-defaults-v1_*.md")
+    )
     assert len(card_files) == 1
     content = card_files[0].read_text(encoding="utf-8")
     assert "task_class: governance" in content
+    assert "risk_level: low" in content
     assert "cli_hint: dimc scheduler" in content
     assert "## 相关文件" in content
     assert "`src/dimcause/scheduler/orchestrator.py`" in content
@@ -570,7 +589,11 @@ def test_scheduler_reconcile_forwards_options_and_renders_summary(tmp_path, monk
             "reconciled": 1,
             "skipped": 1,
             "tasks": [
-                {"task_id": "L0 调度", "action": "would_reconcile", "reason": "launch_pid_not_running"},
+                {
+                    "task_id": "L0 调度",
+                    "action": "would_reconcile",
+                    "reason": "launch_pid_not_running",
+                },
                 {
                     "task_id": "L1 自动化",
                     "action": "skipped",
@@ -696,7 +719,7 @@ def test_scheduler_complete_records_runtime_state(tmp_path, monkeypatch):
     (tmp_path / ".agent").mkdir(parents=True, exist_ok=True)
     (tmp_path / ".agent" / "scheduler_state.json").write_text(
         (
-            '{\n'
+            "{\n"
             '  "tasks": {\n'
             '    "L0 调度": {\n'
             '      "status": "running",\n'
@@ -807,7 +830,7 @@ def test_scheduler_fail_records_failure_reason(tmp_path, monkeypatch):
     runtime_dir.mkdir(parents=True, exist_ok=True)
     (runtime_dir / "scheduler_state.json").write_text(
         (
-            '{\n'
+            "{\n"
             '  "tasks": {\n'
             '    "L0 调度": {\n'
             '      "status": "running",\n'
@@ -879,7 +902,7 @@ def test_scheduler_complete_defaults_to_runtime_task_packet(tmp_path, monkeypatc
     task_packet.write_text("# task packet", encoding="utf-8")
     (runtime_dir / "scheduler_state.json").write_text(
         (
-            '{\n'
+            "{\n"
             '  "tasks": {\n'
             '    "L0 调度": {\n'
             '      "status": "running",\n'
@@ -905,8 +928,13 @@ def test_scheduler_complete_defaults_to_runtime_task_packet(tmp_path, monkeypatc
     ):
         assert repo_root == tmp_path
         assert task_id == "L0 调度"
-        assert task_packet == Path(str(tmp_path / "tmp" / "coordination" / "task_packets" / "L0_调度.md"))
-        return "[PR_READY]\nbranch: codex/task-065", tmp_path / "tmp" / "scheduler" / "task-065.json"
+        assert task_packet == Path(
+            str(tmp_path / "tmp" / "coordination" / "task_packets" / "L0_调度.md")
+        )
+        return (
+            "[PR_READY]\nbranch: codex/task-065",
+            tmp_path / "tmp" / "scheduler" / "task-065.json",
+        )
 
     monkeypatch.setattr("dimcause.cli._run_scheduler_pr_ready", fake_run_scheduler_pr_ready)
 

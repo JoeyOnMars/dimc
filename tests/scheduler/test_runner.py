@@ -59,7 +59,10 @@ def test_execute_job_start_uses_dimcause_cli_module(tmp_path, monkeypatch):
     assert result["branch"] == provisioned["branch"]
     assert result["worktree"] == provisioned["worktree"]
     assert result["work_class"] == "product"
-    assert result["session_dir"] == Path(provisioned["worktree"]) / ".agent" / "sessions" / "task-040-auto"
+    assert (
+        result["session_dir"]
+        == Path(provisioned["worktree"]) / ".agent" / "sessions" / "task-040-auto"
+    )
     assert result["session_file"] == result["session_dir"] / "session.json"
     assert result["session_readme"] == result["session_dir"] / "README.md"
     assert result["durable_session_file"] == result["job_dir"] / "session.json"
@@ -118,8 +121,10 @@ def test_execute_job_start_reconciles_stale_active_job_before_starting(tmp_path,
     monkeypatch.setattr(
         orchestrator,
         "reconcile_running_tasks",
-        lambda dry_run=False: state.__setitem__("reconcile_calls", state["reconcile_calls"] + 1)
-        or {"reconciled": 1, "skipped": 0, "tasks": []},
+        lambda dry_run=False: (
+            state.__setitem__("reconcile_calls", state["reconcile_calls"] + 1)
+            or {"reconciled": 1, "skipped": 0, "tasks": []}
+        ),
     )
     monkeypatch.setattr(
         orchestrator,
@@ -236,6 +241,7 @@ def test_execute_job_start_materializes_runtime_assets(tmp_path, monkeypatch):
     assert (result["session_dir"] / "codex-run.sh").exists()
     assert (result["job_dir"] / "session.json").exists()
     assert "protected_doc_override" in task_packet_body
+    assert "risk_level" in task_packet_body
     assert "## 4. Allowed Files" in task_packet_body
     assert "## 5. Forbidden Files" in task_packet_body
     assert str(result["session_preflight_script"]) in (
@@ -351,7 +357,7 @@ def test_run_codex_task_bootstraps_runtime_and_resumes_launch(tmp_path, monkeypa
         runtime_dir.mkdir(parents=True, exist_ok=True)
         (runtime_dir / "scheduler_state.json").write_text(
             (
-                '{\n'
+                "{\n"
                 '  "tasks": {\n'
                 '    "L0 调度": {\n'
                 '      "status": "running",\n'
@@ -388,9 +394,7 @@ def test_run_codex_task_bootstraps_runtime_and_resumes_launch(tmp_path, monkeypa
 
     assert bootstrap_calls["count"] == 1
     assert recorded["task_id"] == "L0 调度"
-    assert recorded["launch"] == (
-        f"{codex_run_script} --profile fast --model gpt-5.4 --json"
-    )
+    assert recorded["launch"] == (f"{codex_run_script} --profile fast --model gpt-5.4 --json")
     assert result["launch_pid"] == 24680
 
 
@@ -406,7 +410,7 @@ def test_run_codex_task_dry_run_returns_command_preview(tmp_path):
     runtime_dir.mkdir(parents=True, exist_ok=True)
     (runtime_dir / "scheduler_state.json").write_text(
         (
-            '{\n'
+            "{\n"
             '  "tasks": {\n'
             '    "L0 调度": {\n'
             '      "status": "running",\n'

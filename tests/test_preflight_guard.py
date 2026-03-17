@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pytest
 
-
 SCRIPT_PATH = Path(__file__).resolve().parents[1] / "scripts" / "preflight_guard.py"
 SPEC = importlib.util.spec_from_file_location("preflight_guard_script", SCRIPT_PATH)
 MODULE = importlib.util.module_from_spec(SPEC)
@@ -73,7 +72,9 @@ def test_main_rejects_protected_docs_without_override(capsys):
     sys.argv = argv
     try:
         with pytest.MonkeyPatch.context() as monkeypatch:
-            monkeypatch.setattr(MODULE, "load_branch_class_prefixes", lambda: MODULE.DEFAULT_WORK_CLASS_PREFIXES)
+            monkeypatch.setattr(
+                MODULE, "load_branch_class_prefixes", lambda: MODULE.DEFAULT_WORK_CLASS_PREFIXES
+            )
             monkeypatch.setattr(MODULE.pr_ready, "load_protected_doc_policy", lambda: policy)
             exit_code = MODULE.main()
     finally:
@@ -91,6 +92,7 @@ def test_main_accepts_rfc_branch_with_override_task_packet(tmp_path, capsys):
             [
                 "# Task Packet",
                 "- `task_id`: rfc-protected-doc-update",
+                "- `risk_level`: high",
                 "- `protected_doc_override`: true",
                 "- `user_approval_note`: User approved this RFC in the current turn.",
                 "- `design_change_reason`: Need to update the target architecture contract.",
@@ -125,7 +127,9 @@ def test_main_accepts_rfc_branch_with_override_task_packet(tmp_path, capsys):
     sys.argv = argv
     try:
         with pytest.MonkeyPatch.context() as monkeypatch:
-            monkeypatch.setattr(MODULE, "load_branch_class_prefixes", lambda: MODULE.DEFAULT_WORK_CLASS_PREFIXES)
+            monkeypatch.setattr(
+                MODULE, "load_branch_class_prefixes", lambda: MODULE.DEFAULT_WORK_CLASS_PREFIXES
+            )
             monkeypatch.setattr(MODULE.pr_ready, "load_protected_doc_policy", lambda: policy)
             exit_code = MODULE.main()
     finally:
@@ -144,6 +148,7 @@ def test_main_rejects_rfc_packet_missing_approval_note(tmp_path, capsys):
             [
                 "# Task Packet",
                 "- `task_id`: rfc-protected-doc-update",
+                "- `risk_level`: high",
                 "- `protected_doc_override`: true",
                 "- `user_approval_note`: ",
                 "- `design_change_reason`: Need to update the target architecture contract.",
@@ -178,7 +183,9 @@ def test_main_rejects_rfc_packet_missing_approval_note(tmp_path, capsys):
     sys.argv = argv
     try:
         with pytest.MonkeyPatch.context() as monkeypatch:
-            monkeypatch.setattr(MODULE, "load_branch_class_prefixes", lambda: MODULE.DEFAULT_WORK_CLASS_PREFIXES)
+            monkeypatch.setattr(
+                MODULE, "load_branch_class_prefixes", lambda: MODULE.DEFAULT_WORK_CLASS_PREFIXES
+            )
             monkeypatch.setattr(MODULE.pr_ready, "load_protected_doc_policy", lambda: policy)
             exit_code = MODULE.main()
     finally:
@@ -196,6 +203,7 @@ def test_main_rejects_override_on_non_rfc_branch_even_without_protected_file(tmp
             [
                 "# Task Packet",
                 "- `task_id`: ops-guard-hardening",
+                "- `risk_level`: medium",
                 "- `protected_doc_override`: true",
                 "- `user_approval_note`: User approved this RFC in the current turn.",
                 "- `design_change_reason`: Need to update the architecture baseline.",

@@ -9,12 +9,10 @@ from pathlib import Path
 
 import yaml
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import pr_ready  # noqa: E402
-
 
 DEFAULT_WORK_CLASS_PREFIXES = {
     "product": ["codex/task-"],
@@ -84,6 +82,7 @@ def main() -> int:
     packet = pr_ready.TaskPacket(
         task_id=None,
         allowed_files=[],
+        risk_level=None,
         protected_doc_override=False,
         user_approval_note=None,
         design_change_reason=None,
@@ -95,7 +94,9 @@ def main() -> int:
     if packet.allowed_files:
         intent_files = packet.allowed_files
     if not intent_files:
-        parser.error("preflight requires --task-packet with allowed files or repeated --intent-file")
+        parser.error(
+            "preflight requires --task-packet with allowed files or repeated --intent-file"
+        )
 
     branch = args.branch or pr_ready.get_current_branch()
     if not branch_matches_work_class(branch, args.work_class, branch_class_prefixes):

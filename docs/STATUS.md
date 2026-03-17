@@ -1,6 +1,6 @@
 # DIMCAUSE 项目状态总表
 
-**最后更新**: 2026-03-17（Why 对象证据显示 + 解释层对象证据接线）
+**最后更新**: 2026-03-18（risk_level 落地 + MCP 配置状态纠偏）
 **维护者**: 人工审核 + 代码验证
 
 ---
@@ -80,9 +80,9 @@
 | Task 015 | CI净化（Ruff 48错清零 + check.zsh 环境加固） | ✅ 完成 (Exit Code 0，24 passed) |
 | Task 016 | 解释器因果引擎接入加深与纯化 | ✅ 完成 (SQL因果严丝剔透 + 跨库安全降级查询) |
 | Task 017 | SearchEngine 混合检索接入 UNIX 通道 | ✅ 完成 (`semantic + graph + unix + text` 四通道候选融合) |
-| 任务 1.7 | MCP Server 配置修复 | 📋 待修复 |
+| 任务 1.7 | MCP Server 配置修复 | ✅ 完成 (`dimc mcp serve` stdio/http + `tests/test_mcp*.py` 12/12 通过) |
 | 任务 1.9 | 发布前文档对齐 (README等) | 🔄 部分完成（README 已对齐，剩余 release 清单核销） |
-| 流程设施 | 信任梯度 (Risk Level) 分级落地 | 📋 待实现 |
+| 流程设施 | 信任梯度 (Risk Level) 分级落地 | ✅ 完成 (Task Packet + scheduler risk gate + closeout policy) |
 | L3 防波堤 | SchemaValidator 运行时卡口 | 🔄 部分完成（EventIndex 写入链路已接入） |
 | L0 调度 | Orchestrator 核心调度器 | 🔄 部分完成（基础调度循环 + active job awareness + runtime completion writeback + STATUS 合成任务上下文 + branch/worktree provisioning + session bundle + launch entrypoint + optional auto-launch + loop launch forwarding + stop/resume/cleanup/prune/reconcile 生命周期回收 + run/loop auto-reconcile 自愈 + inspect 可视化检查已实现 + V6 STATUS 主干解耦已实现，仍缺更深生产化收口） |
 | L1 自动化 | dimc detect IDE 探测 | ✅ 完成（`dimc detect` + `dimc config enable` 已可用） |
