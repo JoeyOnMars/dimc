@@ -38,11 +38,11 @@
 
 ### 第一层：产品定义层
 
-1. [PROJECT_ARCHITECTURE.md](/Users/mini/projects/GithubRepos/dimc/docs/PROJECT_ARCHITECTURE.md)
-2. [STORAGE_ARCHITECTURE.md](/Users/mini/projects/GithubRepos/dimc/docs/STORAGE_ARCHITECTURE.md)
-3. [STORAGE_ARCHITECTURE_DRAFT_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md)
-4. [CORE_OBJECT_MODEL_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md)
-5. [EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md)
+1. [PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)
+2. [STORAGE_ARCHITECTURE.md](./STORAGE_ARCHITECTURE.md)
+3. [STORAGE_ARCHITECTURE_DRAFT_V1.md](./PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md)
+4. [CORE_OBJECT_MODEL_V1.md](./PROPOSALS/CORE_OBJECT_MODEL_V1.md)
+5. [EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md](./PROPOSALS/EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md)
 
 本层回答：
 1. 产品是什么；
@@ -51,8 +51,8 @@
 
 ### 第二层：产品实现层
 
-1. [src/dimcause](/Users/mini/projects/GithubRepos/dimc/src/dimcause)
-2. [tests](/Users/mini/projects/GithubRepos/dimc/tests)
+1. [src/dimcause](../src/dimcause)
+2. [tests](../tests)
 3. 当前与产品运行直接相关的入口脚本与打包配置
 
 本层回答：
@@ -67,10 +67,10 @@
 
 ### 第三层：项目落地层
 
-1. [WORKSPACE_PROFILE_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/WORKSPACE_PROFILE_V1.md)
-2. [pyproject.toml](/Users/mini/projects/GithubRepos/dimc/pyproject.toml)
-3. [README.md](/Users/mini/projects/GithubRepos/dimc/README.md)
-4. [README_zh-CN.md](/Users/mini/projects/GithubRepos/dimc/README_zh-CN.md)
+1. [WORKSPACE_PROFILE_V1.md](./PROPOSALS/WORKSPACE_PROFILE_V1.md)
+2. [pyproject.toml](../pyproject.toml)
+3. [README.md](../README.md)
+4. [README_zh-CN.md](../README_zh-CN.md)
 
 本层回答：
 1. 本项目怎样承载、组织并默认运行这个产品；
@@ -79,13 +79,13 @@
 
 ### 第四层：仓库治理层
 
-1. [REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)
-2. [docs/coordination](/Users/mini/projects/GithubRepos/dimc/docs/coordination)
-3. [.agent/rules](/Users/mini/projects/GithubRepos/dimc/.agent/rules)
-4. [ci.yml](/Users/mini/projects/GithubRepos/dimc/.github/workflows/ci.yml)
-5. [scripts/preflight_guard.py](/Users/mini/projects/GithubRepos/dimc/scripts/preflight_guard.py)
-6. [scripts/pr_ready.py](/Users/mini/projects/GithubRepos/dimc/scripts/pr_ready.py)
-7. [scripts/check.zsh](/Users/mini/projects/GithubRepos/dimc/scripts/check.zsh)
+1. [REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](./PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)
+2. [docs/coordination](./coordination)
+3. [.agent/rules](../.agent/rules)
+4. [ci.yml](../.github/workflows/ci.yml)
+5. [scripts/preflight_guard.py](../scripts/preflight_guard.py)
+6. [scripts/pr_ready.py](../scripts/pr_ready.py)
+7. [scripts/check.zsh](../scripts/check.zsh)
 
 本层回答：
 1. 这个仓库怎样被协作、验证、保护和收口；
@@ -112,14 +112,14 @@
 
 ## 快速恢复顺序
 
-1. [PROJECT_ARCHITECTURE.md](/Users/mini/projects/GithubRepos/dimc/docs/PROJECT_ARCHITECTURE.md)
-2. [STORAGE_ARCHITECTURE.md](/Users/mini/projects/GithubRepos/dimc/docs/STORAGE_ARCHITECTURE.md)
-3. [CORE_OBJECT_MODEL_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md)
-4. [EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md)
-5. [src/dimcause](/Users/mini/projects/GithubRepos/dimc/src/dimcause)
-6. [tests](/Users/mini/projects/GithubRepos/dimc/tests)
-7. [WORKSPACE_PROFILE_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/WORKSPACE_PROFILE_V1.md)
-8. [REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)
+1. [PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)
+2. [STORAGE_ARCHITECTURE.md](./STORAGE_ARCHITECTURE.md)
+3. [CORE_OBJECT_MODEL_V1.md](./PROPOSALS/CORE_OBJECT_MODEL_V1.md)
+4. [EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md](./PROPOSALS/EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md)
+5. [src/dimcause](../src/dimcause)
+6. [tests](../tests)
+7. [WORKSPACE_PROFILE_V1.md](./PROPOSALS/WORKSPACE_PROFILE_V1.md)
+8. [REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](./PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)
 
 ## 冲突优先级
 

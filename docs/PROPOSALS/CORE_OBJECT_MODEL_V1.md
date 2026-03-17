@@ -9,18 +9,18 @@
 
 ## 已知事实
 
-1. 当前产品的一句话定义已经明确为：**DIMCAUSE 是一套面向本地异构材料的证据驱动因果调查系统。**[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`; `/Users/mini/projects/GithubRepos/dimc项目研讨文档/今日有效结论与新线程提示词 03-10-2026.md`]
-2. 产品核心目标不是通用知识库、通用 RAG 平台或通用开发调度器，而是从给定材料中抽取、验证、组织尽可能强的因果关系，并输出可追溯、可分级、可解释的调查结论。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`]
-3. 产品核心主链已经定义为 `Material -> Object -> Relation Candidate -> Validation -> Causal Graph -> Explanation`。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`]
-4. 系统重构文档明确要求：统一运行单位应是 `Run`，`Task` 只是某种 `Run` 的语义化特例，不是唯一入口。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`; `/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`]
-5. 系统重构文档把 `Material`、`MaterialVersion` 归为 Material Ingestion 的核心对象，并把 `Entity`、`Event`、`Claim`、`Decision`、`Task`、`Symbol`、`Artifact`、`Check`、`Result` 归为 Object & Knowledge Assembly 的核心对象。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`]
-6. 系统重构文档明确写出：`Event` 很重要，但不能吞掉所有对象类型，Knowledge Layer 必须允许多对象共存。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`]
-7. 产品与系统重构文档已经确定四层职责：Evidence 保存原始证据和可审计工件，Runtime 保存可变运行状态，Knowledge 保存结构化对象与关系，Derived Index 保存可重建索引与加速结构。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`; `/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`]
-8. 系统重构文档明确指出：四层差异核心不在介质，而在可变性、真理源地位、生命周期、可重建性与对外语义。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`]
+1. 当前正式产品架构已经收口为：**DIMCAUSE 是一套面向本地异构材料的证据驱动因果调查系统。**[`docs/PROJECT_ARCHITECTURE.md`; `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md`]
+2. 产品核心目标不是通用知识库、通用 RAG 平台或通用开发调度器，而是从给定材料中抽取、验证、组织尽可能强的因果关系，并输出可追溯、可分级、可解释的调查结论。[`docs/PROJECT_ARCHITECTURE.md`]
+3. 当前正式产品架构已经把系统主线收敛为：接收本地材料、提升为结构化对象、生成并验证因果关系、输出带证据链和等级的解释结论。[`docs/PROJECT_ARCHITECTURE.md`]
+4. 正式产品架构已经要求：统一运行单位应是 `Run`，`Task` 只是某种 `Run` 的语义化特例，不是唯一入口。[`docs/PROJECT_ARCHITECTURE.md`]
+5. 当前正式产品架构已经把 `Material`、`MaterialVersion` 归为材料接入的核心对象合同，并把 `Entity`、`Event`、`Decision`、`Claim`、`Task`、`Symbol`、`Artifact`、`Check`、`Result`、`Relation` 归入对象装配与知识构建的关键对象家族。[`docs/PROJECT_ARCHITECTURE.md`]
+6. 当前正式产品架构已经明确：`Event` 很重要，但不能吞掉所有对象类型，Knowledge Layer 必须允许多对象共存。[`docs/PROJECT_ARCHITECTURE.md`]
+7. 当前正式存储架构已经确定四层职责：Evidence 保存原始证据和可审计工件，Runtime 保存可变运行状态，Knowledge 保存结构化对象与关系，Derived Index 保存可重建索引与加速结构。[`docs/STORAGE_ARCHITECTURE.md`]
+8. 当前正式存储架构已经明确：四层差异核心不在介质，而在可变性、真理源地位、生命周期、可重建性与对外语义。[`docs/STORAGE_ARCHITECTURE.md`]
 9. 当前《存储架构草案 v1》已经把 Evidence Layer 明确拆成 `Source Materials` 与 `Generated Evidence Artifacts` 两类子对象，并要求在 provenance、生命周期、版本语义、引用方式上显式区分二者。[`docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md`]
 10. 当前《存储架构草案 v1》已经要求：Knowledge Layer 中关系状态历史必须可回放，“当前状态”只是投影，不得成为唯一记录。[`docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md`]
-11. 产品定义文档已将《Core Object Model v1》列为下一份关键文档，并明确写出它要定义 `Run`、`Material`、`Decision`、`Claim`、`Task`、`Symbol`、`Check`、`Result`、`Relation` 的一等对象模型。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`; `/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`]
-12. 今日交接文档已经明确：产品架构、workspace profile、当前项目开发流程必须拆开，不能把 repo 目录、日志路径、分支纪律或治理规则写成产品本体。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/今日有效结论与新线程提示词 03-10-2026.md`; `/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`]
+11. 当前正式产品架构已经明确：对象模型需要单独成文，并至少覆盖 `Run`、`Material`、`Decision`、`Claim`、`Task`、`Symbol`、`Check`、`Result`、`Relation` 等关键对象家族，而不是把这些职责散落在实现目录或 profile 说明里。[`docs/PROJECT_ARCHITECTURE.md`; `docs/STORAGE_ARCHITECTURE.md`]
+12. 当前正式共享文档已经明确：产品架构、workspace profile、当前项目开发流程必须拆开，不能把 repo 目录、日志路径、分支纪律或治理规则写成产品本体。[`docs/ARCHITECTURE_INDEX.md`; `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md`; `docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md`]
 
 ## 推测与假设
 
@@ -164,9 +164,9 @@
    - `docs/PROJECT_ARCHITECTURE.md`
    - `docs/STORAGE_ARCHITECTURE.md`
    - `docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md`
-   - `/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`
-   - `/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`
-   - `/Users/mini/projects/GithubRepos/dimc项目研讨文档/今日有效结论与新线程提示词 03-10-2026.md`
+   - `docs/ARCHITECTURE_INDEX.md`
+   - `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md`
+   - `docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md`
 3. 本文涉及的关键规则版本溯源如下：
    - `.agent/rules/Honesty-And-Structure.md`: `72d53e4 2026-02-25 23:16:27 +0800`
    - `.agent/rules/agent-git-workflow.md`: `e469d45 2026-03-08 21:53:55 +0800`

@@ -16,8 +16,8 @@
 2. `STORAGE_ARCHITECTURE.md` 的真实地址: 代码 `src/dimcause/utils/wal.py` 第 46 行定义 WAL 路径为 `~/.dimcause/wal.log`。此前文档中登记为 `~/.mal/wal.log`。该差异已在本轮审计中修正。[src/dimcause/utils/wal.py]
 3. 原 `DIMC_DOWN_FLOW.md` 类路径指向: 文档原声称 `SessionEndService` 在 `core/` 目录，实际基于 grep (Step Id 2340) 在 `src/dimcause/services/session_end.py`。`DataCollector` 实际在 `src/dimcause/extractors/data_collector.py`。相关文档错位已修正，原流程说明文档已从 live 当前面移除。[src/dimcause/services/session_end.py], [src/dimcause/extractors/data_collector.py]
 4. `IDE_INTEGRATION.md` 代码落地情况: 文档展示的 `WatchersConfig` 模型与 `src/dimcause/watchers/detector.py` 经全库 `grep_search` (Step Id: 2293, 2294) 返回结果为 0。文档存在超前于代码库的未落地设计声明。[grep_search src/]
-5. `USER_GUIDE.md` 操作命令: 指南中介绍的 `dimc data-import` 工具链在 `src/dimcause/cli.py` 第 486 行确有实际挂载点。[src/dimcause/cli/cli.py]
-6. `GUIDE.md` 与 `USER_GUIDE.md` 命令交叉校验: `GUIDE.md` 内存在大量过期 V5.x 命令（如 `daily-start`、`daily-end`）；`USER_GUIDE.md` 则整体更接近当前 CLI 命令面。后续清理中，应保留并精修 `USER_GUIDE.md`，删除 `GUIDE.md`，而不是继续并存。
+5. `USER_GUIDE.md` 操作命令: 指南中介绍的 `dimc data-import` 工具链在 `src/dimcause/cli.py` 中确有实际挂载点。[src/dimcause/cli.py]
+6. `GUIDE.md` 与 `USER_GUIDE.md` 命令交叉校验: 当时审计确认 `GUIDE.md` 内存在大量过期 V5.x 命令（如 `daily-start`、`daily-end`）；后续清理已保留并精修 `USER_GUIDE.md`，同时将 `GUIDE.md` 移出当前共享文档面。
 8. `STORAGE_ARCHITECTURE.md` 的废弃目录结构: 依据对 `src/dimcause/utils/state.py` 的研读，系统通过扫描 `docs/logs/` 中的 `XX-start.md` 和 `XX-end.md` 动态推断活跃会话。文档中曾声明的 `~/.dimcause/sessions/active.json` 与 `history/git_commits.jsonl` 完全属虚假或被废弃的设计，已从架构树中摘除。[src/dimcause/utils/state.py]
 
 ### 推测与假设

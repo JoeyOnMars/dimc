@@ -123,7 +123,7 @@ UNIX 通道不能只绑定事件库 Markdown。
 ### 4.1 当前实现
 
 当前 `_unix_search()` 见：
-[engine.py](/Users/mini/projects/GithubRepos/dimc/src/dimcause/search/engine.py:238)
+[src/dimcause/search/engine.py](../../src/dimcause/search/engine.py)
 
 现状：
 

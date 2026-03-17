@@ -9,15 +9,15 @@
 
 ## 已知事实
 
-1. 当前产品的一句话定义已经明确为：**DIMCAUSE 是一套面向本地异构材料的证据驱动因果调查系统。**[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`; `/Users/mini/projects/GithubRepos/dimc项目研讨文档/今日有效结论与新线程提示词 03-10-2026.md`]
-2. 产品核心目标不是通用知识库、通用 RAG 平台或通用开发调度器，而是从给定材料中抽取、验证、组织尽可能强的因果关系，并输出可追溯、可分级、可解释的调查结论。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`]
-3. 产品核心主链已定义为 `Material -> Object -> Relation Candidate -> Validation -> Causal Graph -> Explanation`。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`]
-4. 产品输出必须同时体现两种分级：证据覆盖等级 `E1-E4`，关系确定性等级 `C0-C4`。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`]
-5. 产品架构方向已经明确三项根本改变：`L0` 从 task-centric 升级为 run-centric；`L1-L4` 从开发材料偏置升级为通用材料对象化与因果推理；存储从并列文件/状态/索引升级为 `Evidence / Runtime / Knowledge / Derived Index` 四层分离。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`; `/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`]
-6. 系统重构文档定义了四层存储的基本职责：Evidence 保存原始证据和可审计工件；Runtime 保存可变运行状态；Knowledge 保存结构化对象与关系；Derived Index 保存可重建索引与加速结构。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`]
-7. 系统重构文档明确指出：存储四层的差异核心不在介质，而在**可变性、真理源地位、生命周期、可重建性、对外语义**。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`]
-8. 系统重构文档明确说明：产品架构、workspace/default profile、当前项目开发流程与治理规则必须拆开，不得把后两者混入产品架构本体。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`; `/Users/mini/projects/GithubRepos/dimc项目研讨文档/今日有效结论与新线程提示词 03-10-2026.md`]
-9. 产品价值主语不是更强搜索或更像聊天回答，而是材料对象化、关系与证据抽取、因果分级与验证、可追溯解释，以及调查结果本身。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`; `/Users/mini/projects/GithubRepos/dimc项目研讨文档/竞品分析 03-10-2026.md`]
+1. 当前正式产品架构已经收口为：**DIMCAUSE 是一套面向本地异构材料的证据驱动因果调查系统。**[`docs/PROJECT_ARCHITECTURE.md`; `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md`]
+2. 产品核心目标不是通用知识库、通用 RAG 平台或通用开发调度器，而是从给定材料中抽取、验证、组织尽可能强的因果关系，并输出可追溯、可分级、可解释的调查结论。[`docs/PROJECT_ARCHITECTURE.md`]
+3. 当前正式产品架构已经把系统主线收敛为：接收本地材料、提升为结构化对象、生成并验证因果关系、输出带证据链和等级的解释结论。[`docs/PROJECT_ARCHITECTURE.md`]
+4. 正式产品架构已经明确：产品输出必须同时体现两种分级，证据覆盖等级 `E1-E4` 与关系确定性等级 `C0-C4` 必须并列存在并保留历史。[`docs/PROJECT_ARCHITECTURE.md`]
+5. 产品架构方向已经明确三项根本改变：`L0` 从 task-centric 升级为 run-centric；`L1-L4` 从开发材料偏置升级为通用材料对象化与因果推理；存储从并列文件/状态/索引升级为 `Evidence / Runtime / Knowledge / Derived Index` 四层分离。[`docs/PROJECT_ARCHITECTURE.md`; `docs/STORAGE_ARCHITECTURE.md`]
+6. 正式存储架构已经定义了四层存储的基本职责：Evidence 保存原始证据和可审计工件；Runtime 保存可变运行状态；Knowledge 保存结构化对象与关系；Derived Index 保存可重建索引与加速结构。[`docs/STORAGE_ARCHITECTURE.md`]
+7. 正式存储架构已经明确指出：存储四层的差异核心不在介质，而在**可变性、真理源地位、生命周期、可重建性、对外语义**。[`docs/STORAGE_ARCHITECTURE.md`]
+8. 当前正式共享文档已经明确：产品架构、workspace/default profile、当前项目开发流程与治理规则必须拆开，不得把后两者混入产品架构本体。[`docs/ARCHITECTURE_INDEX.md`; `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md`; `docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md`]
+9. 正式产品架构已经把产品价值主语收口为：材料对象化、关系与证据抽取、因果分级与验证、可追溯解释，以及调查结果本身，而不是更像聊天回答或更强的调度界面。[`docs/PROJECT_ARCHITECTURE.md`]
 
 ## 推测与假设
 
@@ -239,10 +239,11 @@
 2. 本次起草的主要依据文件包括：
    - `.agent/rules/Honesty-And-Structure.md`
    - `.agent/rules/agent-git-workflow.md`
-   - `产品定义草案 03-10-2026.md`
-   - `系统重构-03-09-2026.md`
-   - `竞品分析 03-10-2026.md`
-   - `今日有效结论与新线程提示词 03-10-2026.md`
+   - `docs/PROJECT_ARCHITECTURE.md`
+   - `docs/STORAGE_ARCHITECTURE.md`
+   - `docs/ARCHITECTURE_INDEX.md`
+   - `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md`
+   - `docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md`
 3. 本文涉及的关键规则版本溯源如下：
    - `.agent/rules/Honesty-And-Structure.md`: `72d53e4 2026-02-25 23:16:27 +0800`
    - `.agent/rules/agent-git-workflow.md`: `e469d45 2026-03-08 21:53:55 +0800`

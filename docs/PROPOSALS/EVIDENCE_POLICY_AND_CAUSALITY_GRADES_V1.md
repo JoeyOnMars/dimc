@@ -9,23 +9,13 @@
 
 ## 已知事实
 
-1. 当前产品的一句话定义已经明确为：**DIMCAUSE 是一套面向本地异构材料的证据驱动因果调查系统。**[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`; `/Users/mini/projects/GithubRepos/dimc项目研讨文档/今日有效结论与新线程提示词 03-10-2026.md`]
-2. 产品核心目标不是通用知识库、通用 RAG 平台或通用开发调度器，而是从给定材料中抽取、验证、组织尽可能强的因果关系，并输出可追溯、可分级、可解释的调查结论。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`]
-3. 产品核心主链已经定义为 `Material -> Object -> Relation Candidate -> Validation -> Causal Graph -> Explanation`。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`]
-4. 产品定义文档已经明确要求把两组分级拆开：证据覆盖等级 `E1-E4`，关系确定性等级 `C0-C4`；并要求用户界面同时展示当前等级、主要证据来源与缺失证据说明。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`]
-5. 产品定义文档已给出两组等级的基础语义：
-   - `E1 Snapshot`：只有当前材料快照
-   - `E2 Historical`：有版本历史或时间演化信息
-   - `E3 Collaborative`：有 PR、Issue、Review、Check 等协作材料
-   - `E4 Full Evidence`：有本地任务、运行、讨论、检查等完整过程证据
-   - `C4 Confirmed`：有明确、直接、强证据支持
-   - `C3 Strongly Supported`：有多条强证据支撑，但仍不是绝对直接证据
-   - `C2 Supported`：有合理支持，但关键环节仍有缺口
-   - `C1 Hypothesized`：以推断为主，只能作为候选结论
-   - `C0 Contradicted or Insufficient`：证据不足或存在反证  
-   依据: [`/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`]
-6. 系统重构文档已明确：Layer 3 不是单纯 ontology，而是 `Ontology and Evidence Policy`；它需要定义对象类型、关系类型、证据政策、允许的因果等级，以及“哪些证据足以支持哪一级因果”。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`]
-7. 系统重构文档已明确三项根本判断：统一运行单位应是 `Run`；系统要从开发材料偏置升级到通用本地材料对象化与证据化因果推理；存储要切成 `Evidence / Runtime / Knowledge / Derived Index` 四层。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`; `/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`]
+1. 当前正式产品架构已经收口为：**DIMCAUSE 是一套面向本地异构材料的证据驱动因果调查系统。**[`docs/PROJECT_ARCHITECTURE.md`; `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md`]
+2. 产品核心目标不是通用知识库、通用 RAG 平台或通用开发调度器，而是从给定材料中抽取、验证、组织尽可能强的因果关系，并输出可追溯、可分级、可解释的调查结论。[`docs/PROJECT_ARCHITECTURE.md`]
+3. 当前正式产品架构已经把系统主线收敛为：接收本地材料、提升为结构化对象、生成并验证因果关系、输出带证据链和等级的解释结论。[`docs/PROJECT_ARCHITECTURE.md`]
+4. 正式产品架构已经明确要求把两组分级拆开：证据覆盖等级 `E1-E4`，关系确定性等级 `C0-C4`；并要求用户界面同时展示当前等级、主要证据来源、缺失证据说明与等级历史。[`docs/PROJECT_ARCHITECTURE.md`]
+5. 当前正式产品架构已经明确了两组等级的职责分工：`E` 回答“当前证据面有多完整”，`C` 回答“在这些证据下，这条关系有多能成立”；两组等级必须同时展示，不能压成单一总分。[`docs/PROJECT_ARCHITECTURE.md`]
+6. 正式产品架构已经明确：Layer 3 不是单纯 ontology，而是 `Ontology and Evidence Policy`；它需要同时约束对象类型、关系类型、证据政策、等级表达以及缺失/反证处理。[`docs/PROJECT_ARCHITECTURE.md`]
+7. 当前正式产品架构与正式存储架构已经明确三项根本判断：统一运行单位应是 `Run`；系统要从开发材料偏置升级到通用本地材料对象化与证据化因果推理；存储要切成 `Evidence / Runtime / Knowledge / Derived Index` 四层。[`docs/PROJECT_ARCHITECTURE.md`; `docs/STORAGE_ARCHITECTURE.md`]
 8. 当前《存储架构草案 v1》已经要求：
    - `Evidence Layer` 保存 `Source Materials` 与 `Generated Evidence Artifacts`
    - `Knowledge Layer` 保存对象、关系、证据绑定、等级和关系状态历史
@@ -38,7 +28,7 @@
    - `Check != Result`
    - `Artifact != Generated Evidence Artifacts`  
    依据: [`docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md`]
-10. 产品与交接文档已明确：产品架构、workspace/default profile、当前项目开发流程必须切开；任何内部治理规则与具体 workspace 现实都不应混入产品架构正文。[`/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`; `/Users/mini/projects/GithubRepos/dimc项目研讨文档/今日有效结论与新线程提示词 03-10-2026.md`]
+10. 当前正式共享文档已经明确：产品架构、workspace/default profile、当前项目开发流程必须切开；任何内部治理规则与具体 workspace 现实都不应混入产品架构正文。[`docs/ARCHITECTURE_INDEX.md`; `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md`; `docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md`]
 
 ## 推测与假设
 
@@ -225,9 +215,10 @@
    - `.agent/rules/agent-git-workflow.md`
    - `docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md`
    - `docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md`
-   - `/Users/mini/projects/GithubRepos/dimc项目研讨文档/产品定义草案 03-10-2026.md`
-   - `/Users/mini/projects/GithubRepos/dimc项目研讨文档/系统重构-03-09-2026.md`
-   - `/Users/mini/projects/GithubRepos/dimc项目研讨文档/今日有效结论与新线程提示词 03-10-2026.md`
+   - `docs/PROJECT_ARCHITECTURE.md`
+   - `docs/ARCHITECTURE_INDEX.md`
+   - `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md`
+   - `docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md`
 3. 本文涉及的关键规则版本溯源如下：
    - `.agent/rules/Honesty-And-Structure.md`: `72d53e4 2026-02-25 23:16:27 +0800`
    - `.agent/rules/agent-git-workflow.md`: `e469d45 2026-03-08 21:53:55 +0800`
