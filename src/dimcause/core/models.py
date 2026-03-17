@@ -555,7 +555,7 @@ class DimcauseConfig(BaseModel):
 
 # =============================================================================
 # AI Model Configuration (V5.2)
-# See docs/dev/MODEL_SELECTION_EVALUATION.md for model choices.
+# See docs/research/RT-000_model_selection_evaluation.md for model choices.
 # =============================================================================
 
 
@@ -563,8 +563,8 @@ class ModelStack(str, Enum):
     """
     模型栈选择 (Model Stack Selection)
 
-    定义三种预配置模式，具体模型组合见 MODEL_SELECTION_EVALUATION.md。
-    See docs/dev/MODEL_SELECTION_EVALUATION.md for details.
+    定义三种预配置模式，具体模型组合见 RT-000 模型选型评估。
+    See docs/research/RT-000_model_selection_evaluation.md for details.
     """
 
     PERFORMANCE = "performance"  # 模式 A：高性能模式 (Jina v3 + BGE-M3 Rerank)
@@ -577,7 +577,7 @@ DEFAULT_MODEL_STACK = (
 )  # 默认模式：BGE-M3 全栈，本地离线可用；PERFORMANCE 模式需联网下载 Jina
 DEFAULT_MODEL_CACHE_DIR = "~/.cache/dimcause/models"
 
-# 模式 → 模型映射表 (与 docs/dev/MODEL_SELECTION_EVALUATION.md §9 保持一致)
+# 模式 → 模型映射表 (与 docs/research/RT-000_model_selection_evaluation.md §9 保持一致)
 _MODEL_STACK_MAP = {
     ModelStack.PERFORMANCE: {
         "embed_model": "jinaai/jina-embeddings-v3",
@@ -602,7 +602,7 @@ class ModelConfig(BaseModel):
     AI 模型配置数据结构 (V5.2)
 
     集中管理 Embedding / Reranker / Query Expansion 模型配置。
-    具体模型名称和路径由 docs/dev/MODEL_SELECTION_EVALUATION.md 定义。
+    具体模型名称和路径由 docs/research/RT-000_model_selection_evaluation.md 定义。
 
     规则约束 (from MODEL_SELECTION_RULES.md):
     - 业务代码禁止硬编码模型路径，必须通过 get_model_config() 获取。
@@ -634,7 +634,7 @@ def get_model_config(stack: Optional[ModelStack] = None) -> ModelConfig:
     规则 (from MODEL_SELECTION_RULES.md):
     - 代码默认使用 PERFORMANCE 模式。
     - 16GB 机器用户建议通过环境变量切换到 TRUST 模式。
-    - 具体模型组合与 docs/dev/MODEL_SELECTION_EVALUATION.md 保持一致。
+    - 具体模型组合与 docs/research/RT-000_model_selection_evaluation.md 保持一致。
     """
     import os
 

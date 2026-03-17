@@ -2,8 +2,8 @@
 
 语义搜索支持，使用 BGE 嵌入模型
 
-模型选型约束 (MODEL_SELECTION_RULES.md):
-- 具体模型由 docs/dev/MODEL_SELECTION_EVALUATION.md 定义
+模型选型约束:
+- 具体模型由 docs/research/RT-000_model_selection_evaluation.md 定义
 - 业务代码禁止硬编码模型路径
 - 通过 get_model_config() 获取配置
 """
@@ -27,7 +27,7 @@ class VectorStore:
 
     不再使用 ChromaDB。
 
-    支持的嵌入模型 (参见 MODEL_SELECTION_EVALUATION.md):
+    支持的嵌入模型 (参见 RT-000 模型选型评估):
     - 模式 A (Performance): Jina v3 (后续实现)
     - 模式 B (Trust): BGE-M3 (后续实现)
     - 模式 C (Geek): GTE-Qwen2 (后续实现)
