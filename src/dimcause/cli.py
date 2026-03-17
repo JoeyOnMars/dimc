@@ -98,7 +98,7 @@ def mcp_serve(
         run(transport=transport)
     except ImportError as e:
         console.print(f"[red]MCP Error: {e}[/]")
-        console.print("[yellow]Please run: pip install -e '.[mcp]'[/]")
+        console.print("[yellow]Please run: pip install -e .[/]")
         raise typer.Exit(1) from None
 
 
