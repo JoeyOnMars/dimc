@@ -2,7 +2,7 @@
 
 > 依据 `fix-all-bugs.md` 规则 3 创建。  
 > 统一登记所有超出当前分支 Scope 的全局 Bug、历史技术债、以及因"妥协"而遗留的未实现设计。  
-> **最后更新**: 2026-03-07（Task 047 对账校正版）
+> **最后更新**: 2026-03-17（Why 对象证据显示 / 解释层接线对齐）
 
 ---
 
@@ -27,7 +27,8 @@
 - **修复事实**:
   - `core/history.py` 已保留 `from_causal_chain` provenance，不再在 `Event -> GitCommit` 适配时丢失
   - `cli.py:why()` 现将因果链事件独立渲染为“因果链证据”一等输出段落
-  - `DecisionAnalyzer` prompt 已显式提高 Causal Evidence 权重，而非退回纯时间线叙事
+  - `cli.py:why()` 现已在 `metadata.object_projection` 存在时输出“对象证据区”，至少显示 `Material` 与首条 `Claim.statement`
+  - `DecisionAnalyzer` prompt 已显式提高 Causal Evidence 权重，并会消费 `object_projection` 中的 Material/Claim，而非退回纯时间线叙事
 - **回归测试**:
   - `tests/test_cli_history.py`
   - `tests/test_history_causal.py`

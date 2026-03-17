@@ -1,6 +1,6 @@
 # DIMCAUSE 项目状态总表
 
-**最后更新**: 2026-03-08（Scheduler Resume / Inspect + Indexer Job Path Inference）  
+**最后更新**: 2026-03-17（Why 对象证据显示 + 解释层对象证据接线）
 **维护者**: 人工审核 + 代码验证
 
 ---
@@ -13,7 +13,7 @@
 | **L0 Orchestrator 现代化欠债** | `Orchestrator` 常驻调度，真实后台任务循环 | `scheduler/orchestrator.py`、`loop.py`、`runner.py` 已有可运行实现，V6 状态文件主干已统一；剩余主要是生产化策略收口。 | 🟡 中 |
 | **契约监管不完整** | `api_contracts.yaml` 统管所有核心 API 签名 | 核心 7 条合约已核查通过（含 `search_engine_search`）；但 MCP/Timeline 等接口仍无合约覆盖。 | 🟡 中 |
 | **存储 L2.5 查询缓存层已初步落地** | `events_cache` 表 Layer 2.5 缓存，`wal.log` 崩溃恢复 | `EventIndex` 现已具备独立 `events_cache` + `event_file_refs` 写穿缓存与回填逻辑，`load_event/get_by_file` 已消费该层；剩余主要是 LRU 淘汰与更细粒度查询优化。 | 🟡 中 |
-| **L4 解释器剩余精修** | `dimc why` 穿透因果迷雾给出完美链路追踪 | `dimc why` 已通过 `get_file_history(..., use_causal_chain=True)` 接入 GraphStore 因果链，并将因果链证据提升为一等输出对象；当前剩余主要是更细粒度的排序/压缩/展示 polish。 | 🟡 中 |
+| **L4 解释器剩余精修** | `dimc why` 穿透因果迷雾给出完美链路追踪 | `dimc why` 已通过 `get_file_history(..., use_causal_chain=True)` 接入 GraphStore 因果链，并将因果链证据与最小对象证据提升为一等输出对象；`DecisionAnalyzer` 也已显式消费 `object_projection` 中的 Material/Claim。当前剩余主要是更细粒度的排序、压缩和展示 polish。 | 🟡 中 |
 | **L3 SchemaValidator 治理收口中** | `SchemaValidator` 上帝防线拦截一切非法时空关系 | 运行时卡口已接入写入链路，且 legacy 类型已从裸 `LEGACY_WHITELIST` 收敛为显式 policy registry，并写入 provenance/统计库存；剩余主要是持续压缩 legacy 生产面。 | 🟡 中 |
 
 *详细处置清单及历史遗留测试债已转移至 [BACKLOG.md](dev/BACKLOG.md)，必须逐一清算。*
@@ -154,6 +154,8 @@
 - **Task 048 SchemaValidator 治理收口** (2026-03-07): `SchemaValidator` 不再依赖裸字符串 `LEGACY_WHITELIST`；现已引入显式 `LegacyTypePolicy` registry、结构化 `ValidationResult`、legacy provenance 注入和 `EventIndex.get_legacy_type_counts()` 存量统计，为后续逐类迁移 legacy 类型建立运行时观测面。
 - **Task 046 Timeline 会话/任务边界升格** (2026-03-07): `TimelineService` 现已提取 `session_id/job_id` 上下文，`dimc timeline` 的 recent/range 模式会按 session/job 边界分组展示，daily stats 也新增 active sessions / jobs 聚合，不再只是裸事件列表。
 - **Task 044 `dimc why` 因果证据升格** (2026-03-07): `get_file_history()` 现已保留 `from_causal_chain` provenance，`why` 输出新增“因果链证据”独立段落，`DecisionAnalyzer` prompt 也会显式提高因果证据权重，不再退回纯 Git/时间线叙事。
+- **Why 最小对象证据落点** (2026-03-17): `cli.py:why()` 现在会在事件 `metadata.object_projection` 存在时输出“对象证据区”，至少显示 `Material` 与首条 `Claim.statement`；对应回归测试已补到 `tests/test_cli_history.py`，锁住有/无对象投影两条路径。
+- **Why 解释层对象证据接线** (2026-03-17): `DecisionAnalyzer` 现在会把 `object_projection` 中的 `Material` 与首条 `Claim` 编进解释 prompt，并明确要求叙事显式使用对象证据解释因果来源；`tests/test_brain_decision.py` 与 `tests/test_cli_history.py` 已补充单测和 `why --explain` 集成测试。
 - **Task 017 SearchEngine 混合检索接入 UNIX 通道** (2026-03-06): `SearchEngine.search()` 明确支持 `mode="unix"`，`_hybrid_search()` 已从旧的概念性混合检索收敛为 `semantic + graph + unix + text` 四通道候选融合；其中 `unix` 通道使用 `ripgrep` 对 Markdown 事件库做高精度召回，`rg` 缺失时静默降级为空结果，保持接口可用。
 - **Task 016 解释器因果引擎接入加深与提纯** (2026-03-04): 铲除导致覆盖的 `nx.DiGraph` 老接口调用，全面使用 `GraphStore` 的内联原生 SQL 发起查询；引入了防波堤式同库降级搜索与精确三重排序锚定，拔除了 `content LIKE` 的模糊隐患。
 - **Task 015 CI净化与环境加固** (2026-03-04): 清零 Ruff 历史 48 条错误（全仓 `src/` 全绿），加固 `scripts/check.zsh` 环境自动隔离（自动 `source .venv`），删除 `.pyc` 污染产物，修复重复测试行。`check.zsh` 物理实测 Exit Code 0，24 passed，Ruff 0 errors。
