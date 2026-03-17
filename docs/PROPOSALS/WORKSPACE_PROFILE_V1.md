@@ -27,7 +27,7 @@
 7. 当前仓库现实中同时存在以下几类区域：
    - `src/dimcause/` 及其子模块，承载产品内核实现的主要代码表面
    - `docs/logs/` 与 `docs/logs/raw/` 这类本地材料与证据承载面
-   - `docs/audit/`、`docs/audit_reports/`、`docs/reports/` 这类生成型报告与审计工件承载面
+   - `docs/audit/`、`docs/reports/` 这类生成型报告与审计工件承载面
    - `.agent/rules/`、`docs/coordination/`、本地开发控制层中的临时协作目录、`scripts/check.zsh`、`scripts/preflight_guard.py` 这类仓库治理与协作表面
 8. 当前仓库中的 `docs/` 并不是单一职责目录。它同时包含产品正式设计文档、proposal、研究材料、日志材料、报告工件和协作模板，因此 `docs/` 本身不能直接等同于某一产品层。
 9. 当前仓库中的 `tmp/` 也不是产品层专属目录。它同时包含讨论、协调、救援、测试沙箱等临时表面，因此 `tmp/` 本身不能被写成产品架构或 workspace profile 的稳定语义。
@@ -90,7 +90,7 @@
 3. **默认 workspace profile 映射**
    - 主要承载面是当前仓库中被用作本地材料、证据工件、报告工件、索引/存储支撑面的那些表面。
    - 当前仓库里最清晰的材料与证据承载面是 `docs/logs/` 与 `docs/logs/raw/`。
-   - 当前仓库里一部分生成型证据工件和报告工件也会出现在 `docs/audit/`、`docs/audit_reports/`、`docs/reports/` 这类目录中。
+   - 当前仓库里一部分生成型证据工件和报告工件也会出现在 `docs/audit/`、`docs/reports/` 这类目录中。
    - 当前仓库中的本地索引、知识建模与检索能力则主要通过 `src/dimcause/core/`、`src/dimcause/storage/`、`src/dimcause/reasoning/`、`src/dimcause/search/` 这些代码表面来实现。
 4. **当前 repo 内部治理**
    - 主要承载面包括 `.agent/rules/`、`docs/coordination/`、本地开发控制层中的临时协作目录、`scripts/check.zsh`、`scripts/preflight_guard.py` 等。
@@ -133,7 +133,7 @@
    - `src/dimcause/importers/` 承载目录导入与 Git 导入代码
 2. 这些路径说明：当前 profile 倾向于把“本地材料集”和“产品内核代码”放在同一工作空间中运营。
 3. 但这仍然只是当前默认 profile 的选择，不表示未来 profile 必须使用 `docs/logs/` 或必须把原始导出放进仓库内。
-4. 同理，`docs/audit/`、`docs/audit_reports/`、`docs/reports/` 这类路径当前可以承载生成型报告、检查结果和审计工件，但这些也是当前 profile 的现实表面，不是产品级固定目录规范。
+4. 同理，`docs/audit/`、`docs/reports/` 这类路径当前可以承载生成型报告、检查结果和审计工件，但这些也是当前 profile 的现实表面，不是产品级固定目录规范。
 
 #### 5.4 知识建模与对象化表面
 
@@ -164,7 +164,7 @@
 1. 作为当前 default workspace profile 的默认本地映射，而不是产品层定义或正式存储架构补充规范，当前 `dimc` 仓库中的 Evidence Layer 主要体现为：
    - `docs/logs/` 这类按日期组织的本地记录材料
    - `docs/logs/raw/` 这类原始导出材料
-   - `docs/audit/`、`docs/audit_reports/`、`docs/reports/` 这类生成型报告与审计工件目录
+   - `docs/audit/`、`docs/reports/` 这类生成型报告与审计工件目录
 2. 这些映射表明：当前 default profile 把本地材料与一部分生成型证据工件共同保存在仓库可见的文档表面中。
 3. 但 Evidence Layer 的产品级定义并不要求必须使用 `docs/` 前缀，也不要求必须按当前日期目录方式组织。
 
@@ -262,7 +262,7 @@
    - `docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md`
 3. 本文对当前仓库现实的映射，额外基于以下已核对事实：
    - 当前仓库现实已核对
-   - 当前仓库中确实存在 `src/dimcause/`、`docs/logs/`、`docs/logs/raw/`、`docs/audit/`、`docs/audit_reports/`、`docs/reports/`、`.agent/rules/`、`docs/coordination/`、本地开发控制层中的临时协作目录、`scripts/check.zsh`、`scripts/preflight_guard.py` 等相关表面
+   - 当前仓库中确实存在 `src/dimcause/`、`docs/logs/`、`docs/logs/raw/`、`docs/audit/`、`docs/reports/`、`.agent/rules/`、`docs/coordination/`、本地开发控制层中的临时协作目录、`scripts/check.zsh`、`scripts/preflight_guard.py` 等相关表面
 4. 本文没有修改受保护设计文档：
    - `docs/PROJECT_ARCHITECTURE.md`
    - `docs/STORAGE_ARCHITECTURE.md`

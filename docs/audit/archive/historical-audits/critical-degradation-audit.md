@@ -1,5 +1,7 @@
 # 🔴 核心能力灾难性降级审计报告 (CRITICAL DEGRADATION AUDIT - 专家订正版)
 
+**状态**: 历史审计快照；文风保留原样；仅供追溯当时问题与修复背景，不作当前正式审计依据。
+
 **审计标准**：极度苛刻（Zero Tolerance for Silent Downgrades & Fake Data）
 **审计目标**：深挖 DIMCAUSE 代码库中所有“以 catch 异常为名，行数据造假、逻辑阉割之实”的糊弄代码。
 

@@ -1,5 +1,7 @@
 # Post-Phase 3 Code Audit Report
 
+**状态**: 历史阶段审计；仅反映当时 Phase 3 之后的代码状态，不直接代表当前实现。
+
 ## 1. 结论概要 (Executive Summary)
 
 - **整体评估**: **可接受 (Pass with Warnings)**

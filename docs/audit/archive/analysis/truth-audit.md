@@ -1,5 +1,7 @@
 # 🏥 Dimcause 深度真实性审计报告 (Deep Truth Audit)
 
+**状态**: 历史快照；其中部分结论已与当前 live 代码不一致；不得直接作为当前事实依据。
+
 **日期**: 2026-02-16
 **审计模式**: Brutal / Strict
 **审计对象**: `src/dimcause` vs `docs/`
