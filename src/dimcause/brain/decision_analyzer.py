@@ -23,6 +23,38 @@ class DecisionAnalyzer:
 
         return self.client.complete(prompt=prompt, system=system_msg)
 
+    def _append_object_evidence(self, prompt_parts: List[str], commit: GitCommit) -> None:
+        """将对象证据附加到解释 prompt 中。"""
+        projection = (getattr(commit, "metadata", {}) or {}).get("object_projection")
+        if not isinstance(projection, dict):
+            return
+
+        material = projection.get("material")
+        if not isinstance(material, dict):
+            return
+
+        material_label = (
+            material.get("title")
+            or material.get("source_ref")
+            or material.get("id")
+            or "Unnamed Material"
+        )
+
+        prompt_parts.append("   Object Evidence:")
+        prompt_parts.append(f"   - Material: {material_label}")
+
+        claims = projection.get("claims")
+        if not isinstance(claims, list) or not claims:
+            return
+
+        first_claim = claims[0]
+        if not isinstance(first_claim, dict):
+            return
+
+        claim_statement = first_claim.get("statement")
+        if claim_statement:
+            prompt_parts.append(f"   - Claim: {claim_statement}")
+
     def _build_explanation_prompt(self, file_path: str, commits: List[GitCommit], lang: str) -> str:
         """Build prompt for LLM explanation"""
 
@@ -70,6 +102,8 @@ class DecisionAnalyzer:
                 if is_causal:
                     prompt_parts.append("   Causal Evidence: reached via GraphStore causal chain")
 
+            self._append_object_evidence(prompt_parts, commit)
+
             # Add legacy context events (if any)
             if commit.context_events:
                 prompt_parts.append("   > **Related Context:**")
@@ -90,6 +124,9 @@ class DecisionAnalyzer:
         prompt_parts.append("   - 关键问题：这个代码为什么会变成这样？因为之前发生了什么？")
         prompt_parts.append(
             "   - 对显式标记为 Causal Evidence 的事件赋予更高权重，不要退回纯时间线复述"
+        )
+        prompt_parts.append(
+            "   - 如果事件附带 Object Evidence，必须显式使用 Material 与 Claim 解释证据从何而来"
         )
         prompt_parts.append("")
         prompt_parts.append("2. 生成连贯的叙述 (narrative)：")

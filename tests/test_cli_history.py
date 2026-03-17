@@ -134,3 +134,49 @@ def test_why_renders_minimal_object_projection(mock_get_file_history, tmp_path, 
     assert "对象证据区" in result.stdout
     assert "Material: src/demo.py" in result.stdout
     assert "Claim: 该文件引入了最小对象证据显示。" in result.stdout
+
+
+@patch("dimcause.extractors.llm_client.LiteLLMClient.complete", return_value="解释已生成")
+@patch("dimcause.core.history.get_file_history")
+def test_why_explain_prompt_includes_object_projection(
+    mock_get_file_history, mock_complete, tmp_path, monkeypatch
+):
+    monkeypatch.setenv("DIMCAUSE_USE_EVENT_INDEX", "false")
+    target = tmp_path / "demo.py"
+    target.write_text("print('hello')\n", encoding="utf-8")
+
+    mock_get_file_history.return_value = [
+        GitCommit(
+            hash="evt_projection",
+            date="2026-03-06",
+            message="projection backed decision",
+            author="tester",
+            type="decision",
+            from_causal_chain=True,
+            metadata={
+                "object_projection": {
+                    "material": {
+                        "id": "mat_raw_1",
+                        "title": "src/demo.py",
+                        "source_ref": "raw:1",
+                    },
+                    "claims": [
+                        {
+                            "id": "claim_1",
+                            "statement": "该文件引入了最小对象证据显示。",
+                        }
+                    ],
+                }
+            },
+        )
+    ]
+
+    result = runner.invoke(app, ["why", str(target), "--max-commits", "1", "--explain"])
+
+    assert result.exit_code == 0
+    assert "解释已生成" in result.stdout
+
+    prompt = mock_complete.call_args.kwargs["prompt"]
+    assert "Object Evidence:" in prompt
+    assert "Material: src/demo.py" in prompt
+    assert "Claim: 该文件引入了最小对象证据显示。" in prompt

@@ -41,3 +41,36 @@ def test_analyze_evolution_prompt_structure():
     assert "Decided to use OAuth" in prompt  # Context should be included
     assert "Causal Evidence" in prompt
     assert "Write in English" in prompt
+
+
+def test_analyze_evolution_prompt_includes_object_projection():
+    """有对象证据时，解释 prompt 必须显式携带材料与 claim。"""
+    mock_client = MagicMock()
+    mock_client.complete.return_value = "对象证据已纳入解释。"
+
+    analyzer = DecisionAnalyzer(mock_client)
+
+    commit = GitCommit(
+        hash="abc1234",
+        date="2026-03-17",
+        author="dev",
+        message="feat: render object evidence",
+        metadata={
+            "object_projection": {
+                "material": {"source_ref": "src/auth.py"},
+                "claims": [{"statement": "登录链路需要 OAuth 证据说明。"}],
+            }
+        },
+    )
+
+    result = analyzer.analyze_evolution(file_path="src/auth.py", commits=[commit], lang="zh-CN")
+
+    assert result == "对象证据已纳入解释。"
+
+    call_args = mock_client.complete.call_args
+    prompt = call_args.kwargs.get("prompt") or call_args.args[0]
+
+    assert "Object Evidence:" in prompt
+    assert "Material: src/auth.py" in prompt
+    assert "Claim: 登录链路需要 OAuth 证据说明。" in prompt
+    assert "如果事件附带 Object Evidence" in prompt
