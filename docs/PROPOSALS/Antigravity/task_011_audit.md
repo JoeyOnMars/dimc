@@ -30,5 +30,5 @@ M 专家出色地完成了 `SearchEngine._graph_search` 的底层重构，实现
    - 结果：**9/9 Passed**。完全绿灯。
 
 ## 5. 移交决断 (Handover to User)
-防线一切就绪，请求最高指挥官启动 `PHASE2_AUDIT_CHECKLIST.md` 中的“代码卫生”和“机制白名单”人工走查。
+防线一切就绪，请求最高指挥官按当前仓库治理门禁做最后人工走查，重点核对 `.agent/rules/agent-git-workflow.md`、`docs/coordination/codex_cli_multi_agent_playbook.md` 与进度文档同步要求。
 若认可当前实现，请批复同意，我将代表您执行 Merge！

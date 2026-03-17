@@ -36,7 +36,10 @@
 > 🚨🚨 **G专家警告：你必须强制执行以下红线，否则视为渎职违规！** 🚨🚨
 当收到 M 专家的 `[PR_READY]` 后，你在出具 `task_011_audit.md` 前，**必须**：
 1. **环境纪律复核**: 进入 `.venv`，强制运行 `scripts/check.zsh | grep engine`。必须 0 error，否则打回 M 专家，绝不开恩代为修改！
-2. **加载最高指挥官的 Checklist**: 你必须去读取并逐项验证 `docs/dev/PHASE2_AUDIT_CHECKLIST.md` 中的设计合规、测试防线、代码卫生。
+2. **加载当前仓库治理门禁**: 你必须去读取并逐项核对当前有效的仓库治理规则与交付门禁，至少包括：
+   - `.agent/rules/agent-git-workflow.md`
+   - `docs/coordination/codex_cli_multi_agent_playbook.md`
+   - 当前任务对应的 `docs/STATUS.md`、`docs/dev/BACKLOG.md` 与 roadmap / 执行计划文档同步要求
 3. **移交权柄**: 最后向 User 汇报结果，等待 User 盖章 Checklist 后，由 User 或 User 明确授权方可 `git merge`。
 
 ## 6. 🎯 M 专家 (Claude Code) 强制开工协议 (MANDATORY STARTUP PROTOCOL)

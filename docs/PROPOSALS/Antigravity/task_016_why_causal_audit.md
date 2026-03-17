@@ -29,9 +29,9 @@
 - `test_graph_store_causal.py`：证实了同一组事件间发生 (calls, caused_by) 双向结构/因果重叠时，SQL 回溯毫不褪色。
 - `test_history_causal.py`：使用 `tmp_path` 有效建立了隔离场。利用复杂的 `modifies`、`calls`、`caused_by` 跨库并发写入，验证了因果链能在无 `content` 报错的前提下打通全流程且没有发生意外降级消失。
 
-## 3. 强制交叉核验单 (Against PHASE2_AUDIT_CHECKLIST.md)
+## 3. 强制交叉核验单（Against Current Governance Gates）
 
-依据 V15 契约第 5 节的明确指令，此合并必须通过《Phase 2 审计门禁》的四大考问：
+依据 V15 契约第 5 节的明确指令，此合并必须通过当前仓库治理门禁的四大考问：
 
 ### 3.1. 设计合规性 (Design Compliance) —— ✅ PASS
 - **Ontology 映射 / 无暗算**：本次只涉及底层查询构建，未引入新实体或隐藏逻辑。严格实现了因果边取 `source`、禁止 `LIKE` 的设计防线。

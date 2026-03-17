@@ -17,4 +17,4 @@
 
 ## 4. 结论与下一步
 - 所有代码与测试质量门禁均已重新拉满。
-- **[AWAITING_SUPREME_MERGE]**: 为了确保多 Agent 流水线的绝对透明，请您在心里最后对齐一遍 `PHASE2_AUDIT_CHECKLIST.md`，然后敲击“同意合并”。我将执行 `git merge`。
+- **[AWAITING_SUPREME_MERGE]**: 为了确保交付与合流透明，请您最后核对当前仓库治理门禁（`.agent/rules/agent-git-workflow.md` 与 `docs/coordination/codex_cli_multi_agent_playbook.md`）后再决定是否合流。
