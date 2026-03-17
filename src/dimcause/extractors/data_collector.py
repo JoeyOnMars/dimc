@@ -73,7 +73,7 @@ class DataCollector:
         # 1. Brain Artifacts
         self._collect_brain_artifacts(data)
 
-        # 2. Raw Chats (AG_Exports + External)
+        # 2. Raw Chats (配置导出目录 + External)
         self._collect_raw_chats(data)
 
         # 3. Claude Code JSONL Sessions
@@ -106,17 +106,16 @@ class DataCollector:
 
     def _collect_raw_chats(self, data: SessionData):
         """采集原始对话日志"""
-        # 1. AG_Exports (Primary L0 Source)
-        # 查找范围: docs/logs/raw/AG_Exports
-        # 匹配规则: 文件名包含 session_id
-        ag_exports_dir = self.root_dir / "docs/logs/raw/AG_Exports"
-        if ag_exports_dir.exists():
+        # 1. 配置的导出目录（默认 ~/Documents/AG_Exports）
+        # 匹配规则: 文件修改时间位于会话窗口内，或日期匹配 session date
+        export_dir = Path(self.config.export_dir).expanduser()
+        if export_dir.exists():
             try:
                 s_date = datetime.strptime(self.date_str, "%Y-%m-%d").date()
             except ValueError:
                 s_date = None
 
-            for p in ag_exports_dir.glob("*.md"):
+            for p in export_dir.glob("*.md"):
                 mtime_dt = datetime.fromtimestamp(p.stat().st_mtime)
 
                 # Check based on exact time window if available
@@ -198,7 +197,7 @@ class DataCollector:
             data.claude_code_markdown = "\n\n---\n\n".join(parts)
 
         except Exception as e:
-            # Non-fatal: existing AG_Exports flow continues
+            # Non-fatal: existing raw chat flow continues
             import logging
 
             logging.getLogger(__name__).warning(f"Claude Code JSONL collection failed: {e}")

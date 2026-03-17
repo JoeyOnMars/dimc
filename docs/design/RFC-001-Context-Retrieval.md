@@ -31,7 +31,7 @@
 2.  **系统操作**: 执行 `dimc down`。
 3.  **智能扫描逻辑**:
     -   **锚点**: 从 `docs/logs/.../01-start.md` 读取 `session_start_time`。
-    -   **发现**: 扫描 `docs/logs/raw/AG_Exports/*.md` (或配置的用户下载文件夹)。
+    -   **发现**: 扫描配置的导出目录（默认 `~/Documents/AG_Exports/*.md`）。
     -   **过滤**: 选择 `mtime >= session_start_time` 的文件。
     -   **摄取**: 自动将内容复制到 `docs/logs/YYYY/MM-DD/XX-end.md`。
 

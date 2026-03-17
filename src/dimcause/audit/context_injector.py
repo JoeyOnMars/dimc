@@ -137,15 +137,14 @@ class ContextInjector:
 
     def _scan_ag_exports(self, session_id: str, date_str: str) -> str:
         """
-        Scan AG_Exports for the session log.
+        Scan configured export directory for the session log.
         Priority:
         1. Strict Match: File contains both {date_str} and {session_id}.
         2. Interactive Selection: List recent files and ask user to choose.
         """
-        # Use config or default path
-        export_dir = self.root_dir / "docs/logs/raw/AG_Exports"
-        if not export_dir.exists():
-            # Try user home documents fallback
+        # Use configured export directory first; default remains ~/Documents/AG_Exports
+        export_dir = Path(self.config.export_dir).expanduser()
+        if not export_dir.exists() and not str(self.config.export_dir).strip():
             export_dir = Path.home() / "Documents/AG_Exports"
 
         if not export_dir.exists():

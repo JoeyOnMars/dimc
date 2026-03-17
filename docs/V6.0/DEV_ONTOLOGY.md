@@ -567,8 +567,8 @@ axioms:
 2. **本体论五层结构**: Gruber, T. (1993). "A translation approach to portable ontology specifications"
 3. **JSON-LD规范**: [W3C JSON-LD 1.1](https://www.w3.org/TR/json-ld11/)
 4. **Provenance Ontology**: [W3C PROV-O](https://www.w3.org/TR/prov-o/)
-5. **Gemini DIKW讨论**: `docs/logs/raw/Gemini/DIKW与本体的深度讨论-GEMINI-20260210.md`
-6. **Perplexity战略回复**: `docs/logs/raw/Perplexity/对Gemini讨论的回复`
+5. **Gemini DIKW讨论**: 仓库外历史讨论材料（本地原始记录，不纳入共享仓）
+6. **Perplexity战略回复**: 仓库外历史讨论材料（本地原始记录，不纳入共享仓）
 
 ---
 
