@@ -1,5 +1,9 @@
 # RFC-001: 会话上下文检索策略与局限性 (Session Context Retrieval Strategy & Limitations)
 
+**状态**：设计记录
+**定位**：记录 `dimc down` 两阶段执行与导出目录智能扫描方案的原始设计背景。
+**边界**：当前 live 行为以代码、`STATUS` 和 roadmap 为准；本文不承担当前共享操作指南职责。
+
 ## 1. 摘要 (Summary)
 本 RFC 记录了关于从 IDE 内存/GUI 中自动检索完整会话历史 (Session Context) 的可行性技术分析，以及最终决定采用基于手动导出的 "智能扫描" (Smart Scan) 方案的决策过程。
 
