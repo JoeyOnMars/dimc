@@ -55,6 +55,21 @@
 ### P1-3: 全量测试红线清理（Task 3.1）
 - **现状**: 103 个测试文件用 `@pytest.mark.legacy_debt` 隔离，盲区 Bug 状态完全未知。
 
+### P1-9: 全量 skipped 测试债清理（30 项）
+- **审计事实**: `pytest -q -rs` 当前为 `1103 passed, 30 skipped`。
+- **分类结果**:
+  1. 过时测试：`3`
+  2. 手工 / 完整环境测试：`2`
+  3. 真实数据 / 真实代码库保护性阻断：`4`
+  4. 环境依赖缺失：`1`
+  5. 真正未实现的测试：`20`
+- **当前入口**: [`SKIPPED_TESTS_REMEDIATION_PLAN.md`](./SKIPPED_TESTS_REMEDIATION_PLAN.md)
+- **处理顺序**:
+  1. 先清零过时测试
+  2. 再把受保护测试迁出默认套件
+  3. 明确依赖门槛
+  4. 最后按产品路线补齐未实现测试
+
 ### ~~P1-4: LLMLinker 模型名硬编码（`deepseek-chat`）~~ (FIXED)
 - **修复事实**:
   - `dimc config set KEY VALUE` 已落地，可写入 `llm_primary.model` / `llm_primary.provider` 等嵌套配置
