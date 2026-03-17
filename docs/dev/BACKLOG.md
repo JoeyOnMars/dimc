@@ -128,11 +128,15 @@
 ### P2-1: Context 权重污染（向量搜索无 Reranker 衰减）
 - `VectorStore.search` 返回 50 条结果直接灌给 LLM，无 Anti-Forgetting 权重衰减。
 
-### ~~P2-2: Pyre2 静态分析配置（Task 3.2）~~ (FIXED)
+### ~~P2-2: 静态分析配置基线（Task 3.2）~~ (FIXED)
 - **修复事实**:
   - 仓库根目录已新增 `.pyre_configuration`
   - `source_directories` 与 `search_path` 已统一指向 `src`
-- **后续说明**: 当前仓库仍未内置 `pyre/pyre2/pyrefly` 可执行；运行级验证依赖开发机自行安装对应工具，但“缺少搜索路径配置”这笔债已还清。
+  - `pyproject.toml` 的 `[tool.mypy]` 已显式声明 `mypy_path = "$MYPY_CONFIG_FILE_DIR/src"`
+- **后续说明**:
+  - 当前 live 类型检查器是 `mypy`，不是 Pyre2；CI 与审计入口也都跑 `mypy`
+  - `mypy src/dimcause --ignore-missing-imports` 目前仍有大量真实类型错误；这属于后续类型债，不再归为“缺少搜索路径配置”
+  - 当前仓库仍未内置 `pyre/pyre2/pyrefly` 可执行；运行级验证依赖开发机自行安装对应工具
 
 ### P2-3: Timeline 仍缺少会话衰减视图
 - **修复事实**: `dimc timeline` 现已具备 `session_id/job_id` 边界追踪与展示，不再只是裸时间排序。

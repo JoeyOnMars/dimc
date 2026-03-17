@@ -264,7 +264,7 @@ black .
 isort .
 
 # mypy（类型检查）
-mypy dimcause
+mypy src/dimcause --ignore-missing-imports
 
 # 全部一起运行
 pre-commit run --all-files

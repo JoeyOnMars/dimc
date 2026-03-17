@@ -66,7 +66,7 @@
 | 任务 3.0 | 遗留测试修复 (test_config/state/cli) | ✅ 完成 (56/56 passed) |
 | 任务 3.1 Prep | 隔离历史遗留测试 | ✅ 完成 (Marker 全局硬隔离 118 个断代用例) |
 | 任务 3.1 | 全量测试红线清理 (The Big Cleanup) | 📋 待修复 (逐步解除 marker 修复用例) |
-| 任务 3.2 | Pyre2 静态分析配置修复 | ✅ 配置已落地（`.pyre_configuration` 指向 `src`；运行级验证依赖开发机安装 Pyre 工具） |
+| 任务 3.2 | 静态分析配置基线修复 | ✅ 配置已落地（`.pyre_configuration` + `mypy_path` 均指向 `src`；live 类型检查器为 `mypy`，剩余是类型错误本身） |
 | Doc Align | 系统文档对齐 (Flow/Arch/Repo) | ✅ 完成 |
 | Log Fix | 02-19 日志补录 | ✅ 完成 |
 | Task 007-01 | Causal Core 时空硬锁与拓扑孤岛拦截 | ✅ 完成 (严格双防线构建) |
