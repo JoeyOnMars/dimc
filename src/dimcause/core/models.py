@@ -207,7 +207,13 @@ class Event(BaseModel):
             "related_files": self.related_files,
             "related_event_ids": self.related_event_ids,
             "entities": [entity.model_dump(mode="json") for entity in self.entities],
-            "code_entities": [entity.model_dump(mode="json") for entity in self.code_entities],
+            "code_entities": [
+                {
+                    **entity.model_dump(mode="json"),
+                    "full_path": entity.full_path,
+                }
+                for entity in self.code_entities
+            ],
         }
 
         for key, value in self.metadata.items():

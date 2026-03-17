@@ -91,6 +91,12 @@ where = ["src"]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-v --tb=short"
+markers = [
+    "integration: 集成测试",
+    "fast: 快速测试",
+    "slow: 慢速测试",
+    "timeout: 带超时约束的测试",
+]
 filterwarnings = [
     "ignore::DeprecationWarning",
 ]

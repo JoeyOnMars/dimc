@@ -20,6 +20,7 @@ Usage:
 #  localhost  Antigravity Tools
 import logging
 import os
+import sys
 
 os.environ["NO_PROXY"] = "127.0.0.1,localhost,::1"
 os.environ["no_proxy"] = "127.0.0.1,localhost,::1"
@@ -2452,6 +2453,9 @@ def search(
     results = _do_search(query, mode="hybrid", top_k=limit, use_reranker=False, source=source)
 
     if not results:
+        return
+
+    if not sys.stdin.isatty():
         return
 
     # Interactive Loop

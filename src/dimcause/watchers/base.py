@@ -122,25 +122,25 @@ class BaseWatcher(ABC):
         import logging
 
         logger = logging.getLogger(__name__)
-        logger.info(f"DEBUG: File changed: {file_path}")
+        logger.debug("文件发生变化: %s", file_path)
 
         # 只处理目标文件
         if not self._should_process(file_path):
-            logger.info(f"DEBUG: Ignoring file: {file_path} (should_process=False)")
+            logger.debug("忽略文件: %s (should_process=False)", file_path)
             return
 
         # 读取新内容
         new_content = self._read_new_content(file_path)
         if not new_content:
-            logger.info(f"DEBUG: No new content in {file_path}")
+            logger.debug("文件 %s 没有新增内容", file_path)
             return
 
-        logger.info(f"DEBUG: New content length: {len(new_content)}")
+        logger.debug("新增内容长度: %s", len(new_content))
 
         # 解析并触发回调
         raw_data = self._parse_content(new_content)
         if raw_data:
-            logger.info(f"DEBUG: Parsed raw data: {raw_data.id}")
+            logger.debug("解析到原始数据: %s", raw_data.id)
             for callback in self._callbacks:
                 try:
                     callback(raw_data)

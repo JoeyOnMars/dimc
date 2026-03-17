@@ -311,6 +311,13 @@ class GraphStore:
         因果边必须通过 CausalEngine.link_causal() 写入，禁止走此接口。
         """
         if relation not in self.STRUCTURAL_RELATIONS:
+            from dimcause.reasoning.causal_engine import CAUSAL_RELATIONS_SET
+
+            if relation in CAUSAL_RELATIONS_SET or relation == "causes":
+                raise IllegalRelationError(
+                    relation,
+                    hint="因果边请走 CausalEngine.link_causal()",
+                )
             raise IllegalRelationError(
                 relation, hint="结构边仅允许 calls/imports/contains/depends_on"
             )

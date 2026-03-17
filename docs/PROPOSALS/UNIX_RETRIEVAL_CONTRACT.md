@@ -540,7 +540,7 @@ enabled = true
 
 [search.unix.sources.docs]
 enabled = true
-paths = ["docs", "tmp/discussion"]
+paths = ["docs"]
 
 [search.unix.sources.code]
 enabled = true

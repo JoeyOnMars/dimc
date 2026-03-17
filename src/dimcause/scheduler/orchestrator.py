@@ -353,7 +353,9 @@ class Orchestrator:
 
         if not self._ref_exists(base_ref) or not self._ref_exists(branch):
             return None
-        code, out, _ = run_git("rev-list", "--left-right", "--count", f"{base_ref}...{branch}", cwd=self.root)
+        code, out, _ = run_git(
+            "rev-list", "--left-right", "--count", f"{base_ref}...{branch}", cwd=self.root
+        )
         if code != 0 or not out.strip():
             return None
         parts = out.split()
@@ -470,9 +472,7 @@ class Orchestrator:
         )
         blocking_reasons = cast(List[str], summary.get("blocking_reasons", []))
         if blocking_reasons:
-            raise RuntimeError(
-                "task closeout blocked: " + ", ".join(blocking_reasons)
-            )
+            raise RuntimeError("task closeout blocked: " + ", ".join(blocking_reasons))
 
         branch = str(summary["branch"])
         code, _, err = run_git("merge", "--ff-only", branch, cwd=self.root)
@@ -2515,7 +2515,9 @@ class Orchestrator:
                     self._state["tasks"][matched_task_id].priority = priority
                     continue
 
-                standalone_task_id = self._extract_task_id_from_task_card(content, fallback=match.group(1))
+                standalone_task_id = self._extract_task_id_from_task_card(
+                    content, fallback=match.group(1)
+                )
                 standalone_title = self._extract_title(content)
                 standalone_status = self._parse_task_card_status(frontmatter.get("status"))
                 standalone_priority = self._infer_priority(
@@ -2894,10 +2896,7 @@ class Orchestrator:
             for token in ("readme", "文档", "草案", "proposal", "index", "索引", "profile", "架构")
         ):
             return "docs"
-        if any(
-            token in haystack
-            for token in ("pytest", "测试", "回归", "test_", "tests/")
-        ):
+        if any(token in haystack for token in ("pytest", "测试", "回归", "test_", "tests/")):
             return "test"
         if any(
             token in haystack
@@ -3090,8 +3089,12 @@ class Orchestrator:
         card_path = existing or (agent_tasks_dir / f"agent_{task_token}_{title_slug}.md")
 
         cli_hint = self._infer_cli(task_id, title)
-        inferred_related = list(self.TASK_FILE_HINTS.get(cli_hint, [])) if cli_hint in self.TASK_FILE_HINTS else []
-        related = [item.strip() for item in (related_files or []) if item and item.strip()] or inferred_related
+        inferred_related = (
+            list(self.TASK_FILE_HINTS.get(cli_hint, [])) if cli_hint in self.TASK_FILE_HINTS else []
+        )
+        related = [
+            item.strip() for item in (related_files or []) if item and item.strip()
+        ] or inferred_related
         task_class = self._infer_task_card_class(task_id, title, goal, related)
         default_sections = self._default_task_card_sections(task_class, cli_hint=cli_hint)
         deliverable_lines = self._normalize_bullet_lines(
