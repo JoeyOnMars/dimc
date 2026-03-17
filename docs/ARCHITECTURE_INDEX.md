@@ -53,12 +53,15 @@
 
 1. [src/dimcause](../src/dimcause)
 2. [tests](../tests)
-3. 当前与产品运行直接相关的入口脚本与打包配置
+3. [UNIX_RETRIEVAL_CONTRACT.md](./PROPOSALS/UNIX_RETRIEVAL_CONTRACT.md)
+4. [V6.3_extraction_pipeline_design.md](./PROPOSALS/V6.3_extraction_pipeline_design.md)
+5. [V6.3_CAUSAL_LINKER_DESIGN.md](./PROPOSALS/V6.3_CAUSAL_LINKER_DESIGN.md)
+6. 当前与产品运行直接相关的入口脚本与打包配置
 
 本层回答：
 1. 产品目前被实现成什么样；
 2. 源代码、测试和运行脚本目前做到哪一步；
-3. 当前技术债、未完成迁移和实现现实是什么。
+3. 当前关键实现设计契约、技术债、未完成迁移和实现现实是什么。
 
 本层规则：
 1. 本层属于产品本身，不应被排除出产品主线；
