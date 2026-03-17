@@ -1,5 +1,7 @@
 # Dimcause V6.0 设计与实现对齐报告 (Design Alignment Report)
 
+**状态**: 历史阶段文档；仅反映 2026-02-17 时点的设计对齐情况，不作为当前正式依据。
+
 > **生成日期**: 2026-02-17
 > **基准文档**: `docs/PROJECT_ARCHITECTURE.md` (v6.2), `docs/V6.0/DEV_ONTOLOGY.md` (v1.1)
 > **代码版本**: Git HEAD
