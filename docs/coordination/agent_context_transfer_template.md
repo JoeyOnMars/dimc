@@ -1,6 +1,7 @@
-# Agent Context Transfer Template
+# Agent 上下文转交模板
 
-> 用途：内部 agent 之间的上下文转交模板
+> 状态：当前有效
+> 定位：仓库治理层模板，用于内部 agent 之间的上下文转交
 > 说明：将本模板复制到 `tmp/coordination/agent_context_transfer.md` 或任务实例文件中使用
 > 注意：这不是 `Per-handover`
 

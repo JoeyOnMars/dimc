@@ -1,5 +1,9 @@
 # Codex CLI 多 Agent 作战手册
 
+**状态**：当前有效
+**定位**：仓库治理层中的操作手册，用于说明当前仓库基于 `Codex CLI + git worktree + Task Packet` 的最小多 Agent 协作方式。
+**边界**：本文不定义产品语义，不替代运行时任务实例，也不承诺完整自动编排能力。
+
 ## 1. 文档定位
 
 1. 本文定义的是当前仓库中基于 `Codex CLI + git worktree + Task Packet` 的最小多 Agent 协作方式。
