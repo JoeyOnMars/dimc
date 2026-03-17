@@ -4,10 +4,41 @@ DIMCAUSE v0.1 Daemon 完整测试
 覆盖 DimcauseDaemon 的核心逻辑
 """
 
+import json
 import os
 import tempfile
 from datetime import datetime
+from pathlib import Path
 from unittest.mock import Mock
+
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def _isolated_daemon_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    from dimcause.utils.config import reset_config
+
+    root = tmp_path / "daemon-root"
+    root.mkdir(parents=True, exist_ok=True)
+    (root / ".logger-config").write_text(
+        json.dumps(
+            {
+                "data_dir": str(root / ".dimcause"),
+                "watcher_claude": {
+                    "enabled": False,
+                    "path": str(root / ".claude" / "history.jsonl"),
+                },
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("DIMCAUSE_ROOT", str(root))
+    reset_config()
+    yield
+    reset_config()
 
 
 class TestDimcauseDaemonInit:

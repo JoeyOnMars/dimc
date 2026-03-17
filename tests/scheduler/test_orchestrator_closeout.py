@@ -116,6 +116,14 @@ def _write_runtime_and_task_card(
     )
 
 
+def _commit_branch_change(repo: Path, branch: str, relpath: str, content: str) -> None:
+    _git(repo, "switch", branch)
+    _write(repo / relpath, content)
+    _git(repo, "add", relpath)
+    _git(repo, "commit", "-m", f"update {relpath}")
+    _git(repo, "switch", "main")
+
+
 def test_summarize_task_closeout_marks_governance_task_eligible(tmp_path: Path) -> None:
     branch = "codex/ops-gov-closeout"
     repo = _init_repo_with_feature_branch(tmp_path, branch=branch)
@@ -153,6 +161,7 @@ def test_auto_closeout_task_merges_branch_and_updates_runtime(tmp_path: Path) ->
 def test_summarize_task_closeout_blocks_implementation_task_by_default(tmp_path: Path) -> None:
     branch = "codex/task-impl-closeout"
     repo = _init_repo_with_feature_branch(tmp_path, branch=branch)
+    _commit_branch_change(repo, branch, "src/app.py", "print('impl')\n")
     _write_runtime_and_task_card(repo, task_id="IMPL-1", branch=branch, task_class="implementation")
 
     orchestrator = Orchestrator(project_root=repo)
@@ -160,3 +169,59 @@ def test_summarize_task_closeout_blocks_implementation_task_by_default(tmp_path:
 
     assert summary["eligible"] is False
     assert "task_class_not_low_risk" in summary["blocking_reasons"]
+    assert "missing_progress_doc_sync" in summary["blocking_reasons"]
+    assert summary["progress_doc_sync_required"] is True
+    assert summary["progress_doc_sync_ok"] is False
+
+
+def test_summarize_task_closeout_blocks_implementation_without_progress_docs(
+    tmp_path: Path,
+) -> None:
+    branch = "codex/task-impl-closeout"
+    repo = _init_repo_with_feature_branch(tmp_path, branch=branch)
+    _commit_branch_change(repo, branch, "src/app.py", "print('impl')\n")
+    _write_runtime_and_task_card(repo, task_id="IMPL-1", branch=branch, task_class="implementation")
+
+    orchestrator = Orchestrator(project_root=repo)
+    summary = orchestrator.summarize_task_closeout("IMPL-1", allow_implementation=True)
+
+    assert summary["eligible"] is False
+    assert summary["blocking_reasons"] == ["missing_progress_doc_sync"]
+    assert "src/app.py" in summary["changed_files"]
+    assert summary["progress_docs_touched"] == []
+
+
+def test_summarize_task_closeout_allows_implementation_with_progress_docs(
+    tmp_path: Path,
+) -> None:
+    branch = "codex/task-impl-closeout"
+    repo = _init_repo_with_feature_branch(tmp_path, branch=branch)
+    _commit_branch_change(repo, branch, "src/app.py", "print('impl')\n")
+    _commit_branch_change(
+        repo,
+        branch,
+        "docs/STATUS.md",
+        "\n".join(
+            [
+                "# Status",
+                "",
+                "## 3. V6.1 进度 (审计修复与 Production Polish)",
+                "",
+                "| 任务 | 内容 | 状态 |",
+                "|:---|:---|:---|",
+                "| IMPL-1 | 产品实现收口 | ✅ 已完成 |",
+                "",
+                "## 4. 核心模块状态（代码验证）",
+            ]
+        )
+        + "\n",
+    )
+    _write_runtime_and_task_card(repo, task_id="IMPL-1", branch=branch, task_class="implementation")
+
+    orchestrator = Orchestrator(project_root=repo)
+    summary = orchestrator.summarize_task_closeout("IMPL-1", allow_implementation=True)
+
+    assert summary["eligible"] is True
+    assert summary["progress_doc_sync_required"] is True
+    assert summary["progress_doc_sync_ok"] is True
+    assert "docs/STATUS.md" in summary["progress_docs_touched"]

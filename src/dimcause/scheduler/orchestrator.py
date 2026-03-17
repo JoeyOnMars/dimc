@@ -92,6 +92,10 @@ class Orchestrator:
     RUNTIME_STATE_FILE = ".agent/scheduler_state.json"
     TASK_PACKET_DIR = Path("tmp/coordination/task_packets")
     TASK_BOARD_FILE = Path("tmp/coordination/task_board.md")
+    REQUIRED_PROGRESS_DOCS = (
+        "docs/STATUS.md",
+        "docs/dev/BACKLOG.md",
+    )
     TASK_FILE_HINTS = {
         "dimc scheduler": [
             "src/dimcause/scheduler/orchestrator.py",
@@ -363,6 +367,28 @@ class Orchestrator:
             return None
         return {"base_only": int(parts[0]), "branch_only": int(parts[1])}
 
+    def _changed_files_between_refs(self, base_ref: str, target_ref: str) -> List[str]:
+        from dimcause.utils.git import run_git
+
+        if not self._ref_exists(base_ref) or not self._ref_exists(target_ref):
+            return []
+        code, out, _ = run_git("diff", "--name-only", f"{base_ref}..{target_ref}", cwd=self.root)
+        if code != 0 or not out.strip():
+            return []
+        return [line.strip() for line in out.splitlines() if line.strip()]
+
+    @classmethod
+    def _is_progress_doc(cls, file_path: str) -> bool:
+        normalized = file_path.strip()
+        if normalized in cls.REQUIRED_PROGRESS_DOCS:
+            return True
+        lowered = normalized.lower()
+        if lowered.startswith("docs/") and "roadmap" in lowered:
+            return True
+        if lowered.startswith("docs/") and "plan" in lowered and lowered.endswith(".md"):
+            return True
+        return False
+
     @staticmethod
     def _frontmatter_bool(value: object) -> bool:
         if isinstance(value, bool):
@@ -403,6 +429,12 @@ class Orchestrator:
         explicit_auto_closeout = self._frontmatter_bool(task_card.get("auto_closeout"))
         closeout_policy = "auto" if (low_risk_by_class or explicit_auto_closeout) else "manual"
         ahead_behind = self._ahead_behind_counts(base_ref, branch) if branch else None
+        changed_files = self._changed_files_between_refs(base_ref, branch) if branch else []
+        progress_docs_touched = [
+            file_path for file_path in changed_files if self._is_progress_doc(file_path)
+        ]
+        progress_doc_sync_required = task_class == "implementation"
+        progress_doc_sync_ok = (not progress_doc_sync_required) or bool(progress_docs_touched)
 
         blocking_reasons: List[str] = []
         if not runtime:
@@ -430,6 +462,8 @@ class Orchestrator:
                 blocking_reasons.append("base_ref_ahead_of_task_branch")
             if ahead_behind["branch_only"] <= 0:
                 blocking_reasons.append("task_branch_has_no_new_commits")
+        if progress_doc_sync_required and not progress_doc_sync_ok:
+            blocking_reasons.append("missing_progress_doc_sync")
         if closeout_policy != "auto" and not allow_implementation:
             blocking_reasons.append("task_class_not_low_risk")
 
@@ -452,6 +486,10 @@ class Orchestrator:
             "closeout_policy": closeout_policy,
             "allow_implementation": allow_implementation,
             "ahead_behind": ahead_behind,
+            "changed_files": changed_files,
+            "progress_doc_sync_required": progress_doc_sync_required,
+            "progress_doc_sync_ok": progress_doc_sync_ok,
+            "progress_docs_touched": progress_docs_touched,
             "eligible": not blocking_reasons,
             "blocking_reasons": blocking_reasons,
         }
