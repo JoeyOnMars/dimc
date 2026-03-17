@@ -48,7 +48,7 @@
 *   **无变更**。仅为测试环境配置。
 
 ## 5. M 专家执行指令 (Execution Instructions)
-1. **核心逻辑**：修改 `pyproject.toml` 注册 marker，并在 `TEST_REPORT_2026-02-19.md` 中列出的 24 个发生 Failed/Error 的测试文件顶部（`import pytest` 之后）注入 `pytestmark = pytest.mark.legacy_debt`。
+1. **核心逻辑**：修改 `pyproject.toml` 注册 marker，并在本契约第 2 节列出的 24 个发生 Failed/Error 的历史测试文件顶部（`import pytest` 之后）注入 `pytestmark = pytest.mark.legacy_debt`。
 2. **测试防线验证**：
    修改完成后，运行 `pytest tests/ -m "not legacy_debt" -v --tb=short` 确保排除那 118 个历史 Debt 后，剩余用例 `100% Passed` 且无 Collection Error。
 3. **原子提交与推送**：

@@ -166,7 +166,7 @@
 - **Task 007-01 Causal Core 时空硬锁** (2026-02-25): 建立双入口架构隔离：`GraphStore` 退化为结构边哑存储（白名单：calls/imports/contains/depends_on），`CausalEngine` 成为因果边唯一入口（防线 A 时间锥 + 防线 B 拓扑孤岛/Global Broadcasting Override）。废除 `add_relation`，新增 `add_structural_relation` + `_internal_add_relation`。867 passed。
 - **RFC-001 两阶段下线** (2026-02-20): 增加 `dimc down` 两阶段执行，利用 session.lock 获取精准窗口保障一致性。
 - **遗留测试修复** (2026-02-19): test_config(3) + test_state(12) + test_cli(3) 全部修复至 56/56 passed。修复 context.py + cli.py orphan dict 访问 bug。
-- **全量测试报告** (2026-02-19): 820 tests → 693 passed, 103 failed, 15 errors。103 failed 归为 6 类预存根因（GraphStore 42, state API 12, CLI 语言 19, workflow 12, model_config 3, 其他 15）。详见 `docs/reports/TEST_REPORT_2026-02-19.md`。
+- **全量测试账单（历史快照）** (2026-02-19): 820 tests → 693 passed, 103 failed, 15 errors。103 failed 当时归为 6 类预存根因（GraphStore 42, state API 12, CLI 语言 19, workflow 12, model_config 3, 其他 15）；该历史账单已不单独保留为 live 报告，后续整改以当前 `BACKLOG`、roadmap 与专项清单为准。
 - **Smart Scan** (2026-02-18): 实现 Task 2.0，基于 Session Start Time 自动匹配导出文件，双重过滤 (mtime+内容时间戳)。
 - **BFS 图搜索修复** (2026-02-18): 修复 `SearchEngine._graph_search` TypeError/AttributeError，实现 BFS+提前终止优化。
 - **CLI Help 标准化** (2026-02-18): 30+ 命令添加中英双语说明和用法示例，修复 ruff 报错。
