@@ -3419,6 +3419,36 @@ def why(
     def _render_why_meta(commit_obj) -> None:
         meta = getattr(commit_obj, "metadata", {}) or {}
 
+        def _render_object_projection() -> None:
+            projection = meta.get("object_projection")
+            if not isinstance(projection, dict):
+                return
+
+            material = projection.get("material")
+            claims = projection.get("claims")
+            if not isinstance(material, dict):
+                return
+
+            material_label = (
+                material.get("title")
+                or material.get("source_ref")
+                or material.get("id")
+                or "未命名材料"
+            )
+
+            first_claim = None
+            if isinstance(claims, list) and claims:
+                first_claim = claims[0]
+
+            claim_statement = None
+            if isinstance(first_claim, dict):
+                claim_statement = first_claim.get("statement")
+
+            console.print("   对象证据区:")
+            console.print(f"     - Material: {material_label}")
+            if claim_statement:
+                console.print(f"     - Claim: {claim_statement}")
+
         if "reason" in meta:
             console.print(f"   : {meta['reason']}")
         if "solution" in meta:
@@ -3459,6 +3489,8 @@ def why(
             )
         ):
             console.print(f"   : {commit_obj.author}")
+
+        _render_object_projection()
 
     # Group events by type
     causal_evidence = []
@@ -4691,7 +4723,9 @@ def scheduler_kickoff(
         "--launch",
         help="Launch command executed via the session launch.sh / 通过 session launch.sh 执行的启动命令",
     ),
-    overwrite: bool = typer.Option(False, "--overwrite", help="Overwrite existing task card / 覆盖已有任务卡"),
+    overwrite: bool = typer.Option(
+        False, "--overwrite", help="Overwrite existing task card / 覆盖已有任务卡"
+    ),
 ):
     """
     Materialize and immediately launch a scheduler task from a high-level goal.

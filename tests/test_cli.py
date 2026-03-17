@@ -70,12 +70,14 @@ class TestCLI(unittest.TestCase):
 
     def test_daily_start(self):
         # daily-start 命令已改名为 up，且包含交互式操作
-        with patch("dimcause.daemon.process.process_manager.is_running", return_value=True), \
-             patch("dimcause.utils.state.check_pending_merge", return_value=None), \
-             patch("dimcause.utils.state.check_orphan_jobs", return_value=[]), \
-             patch("dimcause.cli._fetch_tasks", return_value=[]), \
-             patch("dimcause.utils.state.get_last_session", return_value=None), \
-             patch("dimcause.cli._create_daily_log"):
+        with (
+            patch("dimcause.daemon.process.process_manager.is_running", return_value=True),
+            patch("dimcause.utils.state.check_pending_merge", return_value=None),
+            patch("dimcause.utils.state.check_orphan_jobs", return_value=[]),
+            patch("dimcause.cli._fetch_tasks", return_value=[]),
+            patch("dimcause.utils.state.get_last_session", return_value=None),
+            patch("dimcause.cli._create_daily_log"),
+        ):
             result = runner.invoke(app, ["up"])
             self.assertEqual(result.exit_code, 0)
 
