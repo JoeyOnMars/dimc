@@ -16,6 +16,28 @@ def test_history_command_structure():
     assert "history" in result.stdout
 
 
+@patch("dimcause.core.event_index.EventIndex")
+@patch("dimcause.core.history.get_file_history")
+def test_history_command_non_interactive_renders_rows(mock_get_file_history, _mock_index):
+    """history 命令在当前 live CLI 中应能以非交互模式渲染历史行。"""
+    mock_get_file_history.return_value = [
+        GitCommit(
+            hash="abc1234",
+            date="2026-01-01T10:00:00",
+            message="init commit",
+            author="tester",
+            type="git_commit",
+        )
+    ]
+
+    result = runner.invoke(app, ["history", "src/main.py", "--limit", "1", "--no-interactive"])
+
+    assert result.exit_code == 0
+    assert "History for src/main.py" in result.stdout
+    assert "init commit" in result.stdout
+    assert "tester" in result.stdout
+
+
 @patch("dimcause.core.history.run_git")
 def test_get_file_history_basic(mock_git):
     """Test core history retrieval logic."""

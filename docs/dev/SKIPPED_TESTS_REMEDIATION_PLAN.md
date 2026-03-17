@@ -1,14 +1,14 @@
 # DIMCAUSE 全量 Skipped 测试整改清单
 
-**审计基线**: 2026-03-17  
+**审计基线**: 2026-03-18
 **审计命令**: `pytest -q -rs`  
-**审计结果**: `1103 passed, 30 skipped`
+**审计结果**: `1112 passed, 27 skipped`
 
 ---
 
 ## 1. 目的
 
-这份清单只解决一个问题：把当前全量测试中的 `30` 个 skipped 拆成可执行整改项。  
+这份清单只解决一个问题：把当前全量测试中的 `27` 个 skipped 拆成可执行整改项。
 它不负责解释产品架构，也不替代 `BACKLOG`；它是测试债的专项处置文档。
 
 原则：
@@ -21,9 +21,9 @@
 
 ## 2. 总体分类
 
-本轮 `30` 个 skipped 分成五类：
+当前 `27` 个 skipped 分成五类：
 
-1. 过时测试：`3`
+1. 过时测试：`0`
 2. 手工 / 完整环境测试：`2`
 3. 真实数据 / 真实代码库保护性阻断：`4`
 4. 环境依赖缺失：`1`
@@ -33,32 +33,24 @@
 
 ## 3. 逐类整改
 
-### 3.1 过时测试，优先清零
+### 3.1 过时测试，已清零
 
 这类测试当前描述的行为已经不对应 live 代码。继续保留只会制造伪覆盖。
 
-#### A. `tests/test_cli_event_index.py` (`2`)
+#### 已完成动作
 
-1. `test_search_command_with_event_index`
-   - 原因：`search` 命令没有 `--mode` 参数，EventIndex 搜索路径也未按测试描述实现。
-2. `test_history_command_context_panel`
-   - 原因：测试断言的 `'同期决策上下文'` 文案在生产代码中未实现，mock 路径也写错了。
+1. 删除 `tests/test_cli_event_index.py::test_search_command_with_event_index`
+   - 原因：`search` 命令没有 `--mode` 参数，EventIndex 搜索路径也未按旧测试描述实现。
+2. 删除 `tests/test_e2e_scenarios.py::test_day_handover_scenario`
+   - 原因：`daily-start` / `daily-end` 命令已从 CLI 移除，旧工作流测试不再属于 live 产品面。
+3. 将 `tests/test_cli_event_index.py::test_history_command_context_panel` 替换为当前 live 行为测试
+   - 新测试：`tests/test_cli_history.py::test_history_command_non_interactive_renders_rows`
+   - 新断言：验证 `history --no-interactive` 能渲染当前历史行，而不再断言不存在的“同期决策上下文”面板。
 
-**动作**:
+**结果**:
 
-1. 不要简单取消 skip。
-2. 先按 live CLI 重写测试目标。
-3. 若该行为已经不属于产品范围，则直接删除测试。
-
-#### B. `tests/test_e2e_scenarios.py` (`1`)
-
-1. `test_day_handover_scenario`
-   - 原因：`daily-start` / `daily-end` 命令已从 CLI 移除，测试仍基于旧工作流。
-
-**动作**:
-
-1. 直接按当前工作流重写。
-2. 若对应能力已彻底下线，则删除旧场景测试。
+1. 过时 skipped 已清零。
+2. 当前默认套件不再为这 3 条旧用例支付维护成本。
 
 ---
 
@@ -181,19 +173,7 @@
 
 ## 4. 整改优先级
 
-### P1. 先处理“测试已过时”
-
-范围：
-
-1. `tests/test_cli_event_index.py`
-2. `tests/test_e2e_scenarios.py::test_day_handover_scenario`
-
-理由：
-
-1. 这类测试会误导审计结果。
-2. 它们不是未来债，而是当前错误表达。
-
-### P1.5. 再处理“受保护测试”的归宿
+### P1.5. 优先处理“受保护测试”的归宿
 
 范围：
 
