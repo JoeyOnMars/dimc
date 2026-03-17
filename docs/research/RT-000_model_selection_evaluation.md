@@ -4,7 +4,7 @@
 **定位**：记录模型选型与检索栈取舍的基线研究；live 代码、状态文档和路线图会引用其中结论。
 **边界**：具体实现与当前默认值仍以 live 代码和 `STATUS/BACKLOG/ROADMAP` 为准。
 
-**版本**: V2.0 (基于 V1.0 + 2026-02-12 内存约束讨论更新)  
+**版本**: V2.1（在 V2.0 基础上按 2026-03-17 live 默认值勘误）
 **评估日期**: 2026-02-12  
 **评估目标**: 确定 DIMCAUSE 中 Embedding + Reranker 的最佳模型组合  
 **硬件约束**: M4 Mac Mini, **16GB 内存**（实际可用 ~3-6GB）  
@@ -12,16 +12,16 @@
 
 ---
 
-## 1. 当前状态 ⚠️
+## 1. 当前 live 默认值与历史问题
 
-| 组件 | 当前使用 | 问题 |
+| 组件 | 当前 live 默认值 | 备注 |
 |:---|:---|:---|
-| **Embedding** | `BAAI/bge-small-en-v1.5` (384 维, 33MB) | ❌ **仅英文**，中文日志无法正确嵌入 |
-| **Reranker** | 无 | ❌ 搜索结果无精排，大量噪音塞给 LLM |
-| **Query Expansion** | 无 | 暂无需求 |
+| **Embedding** | `BAAI/bge-m3` (1024 维) | ✅ 当前默认值，见 `src/dimcause/core/models.py` 与 `docs/STATUS.md` |
+| **Reranker** | `BAAI/bge-reranker-v2-m3` | ✅ 当前默认值，见 `src/dimcause/core/models.py` 与 `docs/STATUS.md` |
+| **Query Expansion** | 无 | 当前未启用，仍无 live 默认实现 |
 
 > [!WARNING]
-> `bge-small-en-v1.5` 是早期临时选择，**不支持中文**。你的日志（daily-end, decision, 讨论记录）全是中文，用这个模型嵌入后搜索质量极差——这就是为什么你之前说搜索效果和 grep 差不多。
+> `bge-small-en-v1.5` 是早期临时选择，**不支持中文**。它已不再是 live 默认值，但仍会在少量历史迁移脚本和旧说明中出现；这些残留不应被误读为当前实现。
 
 ---
 
@@ -43,7 +43,7 @@
 | **BGE-M3** | BAAI | 567M | 1024 | ~1.1 GB | 8k | ~67.5 | ~68.0 | ~1.8 GB |
 | **BGE-large-zh-v1.5** | BAAI | 330M | 1024 | ~0.6 GB | 512 | ~66.0 | ~60.0 | ~1.0 GB |
 | **paraphrase-multilingual-MiniLM-L12-v2** | SBERT | 118M | 384 | ~471 MB | 512 | ~58.0 | ~65.0 | ~0.8 GB |
-| ~~bge-small-en-v1.5 (当前)~~ | BAAI | 33M | 384 | 33 MB | 512 | ❌ 不支持 | ~62.0 | ~0.2 GB |
+| ~~bge-small-en-v1.5（历史默认值）~~ | BAAI | 33M | 384 | 33 MB | 512 | ❌ 不支持 | ~62.0 | ~0.2 GB |
 
 ### 2.2 淘汰原因
 
@@ -106,7 +106,7 @@
 | **C: Geek** | GTE-Qwen2-1.5B (3.0GB) | bge-reranker-v2-m3 (2.2GB) | ~4.5 GB | 高端工作站、极致精度 |
 
 > 峰值内存 = max(Embedding 运行时, Reranker 运行时)，因为两者不同时运行：
-> - **Embedding 建索引**：事件写入后 / `daily-end` 后台空闲时
+> - **Embedding 建索引**：事件写入后 / `session_end` 自动补写 / repair task 执行时
 > - **Reranker 精排**：用户查询时
 > - 两个操作不在同一时间段
 
@@ -136,11 +136,12 @@
 
 ### 4.3 默认模式说明
 
-- **代码默认**: Performance 模式（通用默认，见 `models.py` 中 `DEFAULT_MODEL_STACK`）
-- **16GB 机器推荐**: Trust 模式（通过 `DIMCAUSE_MODEL_STACK=trust` 环境变量切换）
+- **代码默认**: Trust 模式（见 `src/dimcause/core/models.py` 中 `DEFAULT_MODEL_STACK`）
+- **16GB 机器推荐**: Trust 模式
   - BGE-M3 全栈，峰值仅 ~3 GB
   - 无安全风险（不需要 `trust_remote_code`）
   - 中文精度优秀，生态稳定
+- **Performance 模式**: 作为可选高性能栈保留，不是当前默认值
 
 ---
 
@@ -150,13 +151,13 @@
 
 | 搜索质量 | 返回事件 | 有用事件 | context tokens | 浪费率 |
 |:---|:---|:---|:---|:---|
-| 无 Reranker (当前) | 10 个 | ~2 个 | ~5,000 | **80%** |
-| 有 Reranker (精排 Top-3) | 3 个 | ~2 个 | ~1,500 | **33%** |
+| 无 Reranker（历史基线） | 10 个 | ~2 个 | ~5,000 | **80%** |
+| 有 Reranker（当前实现） | 3 个 | ~2 个 | ~1,500 | **33%** |
 | **节省** | | | **~3,500 tokens/次** | **~70%** |
 
 按 `dimc why` 每天调用 10 次**粗略估算**：
-- 无 Reranker: ~50,000 tokens/天
-- 有 Reranker: ~15,000 tokens/天
+- 无 Reranker（历史基线）: ~50,000 tokens/天
+- 有 Reranker（当前实现）: ~15,000 tokens/天
 - **每天省 35,000 tokens，月省 ~100 万 tokens**
 
 > [!NOTE]
@@ -191,7 +192,7 @@
 
 ### Q1: 为什么不选 acge_text_embedding?
 C-MTEB 霸榜、体积仅 330MB，但：
-- 上下文窗口仅 **1024**，DIMCAUSE 的 daily-end 日志常超 2k token，会被截断
+- 上下文窗口仅 **1024**，DIMCAUSE 的事件内容与长文本材料常超 2k token，会被截断
 - 许可证不明确，合规风险
 
 ### Q2: paraphrase-multilingual-MiniLM 够用吗?
@@ -226,13 +227,13 @@ config = get_model_config(stack=ModelStack.TRUST)  # 推荐 16GB 用户
 
 ### 行动项
 
-- [ ] 实现 `ModelFactory`，支持三种后端按需加载
-- [ ] 将当前默认模型从 `bge-small-en-v1.5` 切换为 `BGE-M3`
-- [ ] 在 `dimc setup` 中增加模式选择交互
-- [ ] 向量维度变更时的 Schema 迁移（384 → 1024）
-- [ ] **全量代码与文档交叉审计**：对项目全部代码和文档做一次完整一致性审计
+- [ ] 在 `dimc setup` 中增加模型栈选择交互
+- [ ] 清理迁移脚本和旧注释中残留的 `bge-small-en-v1.5` / `384` 维历史说明
+- [ ] 若后续再调整默认向量维度，补明确的 Schema 迁移方案
 
 ---
 
-**最后更新**: 2026-02-12 21:52  
-**变更记录**: V2.0 — 新增 16GB 内存约束分析、用完即释放策略、Token 成本贡献分析、修正当前状态警告
+**最后更新**: 2026-03-17
+**变更记录**:
+- V2.1 — 按 live 默认值勘误：修正默认模型、默认模式、Reranker 当前状态与剩余行动项
+- V2.0 — 新增 16GB 内存约束分析、用完即释放策略、Token 成本贡献分析、修正当前状态警告

@@ -28,10 +28,10 @@ class VectorStore:
     不再使用 ChromaDB。
 
     支持的嵌入模型 (参见 RT-000 模型选型评估):
-    - 模式 A (Performance): Jina v3 (后续实现)
-    - 模式 B (Trust): BGE-M3 (后续实现)
-    - 模式 C (Geek): GTE-Qwen2 (后续实现)
-    - 临时默认: BAAI/bge-small-en-v1.5
+    - 模式 A (Performance): Jina v3
+    - 模式 B (Trust): BGE-M3
+    - 模式 C (Geek): GTE-Qwen2
+    - 当前默认值由 `get_model_config()` 决定；live 默认是 TRUST / BGE-M3
     """
 
     def __init__(

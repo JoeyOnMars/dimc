@@ -22,9 +22,9 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-# 向量维度 (与 ModelConfig 一致)
-# 当前临时使用 bge-small-en-v1.5 (384 维)
-# 后续由 ModelFactory 动态设置
+# 向量维度（历史迁移脚本使用的早期初始化值）
+# 注意：这里保留的是最早期的 384 维迁移逻辑，不代表当前 live 默认模型栈。
+# 当前 live 默认值见 src/dimcause/core/models.py 与 docs/research/RT-000_model_selection_evaluation.md
 VECTOR_DIMENSION = 384
 
 
@@ -191,7 +191,7 @@ def embed_existing_events(conn: sqlite3.Connection, batch_size: int = 50) -> int
         import numpy as np
         from sentence_transformers import SentenceTransformer
 
-        logger.info("正在加载 Embedding 模型 (BAAI/bge-small-en-v1.5)...")
+        logger.info("正在加载历史迁移使用的 Embedding 模型 (BAAI/bge-small-en-v1.5)...")
         model = SentenceTransformer("BAAI/bge-small-en-v1.5")
     except ImportError:
         logger.warning("缺少 sentence-transformers 或 numpy，无法生成向量。请安装依赖。")

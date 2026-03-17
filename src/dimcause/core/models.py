@@ -632,7 +632,7 @@ def get_model_config(stack: Optional[ModelStack] = None) -> ModelConfig:
     返回当前环境下的模型配置，根据 stack 自动填充模型字段。
 
     规则 (from MODEL_SELECTION_RULES.md):
-    - 代码默认使用 PERFORMANCE 模式。
+    - 代码默认使用 TRUST 模式。
     - 16GB 机器用户建议通过环境变量切换到 TRUST 模式。
     - 具体模型组合与 docs/research/RT-000_model_selection_evaluation.md 保持一致。
     """
