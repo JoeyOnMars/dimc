@@ -55,23 +55,23 @@
 ### P1-3: 全量测试红线清理（Task 3.1）
 - **现状**: 103 个测试文件用 `@pytest.mark.legacy_debt` 隔离，盲区 Bug 状态完全未知。
 
-### P1-9: 全量 skipped 测试债清理（当前 27 项）
-- **审计事实**: `source .venv/bin/activate && pytest -q -rs` 当前为 `1112 passed, 27 skipped`。
-- **分类结果**:
+### P1-9: 全量 skipped / protected 测试债清理（当前 23 skipped + 4 deselected）
+- **审计事实**: `source .venv/bin/activate && pytest -q -rs` 当前为 `1112 passed, 23 skipped, 4 deselected`。
+- **分类结果（skipped=23）**:
   1. 过时测试：`0`（已清零）
   2. 手工 / 完整环境测试：`2`
-  3. 真实数据 / 真实代码库保护性阻断：`4`
-  4. 环境依赖缺失：`1`
-  5. 真正未实现的测试：`20`
+  3. 环境依赖缺失：`1`
+  4. 真正未实现的测试：`20`
+- **受保护测试（deselected=4）**: 默认不进主套件，仅在 `--run-protected` 下执行。
 - **当前入口**: [`SKIPPED_TESTS_REMEDIATION_PLAN.md`](./SKIPPED_TESTS_REMEDIATION_PLAN.md)
 - **处理顺序**:
-  1. 把受保护测试迁出默认套件
+  1. 保持受保护测试留在默认套件外（仅 `--run-protected` 执行）
   2. 明确依赖门槛
   3. 最后按产品路线补齐未实现测试
 - **本轮进展**:
   - 已移除 2 条不再属于 live 产品面的过时 skipped
   - 已把 1 条旧 history skipped 改写为当前 `history --no-interactive` CLI 测试
-  - 默认套件基线已从 `1103/30` 收敛到 `1112/27`
+  - 默认套件基线已从 `1103/30` 收敛到 `1112 passed, 23 skipped, 4 deselected`
 
 ### ~~P1-10: 信任梯度 risk_level 未落地~~ (FIXED)
 - **修复事实**:

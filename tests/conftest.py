@@ -18,4 +18,30 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 # 必须在 transformers 等库导入前设置，确保所有测试进程都不联网访问 HF Hub
-os.environ.setdefault("HF_HUB_OFFLINE", "1")
+os.environ["HF_HUB_OFFLINE"] = "1"
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--run-protected",
+        action="store_true",
+        default=False,
+        help="运行默认不纳入日常全量套件的受保护测试",
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    if config.getoption("--run-protected"):
+        return
+
+    selected = []
+    deselected = []
+    for item in items:
+        if "protected" in item.keywords:
+            deselected.append(item)
+        else:
+            selected.append(item)
+
+    if deselected:
+        config.hook.pytest_deselected(items=deselected)
+        items[:] = selected

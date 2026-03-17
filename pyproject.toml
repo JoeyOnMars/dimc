@@ -96,6 +96,7 @@ markers = [
     "fast: 快速测试",
     "slow: 慢速测试",
     "timeout: 带超时约束的测试",
+    "protected: 受保护测试，默认不纳入日常全量套件，需显式开启",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning",

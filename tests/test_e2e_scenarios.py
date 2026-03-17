@@ -46,32 +46,29 @@ class TestCLIE2EScenarios:
             # 初始化真实的 Git 仓库以支持 git 操作测试
             import subprocess
 
-            subprocess.run(["git", "init"], cwd=str(root_dir), capture_output=True)
-            subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=str(root_dir))
-            subprocess.run(["git", "config", "user.name", "Test User"], cwd=str(root_dir))
+            subprocess.run(["git", "init"], cwd=str(root_dir), capture_output=True, check=True)
+            subprocess.run(
+                ["git", "config", "user.email", "test@test.com"],
+                cwd=str(root_dir),
+                check=True,
+            )
+            subprocess.run(
+                ["git", "config", "user.name", "Test User"],
+                cwd=str(root_dir),
+                check=True,
+            )
 
             yield root_dir, logs_dir
 
-    @pytest.mark.skip(
-        reason="audit 扫描真实代码库，lint/format/sensitive_data 问题导致 exit_code=1，不适合自动化断言"
-    )
+    @pytest.mark.protected
     def test_audit_scan(self, runner, temp_workspace, monkeypatch):
         """测试审计命令"""
-
+        from dimcause.audit.engine import CheckResult
+        from dimcause.audit.mode import STANDARD_MODE
+        from dimcause.audit.result import AuditResult
         from dimcause.cli import app
 
         root_dir, logs_dir = temp_workspace
-
-        # Mock subprocess.run to avoid running real tests
-        class MockProcess:
-            returncode = 0
-            stdout = "100 passed"
-            stderr = ""
-
-        def mock_run(*args, **kwargs):
-            return MockProcess()
-
-        monkeypatch.setattr("subprocess.run", mock_run)
 
         # 创建一个包含敏感信息的文件，必须在 src 目录下才能被 scanned
         src_dir = root_dir / "src" / "mal"
@@ -79,10 +76,29 @@ class TestCLIE2EScenarios:
         secret_file = src_dir / "config.py"
         secret_file.write_text("API_KEY = 'sk-1234567890'")
 
+        def fake_run_audit(*args, **kwargs):
+            return AuditResult(
+                mode=STANDARD_MODE,
+                success=True,
+                exit_code=0,
+                raw_results=[
+                    CheckResult(
+                        check_name="sensitive_data",
+                        success=False,
+                        is_blocking=False,
+                        message="Found 1 items.",
+                        details=[f"[HIGH] {secret_file}: Found openai_key (pos: (0, 10))"],
+                    )
+                ],
+            )
+
+        monkeypatch.setattr("dimcause.audit.runner.run_audit", fake_run_audit)
+
         # 运行 audit
-        result = runner.invoke(app, ["audit"])
+        result = runner.invoke(app, ["audit", str(root_dir)])
         assert result.exit_code == 0
 
         # 验证是否检测到敏感信息
-        # audit 输出通常包含警告
-        assert "敏感信息" in result.stdout or "Potential sensitive" in result.stdout
+        assert "SENSITIVE_DATA" in result.stdout
+        assert "openai_key" in result.stdout
+        assert str(secret_file) in result.stdout
