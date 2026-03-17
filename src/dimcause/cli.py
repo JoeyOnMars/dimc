@@ -51,7 +51,7 @@ except Exception:
 
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 import typer
 from rich.console import Console
@@ -4564,6 +4564,190 @@ def scheduler_plan(
         raise typer.Exit(1) from None
 
 
+@scheduler_app.command("intake")
+def scheduler_intake(
+    task: str = typer.Argument(..., help="Task ID / 任务 ID"),
+    title: str = typer.Option(..., "--title", "-t", help="Task title / 任务标题"),
+    goal: str = typer.Option(..., "--goal", "-g", help="High-level goal / 高层目标"),
+    priority: str = typer.Option("P2", "--priority", "-p", help="Priority / 优先级"),
+    related_file: list[str] = typer.Option(
+        [],
+        "--related-file",
+        help="Related file path / 相关文件路径",
+    ),
+    deliverable: list[str] = typer.Option(
+        [],
+        "--deliverable",
+        help="Delivery item / 交付物",
+    ),
+    acceptance: list[str] = typer.Option(
+        [],
+        "--acceptance",
+        help="Acceptance criterion / 验收标准",
+    ),
+    step: list[str] = typer.Option(
+        [],
+        "--step",
+        help="Suggested step / Step 规划",
+    ),
+    out_of_scope: list[str] = typer.Option(
+        [],
+        "--out-of-scope",
+        help="Out-of-scope item / 非目标",
+    ),
+    overwrite: bool = typer.Option(
+        False,
+        "--overwrite",
+        help="Overwrite existing task card / 覆盖已有任务卡",
+    ),
+):
+    """
+    Materialize a local scheduler task card from a high-level goal.
+    将高层目标物化为本地 scheduler 任务卡。
+    """
+    if hasattr(task, "default"):
+        task = task.default
+    if hasattr(title, "default"):
+        title = title.default
+    if hasattr(goal, "default"):
+        goal = goal.default
+    if hasattr(priority, "default"):
+        priority = priority.default
+    if hasattr(overwrite, "default"):
+        overwrite = overwrite.default
+
+    task = task.strip()
+    title = title.strip()
+    goal = goal.strip()
+
+    console.print(Panel.fit("[bold blue] Dimcause Scheduler - Intake[/]", border_style="blue"))
+
+    try:
+        from dimcause.scheduler.orchestrator import Orchestrator
+
+        orchestrator = Orchestrator()
+        card_path = orchestrator.materialize_agent_task_card(
+            task,
+            title=title,
+            goal=goal,
+            priority=priority,
+            related_files=related_file,
+            deliverables=deliverable,
+            acceptance_criteria=acceptance,
+            steps=step,
+            out_of_scope=out_of_scope,
+            overwrite=overwrite,
+        )
+        console.print("\n[green]Task card created.[/]")
+        console.print(f"  task: {task}")
+        console.print(f"  file: {card_path}")
+        console.print("\n[bold]Next:[/]")
+        console.print(f"  1. dimc scheduler run '{task}' --yes")
+        console.print(f"  2. dimc scheduler complete '{task}'")
+    except Exception as e:
+        console.print(f"[red] : {e}[/]")
+        raise typer.Exit(1) from None
+
+
+def _render_scheduler_closeout_summary(summary: dict) -> None:
+    console.print("\n[bold]任务摘要:[/]")
+    console.print(f"  task: {summary.get('task_id')}")
+    console.print(f"  title: {summary.get('title')}")
+    console.print(f"  task_class: {summary.get('task_class')}")
+    console.print(f"  cli_hint: {summary.get('cli_hint')}")
+    console.print(f"  runtime_status: {summary.get('runtime_status')}")
+    console.print(f"  branch: {summary.get('branch') or '-'}")
+    console.print(f"  base_ref: {summary.get('base_ref')}")
+    console.print(f"  current_branch: {summary.get('current_branch')}")
+    console.print(f"  pr_ready_present: {'yes' if summary.get('pr_ready_present') else 'no'}")
+    console.print(f"  report_exists: {'yes' if summary.get('report_exists') else 'no'}")
+    console.print(f"  closeout_policy: {summary.get('closeout_policy')}")
+    ahead_behind = summary.get("ahead_behind")
+    if isinstance(ahead_behind, dict):
+        console.print(
+            "  ahead_behind: base_only={base_only}, branch_only={branch_only}".format(
+                base_only=ahead_behind.get("base_only", "-"),
+                branch_only=ahead_behind.get("branch_only", "-"),
+            )
+        )
+    console.print(f"  eligible: {'yes' if summary.get('eligible') else 'no'}")
+    blocking = summary.get("blocking_reasons")
+    if isinstance(blocking, list) and blocking:
+        console.print("\n[bold yellow]阻断项:[/]")
+        for item in blocking:
+            console.print(f"  - {item}")
+
+
+@scheduler_app.command("kickoff")
+def scheduler_kickoff(
+    goal: str = typer.Option(..., "--goal", help="High-level goal / 高层目标"),
+    title: Optional[str] = typer.Option(None, "--title", help="Optional title / 可选标题"),
+    task: Optional[str] = typer.Option(None, "--task", help="Optional task id / 可选任务 ID"),
+    priority: str = typer.Option("P2", "--priority", help="Priority / 优先级"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Preview without launch / 仅预览"),
+    auto_approve: bool = typer.Option(False, "--yes", "-y", help="Skip confirm / 跳过确认"),
+    launch: Optional[str] = typer.Option(
+        None,
+        "--launch",
+        help="Launch command executed via the session launch.sh / 通过 session launch.sh 执行的启动命令",
+    ),
+    overwrite: bool = typer.Option(False, "--overwrite", help="Overwrite existing task card / 覆盖已有任务卡"),
+):
+    """
+    Materialize and immediately launch a scheduler task from a high-level goal.
+    从高层目标直接物化任务卡并启动调度任务。
+    """
+    if hasattr(goal, "default"):
+        goal = goal.default
+    if hasattr(title, "default"):
+        title = title.default
+    if hasattr(task, "default"):
+        task = task.default
+    if hasattr(priority, "default"):
+        priority = priority.default
+    if hasattr(dry_run, "default"):
+        dry_run = dry_run.default
+    if hasattr(auto_approve, "default"):
+        auto_approve = auto_approve.default
+    if hasattr(launch, "default"):
+        launch = launch.default
+    if hasattr(overwrite, "default"):
+        overwrite = overwrite.default
+
+    console.print(Panel.fit("[bold blue] Dimcause Scheduler - Kickoff[/]", border_style="blue"))
+
+    try:
+        from dimcause.scheduler.orchestrator import Orchestrator
+        from dimcause.scheduler.runner import TaskRunner
+
+        orchestrator = Orchestrator()
+        payload = orchestrator.materialize_goal_task_card(
+            goal=goal,
+            title=title,
+            task_id=task,
+            priority=priority,
+            overwrite=overwrite,
+        )
+        task_id = str(payload["task_id"])
+        console.print("\n[green]High-level goal materialized.[/]")
+        console.print(f"  task: {task_id}")
+        console.print(f"  title: {payload['title']}")
+        console.print(f"  class: {payload['task_class']}")
+        console.print(f"  cli_hint: {payload['cli_hint']}")
+        console.print(f"  file: {payload['card_path']}")
+
+        runner = TaskRunner(orchestrator)
+        runner.run_task(
+            task_id,
+            dry_run=dry_run,
+            auto_approve=auto_approve,
+            launch=launch,
+        )
+    except Exception as e:
+        console.print(f"[red] : {e}[/]")
+        raise typer.Exit(1) from None
+
+
 @scheduler_app.command("status")
 def scheduler_status():
     """
@@ -4639,6 +4823,54 @@ def scheduler_status():
         else:
             console.print("\n[green] [/]")
 
+    except Exception as e:
+        console.print(f"[red] : {e}[/]")
+        raise typer.Exit(1) from None
+
+
+@scheduler_app.command("summary")
+def scheduler_summary(
+    task: str = typer.Argument(..., help="Task ID / 任务 ID"),
+    base_ref: str = typer.Option(
+        "main",
+        "--base-ref",
+        help="Base ref used for closeout eligibility / 收口资格检查基线",
+    ),
+    allow_implementation: bool = typer.Option(
+        False,
+        "--allow-implementation",
+        help="Allow implementation tasks to pass low-risk eligibility / 允许实现类任务通过低风险门槛",
+    ),
+):
+    """
+    Summarize scheduler runtime, evidence and closeout eligibility for a task.
+    汇总任务运行态、证据与收口资格。
+    """
+    if hasattr(task, "default"):
+        task = task.default
+    if hasattr(base_ref, "default"):
+        base_ref = base_ref.default
+    if hasattr(allow_implementation, "default"):
+        allow_implementation = allow_implementation.default
+
+    task = task.strip()
+    console.print(
+        Panel.fit(
+            f"[bold blue] Dimcause Scheduler - Summary: {task}[/]",
+            border_style="blue",
+        )
+    )
+
+    try:
+        from dimcause.scheduler.orchestrator import Orchestrator
+
+        orchestrator = Orchestrator()
+        summary = orchestrator.summarize_task_closeout(
+            task,
+            base_ref=base_ref,
+            allow_implementation=allow_implementation,
+        )
+        _render_scheduler_closeout_summary(summary)
     except Exception as e:
         console.print(f"[red] : {e}[/]")
         raise typer.Exit(1) from None
@@ -4861,6 +5093,92 @@ def scheduler_complete(
         console.print(f"  task: {task}")
         console.print(f"  status: {runtime.get('status')}")
         console.print(f"  report: {resolved_report}")
+    except Exception as e:
+        console.print(f"[red] : {e}[/]")
+        raise typer.Exit(1) from None
+
+
+@scheduler_app.command("closeout")
+def scheduler_closeout(
+    task: str = typer.Argument(..., help="Task ID / 任务 ID"),
+    base_ref: str = typer.Option(
+        "main",
+        "--base-ref",
+        help="Base ref used for ff-only closeout / ff-only 收口基线",
+    ),
+    allow_implementation: bool = typer.Option(
+        False,
+        "--allow-implementation",
+        help="Allow implementation tasks to pass low-risk eligibility / 允许实现类任务通过低风险门槛",
+    ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Preview closeout eligibility without merging / 仅预览收口资格",
+    ),
+    auto_approve: bool = typer.Option(
+        False,
+        "--yes",
+        "-y",
+        help="Skip confirmation before merge / 跳过合并确认",
+    ),
+):
+    """
+    Close out a completed scheduler task via ff-only merge when eligible.
+    在满足资格时通过 ff-only 合并完成调度任务收口。
+    """
+    if hasattr(task, "default"):
+        task = task.default
+    if hasattr(base_ref, "default"):
+        base_ref = base_ref.default
+    if hasattr(allow_implementation, "default"):
+        allow_implementation = allow_implementation.default
+    if hasattr(dry_run, "default"):
+        dry_run = dry_run.default
+    if hasattr(auto_approve, "default"):
+        auto_approve = auto_approve.default
+
+    task = task.strip()
+    console.print(
+        Panel.fit(
+            f"[bold blue] Dimcause Scheduler - Closeout: {task}[/]",
+            border_style="blue",
+        )
+    )
+
+    try:
+        from dimcause.scheduler.orchestrator import Orchestrator
+
+        orchestrator = Orchestrator()
+        summary = orchestrator.summarize_task_closeout(
+            task,
+            base_ref=base_ref,
+            allow_implementation=allow_implementation,
+        )
+        _render_scheduler_closeout_summary(summary)
+
+        if dry_run:
+            return
+
+        if not summary.get("eligible"):
+            raise RuntimeError(
+                "task closeout blocked: "
+                + ", ".join(cast(list[str], summary.get("blocking_reasons", [])))
+            )
+
+        if not auto_approve and not Confirm.ask(f"Confirm ff-only closeout for {task}?"):
+            console.print("[yellow]Cancelled[/]")
+            return
+
+        result = orchestrator.auto_closeout_task(
+            task,
+            base_ref=base_ref,
+            allow_implementation=allow_implementation,
+        )
+        console.print("\n[green]Scheduler task closed out.[/]")
+        console.print(f"  task: {task}")
+        console.print(f"  merged_commit: {result['merged_commit']}")
+        console.print(f"  closeout_status: {result['closeout_status']}")
     except Exception as e:
         console.print(f"[red] : {e}[/]")
         raise typer.Exit(1) from None

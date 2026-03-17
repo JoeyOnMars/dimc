@@ -253,3 +253,85 @@ def test_agent_task_frontmatter_priority_overrides_default_priority(tmp_path: Pa
     state = orchestrator.load_state()
 
     assert state["tasks"]["H1"].priority == TaskPriority.P0
+
+
+def test_load_state_registers_standalone_agent_task_card(tmp_path: Path) -> None:
+    _write(
+        tmp_path / "docs" / "STATUS.md",
+        "\n".join(
+            [
+                "# Status",
+                "",
+                "## 3. V6.1 进度 (审计修复与 Production Polish)",
+                "",
+                "| 任务 | 内容 | 状态 |",
+                "|:---|:---|:---|",
+                "| L0 调度 | Orchestrator 核心调度器 | 🔄 部分完成 |",
+                "",
+                "## 4. 核心模块状态（代码验证）",
+            ]
+        ),
+    )
+    _write(
+        tmp_path / ".agent" / "agent-tasks" / "agent_why-object-evidence-v1_minimal.md",
+        "\n".join(
+            [
+                "---",
+                "priority: P1",
+                "status: Open",
+                "---",
+                "",
+                "# Agent Task why-object-evidence-v1: Why 最小对象证据落点",
+                "",
+                "## 目标",
+                "让 why 链路先落出最小对象证据视图。",
+            ]
+        ),
+    )
+
+    orchestrator = Orchestrator(project_root=tmp_path)
+    state = orchestrator.load_state()
+
+    assert "why-object-evidence-v1" in state["tasks"]
+    standalone = state["tasks"]["why-object-evidence-v1"]
+    assert standalone.name == "Why 最小对象证据落点"
+    assert standalone.priority == TaskPriority.P1
+    assert standalone.status == TaskStatus.PLANNED
+    assert standalone.agent_task_path is not None
+
+
+def test_materialize_agent_task_card_creates_parseable_markdown(tmp_path: Path) -> None:
+    orchestrator = Orchestrator(project_root=tmp_path)
+
+    card_path = orchestrator.materialize_agent_task_card(
+        "why-object-evidence-v1",
+        title="Why 最小对象证据落点",
+        goal="让 why 链路先落出最小对象证据视图。",
+        priority="P1",
+        related_files=[
+            "src/dimcause/cli.py",
+            "tests/test_cli_history.py",
+        ],
+        acceptance_criteria=["`dimc why` 至少输出一条对象证据线索"],
+    )
+
+    task_card = orchestrator.load_task_card("why-object-evidence-v1")
+
+    assert card_path.exists()
+    assert "why-object-evidence-v1" in card_path.name
+    assert task_card["name"] == "Why 最小对象证据落点"
+    assert "最小对象证据视图" in task_card["description"]
+    assert task_card["priority"] == "P1"
+    assert "src/dimcause/cli.py" in task_card["related_files"]
+    assert "`dimc why` 至少输出一条对象证据线索" in task_card["acceptance_criteria"]
+
+
+def test_get_task_title_falls_back_to_standalone_task_card(tmp_path: Path) -> None:
+    orchestrator = Orchestrator(project_root=tmp_path)
+    orchestrator.materialize_agent_task_card(
+        "ops-autopilot-v1",
+        title="自动入口最小闭环",
+        goal="补齐 scheduler intake 入口。",
+    )
+
+    assert orchestrator._get_task_title("ops-autopilot-v1") == "自动入口最小闭环"

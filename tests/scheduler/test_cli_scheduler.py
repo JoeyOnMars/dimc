@@ -72,6 +72,52 @@ def test_scheduler_status_displays_active_session_bundle(tmp_path, monkeypatch):
     assert "launch.log" in result.stdout
 
 
+def test_scheduler_status_lists_standalone_agent_task_as_next_task(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "docs").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "docs" / "STATUS.md").write_text(
+        "\n".join(
+            [
+                "# Status",
+                "",
+                "## 3. V6.1 进度 (审计修复与 Production Polish)",
+                "",
+                "| 任务 | 内容 | 状态 |",
+                "|:---|:---|:---|",
+                "| L0 调度 | Orchestrator 核心调度器 | ✅ 完成 |",
+                "",
+                "## 4. 核心模块状态（代码验证）",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    agent_tasks_dir = tmp_path / ".agent" / "agent-tasks"
+    agent_tasks_dir.mkdir(parents=True, exist_ok=True)
+    (agent_tasks_dir / "agent_why-object-evidence-v1_minimal.md").write_text(
+        "\n".join(
+            [
+                "---",
+                "priority: P1",
+                "status: Open",
+                "---",
+                "",
+                "# Agent Task why-object-evidence-v1: Why 最小对象证据落点",
+                "",
+                "## 目标",
+                "让 why 链路先落出最小对象证据视图。",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(app, ["scheduler", "status"])
+
+    assert result.exit_code == 0, result.stdout
+    assert "Why 最小对象证据落点" in result.stdout
+    assert "why-object-evidence-v1" in result.stdout
+    assert "P1" in result.stdout
+
+
 def test_scheduler_inspect_renders_runtime_and_artifacts(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 
@@ -177,6 +223,112 @@ def test_scheduler_run_forwards_launch_option(tmp_path, monkeypatch):
     assert recorded["task"] == "L0 调度"
     assert recorded["auto_approve"] is True
     assert recorded["launch"] == "bash -lc echo launched"
+
+
+def test_scheduler_intake_materializes_local_task_card(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(
+        app,
+        [
+            "scheduler",
+            "intake",
+            "why-object-evidence-v1",
+            "--title",
+            "Why 最小对象证据落点",
+            "--goal",
+            "让 why 链路先落出最小对象证据视图。",
+            "--priority",
+            "P1",
+            "--related-file",
+            "src/dimcause/cli.py",
+            "--acceptance",
+            "`dimc why` 至少输出一条对象证据线索",
+        ],
+    )
+
+    assert result.exit_code == 0, result.stdout
+    assert "Task card created." in result.stdout
+    assert "dimc scheduler run 'why-object-evidence-v1' --yes" in result.stdout
+    card_files = list((tmp_path / ".agent" / "agent-tasks").glob("agent_why-object-evidence-v1_*.md"))
+    assert len(card_files) == 1
+    content = card_files[0].read_text(encoding="utf-8")
+    assert "priority: P1" in content
+    assert "task_class: implementation" in content
+    assert "cli_hint: dimc why" in content
+    assert "## 目标" in content
+    assert "让 why 链路先落出最小对象证据视图。" in content
+
+
+def test_scheduler_kickoff_materializes_goal_and_runs_task(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    recorded = {}
+
+    class DummyRunner:
+        def __init__(self, orchestrator):
+            recorded["root"] = orchestrator.root
+
+        def run_task(self, task, dry_run=False, auto_approve=False, launch=None):
+            recorded["task"] = task
+            recorded["dry_run"] = dry_run
+            recorded["auto_approve"] = auto_approve
+            recorded["launch"] = launch
+
+    monkeypatch.setattr("dimcause.scheduler.runner.TaskRunner", DummyRunner)
+
+    result = runner.invoke(
+        app,
+        [
+            "scheduler",
+            "kickoff",
+            "--goal",
+            "补齐 scheduler 的高层目标入口，并直接启动调度执行。",
+            "--dry-run",
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code == 0, result.stdout
+    assert "High-level goal materialized." in result.stdout
+    assert recorded["dry_run"] is True
+    assert recorded["auto_approve"] is True
+    assert recorded["task"]
+    card_files = list((tmp_path / ".agent" / "agent-tasks").glob("agent_*.md"))
+    assert len(card_files) == 1
+    content = card_files[0].read_text(encoding="utf-8")
+    assert "task_class: governance" in content
+    assert "cli_hint: dimc scheduler" in content
+    assert "补齐 scheduler 的高层目标入口，并直接启动调度执行。" in content
+
+
+def test_scheduler_intake_infers_governance_defaults_and_related_files(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    result = runner.invoke(
+        app,
+        [
+            "scheduler",
+            "intake",
+            "scheduler-intake-defaults-v1",
+            "--title",
+            "调度 intake 默认字段收敛",
+            "--goal",
+            "补齐 scheduler intake 的默认字段生成，减少手工传参。",
+        ],
+    )
+
+    assert result.exit_code == 0, result.stdout
+    card_files = list((tmp_path / ".agent" / "agent-tasks").glob("agent_scheduler-intake-defaults-v1_*.md"))
+    assert len(card_files) == 1
+    content = card_files[0].read_text(encoding="utf-8")
+    assert "task_class: governance" in content
+    assert "cli_hint: dimc scheduler" in content
+    assert "## 相关文件" in content
+    assert "`src/dimcause/scheduler/orchestrator.py`" in content
+    assert "`src/dimcause/cli.py`" in content
+    assert "- 完成与目标直接对应的最小治理脚本、模板或入口变更" in content
+    assert "- 治理规则、入口和边界表述保持自洽" in content
+    assert "- 先核对当前规则、入口和直接相关的治理文件" in content
 
 
 def test_scheduler_loop_forwards_launch_option(tmp_path, monkeypatch):

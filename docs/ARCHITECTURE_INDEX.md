@@ -1,152 +1,145 @@
-# Architecture Index
+# 架构索引
 
-## Purpose
+## 文档目的
 
-This index is the stable reading entry for DIMCAUSE architecture and governance documents.
+1. 本文是当前仓库中**正式共享文档**的稳定阅读入口。
+2. 本文采用五层结构，但不把五层写成五个同轴并列层，而是按三类域来组织：
+   （1）产品域：产品定义层、产品实现层；
+   （2）项目桥接域：项目落地层；
+   （3）工程复用域：仓库治理层、本地开发控制层。
+3. 本索引只覆盖**共享仓库内容**中的前四层：
+   （1）产品定义层；
+   （2）产品实现层；
+   （3）项目落地层；
+   （4）仓库治理层。
+4. 第五层“本地开发控制层”在当前项目中是合法且必要的，但它默认保留在本地开发目录，不构成正式共享入口的一部分。
+5. 本文不重写任何一层的定义，只说明：
+   （1）每一层的正式入口在哪里；
+   （2）这些入口应按什么顺序阅读；
+   （3）层与层之间发生冲突时，优先级如何判断。
 
-It exists to reduce confusion between three different layers that coexist in the current repository:
+## 五层总览
 
-1. Product architecture
-2. Workspace/default profile mapping
-3. Current repository workflow and governance
+### 产品域
 
-This file does not redefine any of those layers. It only explains where each layer is documented and in what order the documents should be read.
+1. 第一层：产品定义层
+2. 第二层：产品实现层
 
-## Canonical Reading Order
+### 项目桥接域
 
-Read the documents in this order when you need to rebuild context from scratch.
+1. 第三层：项目落地层
+
+### 工程复用域
+
+1. 第四层：仓库治理层
+2. 第五层：本地开发控制层
+
+## 正式共享入口
+
+### 第一层：产品定义层
 
 1. [PROJECT_ARCHITECTURE.md](/Users/mini/projects/GithubRepos/dimc/docs/PROJECT_ARCHITECTURE.md)
-   - Canonical product architecture overview
-   - Defines product identity, runtime/kernel direction, objectification and causal reasoning direction
-
 2. [STORAGE_ARCHITECTURE.md](/Users/mini/projects/GithubRepos/dimc/docs/STORAGE_ARCHITECTURE.md)
-   - Canonical storage architecture overview
-   - Defines the four-layer storage model: Evidence / Runtime / Knowledge / Derived Index
-
 3. [STORAGE_ARCHITECTURE_DRAFT_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md)
-   - Proposal-level rationale and sharper boundary definitions behind the formal storage document
-
 4. [CORE_OBJECT_MODEL_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md)
-   - Canonical proposal for first-class product objects and their boundaries
-
 5. [EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md)
-   - Proposal for evidence coverage grades and causal certainty grades
-   - Explains how evidence strength and causal confidence should be separated
 
-6. [WORKSPACE_PROFILE_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/WORKSPACE_PROFILE_V1.md)
-   - Describes how the current `dimc` repository acts as the default local workspace profile
-   - This is a mapping document, not a product-definition document
+本层回答：
+1. 产品是什么；
+2. 产品依靠什么长期稳定语义运行；
+3. 运行内核、对象模型、证据政策和存储职责如何分层。
 
-7. [REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)
-   - Describes what belongs to current repository workflow/governance
-   - Explains what must not flow back into product architecture or workspace profile
+### 第二层：产品实现层
 
-## Layer Map
+1. [src/dimcause](/Users/mini/projects/GithubRepos/dimc/src/dimcause)
+2. [tests](/Users/mini/projects/GithubRepos/dimc/tests)
+3. 当前与产品运行直接相关的入口脚本与打包配置
 
-## Product Architecture
+本层回答：
+1. 产品目前被实现成什么样；
+2. 源代码、测试和运行脚本目前做到哪一步；
+3. 当前技术债、未完成迁移和实现现实是什么。
 
-These documents define the product itself and should be treated as the primary source for stable product semantics.
+本层规则：
+1. 本层属于产品本身，不应被排除出产品主线；
+2. 本层必须服从第一层的产品定义；
+3. 当前实现现实不能反向改写产品定义。
 
-1. [PROJECT_ARCHITECTURE.md](/Users/mini/projects/GithubRepos/dimc/docs/PROJECT_ARCHITECTURE.md)
-2. [STORAGE_ARCHITECTURE.md](/Users/mini/projects/GithubRepos/dimc/docs/STORAGE_ARCHITECTURE.md)
-
-Current product-level anchor points include:
-
-1. DIMCAUSE is an evidence-backed causal investigation system for local heterogeneous materials.
-2. The runtime direction is run-centric, not task-centric.
-3. The system direction is domain-agnostic objectification plus evidence-backed causal reasoning.
-4. Storage is split into Evidence / Runtime / Knowledge / Derived Index.
-5. Deterministic Precision Retrieval is part of product architecture, not just an implementation detail.
-
-## Proposal Layer
-
-These documents are the current proposal stack for architecture evolution, boundary clarification, and default mapping. They are more detailed than the formal architecture docs, but they still remain proposals rather than protected formal design docs.
-
-1. [STORAGE_ARCHITECTURE_DRAFT_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md)
-2. [CORE_OBJECT_MODEL_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md)
-3. [EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md)
-4. [WORKSPACE_PROFILE_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/WORKSPACE_PROFILE_V1.md)
-5. [REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)
-
-Use this layer when:
-
-1. Formal architecture is too high-level for a current design question
-2. A new formal rewrite needs an upper constraint
-3. You need to understand the reasoning behind a boundary before changing code or docs
-
-Not every document in this layer plays the same role:
-
-1. `STORAGE_ARCHITECTURE_DRAFT_V1`, `CORE_OBJECT_MODEL_V1`, and `EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1` act as upper architecture constraints.
-2. `WORKSPACE_PROFILE_V1` acts as a default mapping document.
-3. `REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1` acts as a repository-governance boundary document and must not be treated as product-definition source.
-
-## Workspace Profile
-
-The workspace profile layer explains how the current `dimc` repository maps product abstractions into a default local working setup.
-
-Current entry:
+### 第三层：项目落地层
 
 1. [WORKSPACE_PROFILE_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/WORKSPACE_PROFILE_V1.md)
+2. [pyproject.toml](/Users/mini/projects/GithubRepos/dimc/pyproject.toml)
+3. [README.md](/Users/mini/projects/GithubRepos/dimc/README.md)
+4. [README_zh-CN.md](/Users/mini/projects/GithubRepos/dimc/README_zh-CN.md)
 
-This layer may discuss:
+本层回答：
+1. 本项目怎样承载、组织并默认运行这个产品；
+2. 当前默认入口、目录组织、打包方式和本地落地约定是什么；
+3. 哪些内容是“本项目的默认选择”，而不是产品普遍要求。
 
-1. Default local material roots
-2. Default evidence/artifact surfaces
-3. Default runtime/storage/index mappings in this repository
-4. What is a current default choice rather than a universal product requirement
-
-This layer must not:
-
-1. Redefine the product
-2. Redefine storage responsibilities
-3. Redefine the object model
-4. Absorb repository-only workflow rules
-
-## Repository Workflow and Governance
-
-The repository workflow/governance layer explains how this repository is operated and protected.
-
-Current entry:
+### 第四层：仓库治理层
 
 1. [REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)
+2. [docs/coordination](/Users/mini/projects/GithubRepos/dimc/docs/coordination)
+3. [.agent/rules](/Users/mini/projects/GithubRepos/dimc/.agent/rules)
+4. [ci.yml](/Users/mini/projects/GithubRepos/dimc/.github/workflows/ci.yml)
+5. [scripts/preflight_guard.py](/Users/mini/projects/GithubRepos/dimc/scripts/preflight_guard.py)
+6. [scripts/pr_ready.py](/Users/mini/projects/GithubRepos/dimc/scripts/pr_ready.py)
+7. [scripts/check.zsh](/Users/mini/projects/GithubRepos/dimc/scripts/check.zsh)
 
-This layer is where branch discipline, protected-doc behavior, preflight/check/review flow, and repository-specific collaboration rules should be interpreted.
+本层回答：
+1. 这个仓库怎样被协作、验证、保护和收口；
+2. 分支、worktree、session、Task Packet、preflight、PR_READY、merge gate 的规则是什么；
+3. 哪些内容属于共享工程规则，哪些不得回流进入产品定义或项目落地。
 
-Repository governance may constrain how we work in this repository, but it must not be used to redefine product architecture or workspace profile semantics.
+### 第五层：本地开发控制层
 
-## Rules and How To Read Them
+1. 本层在本项目中是合法且必要的。
+2. 但它默认不进入正式共享入口。
+3. 它负责的是：
+   （1）当前任务板与经验记录；
+   （2）运行中的 Task Packet 实例；
+   （3）本地讨论、临时验证和运行态工件；
+   （4）本地 Agent 记忆与会话态。
+4. 对第五层的判断与维护，应在本地开发资料中进行，而不是回写到正式共享入口中。
 
-The `.agent/rules/` directory remains important, but it should be interpreted carefully.
+## 标准阅读顺序
 
-1. Rules are authoritative for current repository behavior and collaboration constraints.
-2. Rules are not automatically authoritative for product definition.
-3. If an older rule file conflicts with the latest formal architecture or proposal stack on product semantics, product semantics should be taken from:
-   - formal architecture docs
-   - upper proposals
-4. Current handoff documents can help rebuild thread context, but they do not replace formal architecture docs or upper proposals as stable product truth sources.
-5. Older rules may still remain valid as repository behavior constraints even if their product narrative is stale.
+1. 第一层：先读产品定义层文档，明确产品边界。
+2. 第二层：再看产品实现层入口，确认当前代码现实。
+3. 第三层：之后读取项目落地层文档，理解本项目如何承载这个产品。
+4. 第四层：最后读取仓库治理层文档，理解当前仓库怎样协作、验证和收口。
 
-## Fast Recovery Path
-
-If you need to recover context quickly after a long pause or a new thread, use this order:
+## 快速恢复顺序
 
 1. [PROJECT_ARCHITECTURE.md](/Users/mini/projects/GithubRepos/dimc/docs/PROJECT_ARCHITECTURE.md)
 2. [STORAGE_ARCHITECTURE.md](/Users/mini/projects/GithubRepos/dimc/docs/STORAGE_ARCHITECTURE.md)
 3. [CORE_OBJECT_MODEL_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md)
 4. [EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md)
-5. [WORKSPACE_PROFILE_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/WORKSPACE_PROFILE_V1.md)
-6. [REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)
+5. [src/dimcause](/Users/mini/projects/GithubRepos/dimc/src/dimcause)
+6. [tests](/Users/mini/projects/GithubRepos/dimc/tests)
+7. [WORKSPACE_PROFILE_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/WORKSPACE_PROFILE_V1.md)
+8. [REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](/Users/mini/projects/GithubRepos/dimc/docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)
 
-## What This Index Prevents
+## 冲突优先级
 
-This index exists to reduce four recurring errors:
+1. 产品定义层优先于产品实现层、项目落地层和仓库治理层。
+2. 产品实现层可以暴露现实偏差，但不能重写产品定义。
+3. 项目落地层只能解释“本项目怎样落地”，不能吸收仓库治理规则。
+4. 仓库治理层只能约束协作与交付，不能反向定义产品能力或项目默认语义。
+5. 第五层本地开发控制层可以维持当前现场连续性，但不得被抬升为正式共享真理源。
 
-1. Treating current repository layout as product architecture
-2. Treating repository workflow rules as product capabilities
-3. Treating workspace profile defaults as universal requirements
-4. Treating older rules or historical narratives as newer product truth
+## 本索引要防止的错误
 
-## Maintenance Rule
+1. 把当前代码现实直接写成产品定义。
+2. 把项目默认落地方式写成产品普遍要求。
+3. 把仓库治理规则写成产品能力。
+4. 把本地开发控制内容误写进正式共享入口。
+5. 因为准备公开或准备收口，就把本地开发控制层从工作目录物理清空。
 
-When adding a new architecture, storage, object, evidence, profile, or governance document, update this index so that the reading order and layer ownership remain explicit.
+## 维护规则
+
+1. 新增正式共享文档时，必须先判断它属于前四层中的哪一层。
+2. 第五层内容默认不加入本索引。
+3. 若某文档同时涉及两层以上内容，必须先拆边界，再决定入口位置。
+4. 修改本索引时，不得把本地草稿、讨论稿或临时控制文件写成正式入口。

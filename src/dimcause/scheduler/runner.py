@@ -81,7 +81,7 @@ class TaskRunner:
         return task_id.strip().lower().replace(" ", "-") + "-auto"
 
     def _infer_work_class(self, task_id: str) -> str:
-        return "product"
+        return self.orchestrator.infer_work_class_for_task(task_id)
 
     def _execute_job_start(self, task_id: str, prompt: str, launch: str | None = None):
         """

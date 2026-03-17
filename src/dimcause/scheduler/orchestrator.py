@@ -331,6 +331,210 @@ class Orchestrator:
             "launch_running": launch_running,
         }
 
+    def _ref_exists(self, ref: str) -> bool:
+        from dimcause.utils.git import run_git
+
+        normalized = ref.strip()
+        if not normalized:
+            return False
+        code, _, _ = run_git("rev-parse", "--verify", "--quiet", normalized, cwd=self.root)
+        return code == 0
+
+    def _tracked_worktree_is_clean(self) -> bool:
+        from dimcause.utils.git import run_git
+
+        code, out, _ = run_git("status", "--short", "--untracked-files=no", cwd=self.root)
+        return code == 0 and not out.strip()
+
+    def _ahead_behind_counts(self, base_ref: str, branch: str) -> Optional[Dict[str, int]]:
+        from dimcause.utils.git import run_git
+
+        if not self._ref_exists(base_ref) or not self._ref_exists(branch):
+            return None
+        code, out, _ = run_git("rev-list", "--left-right", "--count", f"{base_ref}...{branch}", cwd=self.root)
+        if code != 0 or not out.strip():
+            return None
+        parts = out.split()
+        if len(parts) != 2:
+            return None
+        return {"base_only": int(parts[0]), "branch_only": int(parts[1])}
+
+    @staticmethod
+    def _frontmatter_bool(value: object) -> bool:
+        if isinstance(value, bool):
+            return value
+        if not isinstance(value, str):
+            return False
+        return value.strip().lower() in {"1", "true", "yes", "on"}
+
+    def summarize_task_closeout(
+        self,
+        task_id: str,
+        *,
+        base_ref: str = "main",
+        allow_implementation: bool = False,
+    ) -> Dict[str, object]:
+        task_card = self.load_task_card(task_id)
+        if "error" in task_card:
+            raise RuntimeError(str(task_card["error"]))
+
+        runtime = self.get_task_runtime(task_id) or {}
+        launch_running = False
+        artifacts: List[Dict[str, object]] = []
+        if runtime:
+            inspection = self.inspect_task_runtime(task_id)
+            launch_running = bool(inspection.get("launch_running"))
+            raw_artifacts = inspection.get("artifacts")
+            if isinstance(raw_artifacts, list):
+                artifacts = [artifact for artifact in raw_artifacts if isinstance(artifact, dict)]
+
+        task_class = str(task_card.get("task_class") or "").strip().lower() or "implementation"
+        cli_hint = str(task_card.get("cli_hint") or "-").strip() or "-"
+        branch = str(runtime.get("branch") or "").strip()
+        report_path = Path(str(runtime["report_path"])) if runtime.get("report_path") else None
+        report_exists = bool(report_path and report_path.exists())
+        pr_ready_report = str(runtime.get("pr_ready_report") or "").strip()
+        pr_ready_present = bool(pr_ready_report)
+        low_risk_by_class = task_class in {"docs", "governance", "test"}
+        explicit_auto_closeout = self._frontmatter_bool(task_card.get("auto_closeout"))
+        closeout_policy = "auto" if (low_risk_by_class or explicit_auto_closeout) else "manual"
+        ahead_behind = self._ahead_behind_counts(base_ref, branch) if branch else None
+
+        blocking_reasons: List[str] = []
+        if not runtime:
+            blocking_reasons.append("missing_runtime_state")
+        if str(runtime.get("status") or "") != "done":
+            blocking_reasons.append("runtime_status_not_done")
+        if launch_running:
+            blocking_reasons.append("launch_still_running")
+        if not branch:
+            blocking_reasons.append("missing_branch")
+        elif not self._ref_exists(branch):
+            blocking_reasons.append("missing_branch_ref")
+        if not self._ref_exists(base_ref):
+            blocking_reasons.append("missing_base_ref")
+        if self._current_branch() != base_ref:
+            blocking_reasons.append("current_branch_not_base_ref")
+        if not self._tracked_worktree_is_clean():
+            blocking_reasons.append("tracked_worktree_not_clean")
+        if not pr_ready_present:
+            blocking_reasons.append("missing_pr_ready_report")
+        if ahead_behind is None:
+            blocking_reasons.append("missing_ahead_behind")
+        else:
+            if ahead_behind["base_only"] != 0:
+                blocking_reasons.append("base_ref_ahead_of_task_branch")
+            if ahead_behind["branch_only"] <= 0:
+                blocking_reasons.append("task_branch_has_no_new_commits")
+        if closeout_policy != "auto" and not allow_implementation:
+            blocking_reasons.append("task_class_not_low_risk")
+
+        return {
+            "task_id": task_id,
+            "title": str(task_card.get("name") or task_id),
+            "task_class": task_class,
+            "cli_hint": cli_hint,
+            "base_ref": base_ref,
+            "current_branch": self._current_branch(),
+            "runtime_status": str(runtime.get("status") or "missing"),
+            "branch": branch or None,
+            "job_id": runtime.get("job_id"),
+            "worktree": runtime.get("worktree"),
+            "report_path": str(report_path) if report_path else None,
+            "report_exists": report_exists,
+            "pr_ready_present": pr_ready_present,
+            "artifacts": artifacts,
+            "launch_running": launch_running,
+            "closeout_policy": closeout_policy,
+            "allow_implementation": allow_implementation,
+            "ahead_behind": ahead_behind,
+            "eligible": not blocking_reasons,
+            "blocking_reasons": blocking_reasons,
+        }
+
+    def auto_closeout_task(
+        self,
+        task_id: str,
+        *,
+        base_ref: str = "main",
+        allow_implementation: bool = False,
+    ) -> Dict[str, object]:
+        from dimcause.utils.git import run_git
+
+        summary = self.summarize_task_closeout(
+            task_id,
+            base_ref=base_ref,
+            allow_implementation=allow_implementation,
+        )
+        blocking_reasons = cast(List[str], summary.get("blocking_reasons", []))
+        if blocking_reasons:
+            raise RuntimeError(
+                "task closeout blocked: " + ", ".join(blocking_reasons)
+            )
+
+        branch = str(summary["branch"])
+        code, _, err = run_git("merge", "--ff-only", branch, cwd=self.root)
+        if code != 0:
+            raise RuntimeError(f"ff-only merge failed: {err or branch}")
+
+        head_code, head_out, head_err = run_git("rev-parse", "HEAD", cwd=self.root)
+        if head_code != 0 or not head_out.strip():
+            raise RuntimeError(f"failed to resolve merged HEAD: {head_err or 'unknown error'}")
+        merged_commit = head_out.strip()
+        now = datetime.now().isoformat()
+
+        runtime = self.get_task_runtime(task_id) or {}
+        with with_lock("scheduler-runtime-state", timeout=5):
+            state = self.load_runtime_state()
+            runtime_tasks = state.setdefault("tasks", {})
+            existing = runtime_tasks.get(task_id)
+            if not isinstance(existing, dict):
+                existing = dict(runtime)
+                runtime_tasks[task_id] = existing
+            existing.update(
+                {
+                    "closeout_status": "merged",
+                    "closeout_base_ref": base_ref,
+                    "closeout_branch": branch,
+                    "closeout_commit": merged_commit,
+                    "closeout_at": now,
+                    "updated_at": now,
+                }
+            )
+            self._save_runtime_state(state)
+            self.update_task_board_entry(
+                task_id=task_id,
+                title=str(summary.get("title") or task_id),
+                owner=str(existing.get("job_id", "scheduler")),
+                branch=str(existing.get("branch") or branch),
+                worktree=str(existing.get("worktree") or self.root),
+                status="merged",
+                blocked_by="-",
+                pr_ready="yes",
+            )
+
+        job_dir_value = runtime.get("job_dir")
+        if isinstance(job_dir_value, str) and job_dir_value.strip():
+            job_dir = Path(job_dir_value)
+            if job_dir.exists():
+                closeout_body = "\n".join(
+                    [
+                        f"- task: {task_id}",
+                        f"- base_ref: {base_ref}",
+                        f"- merged_branch: {branch}",
+                        f"- merged_commit: {merged_commit}",
+                        f"- closed_at: {now}",
+                    ]
+                )
+                self._write_text(job_dir / "closeout.md", closeout_body)
+
+        return {
+            **summary,
+            "closeout_status": "merged",
+            "merged_commit": merged_commit,
+            "closed_at": now,
+        }
+
     def record_task_started(
         self,
         task_id: str,
@@ -2242,17 +2446,67 @@ class Orchestrator:
             return
 
         for md_file in agent_tasks_dir.glob("agent_*.md"):
-            # 从文件名提取任务 ID (e.g., agent_d1_... -> D1)
-            match = re.match(r"agent_(\w+)_", md_file.name)
+            # 从文件名提取任务 token (e.g., agent_d1_... -> d1)
+            match = re.match(r"agent_([^_]+)_", md_file.name)
             if match:
-                task_id = match.group(1).upper()
-                if task_id in self._state.get("tasks", {}):
-                    self._state["tasks"][task_id].agent_task_path = md_file
-                    frontmatter = self._parse_frontmatter(md_file.read_text(encoding="utf-8"))
+                token = self._task_id_file_token(match.group(1))
+                content = md_file.read_text(encoding="utf-8")
+                frontmatter = self._parse_frontmatter(content)
+                matched_task_id = None
+                for task_id in self._state.get("tasks", {}):
+                    if self._task_id_file_token(task_id) == token:
+                        matched_task_id = task_id
+                        break
+                if matched_task_id in self._state.get("tasks", {}):
+                    self._state["tasks"][matched_task_id].agent_task_path = md_file
                     priority = self._infer_priority(
-                        task_id, self._state["tasks"][task_id].name, frontmatter.get("priority")
+                        matched_task_id,
+                        self._state["tasks"][matched_task_id].name,
+                        frontmatter.get("priority"),
                     )
-                    self._state["tasks"][task_id].priority = priority
+                    self._state["tasks"][matched_task_id].priority = priority
+                    continue
+
+                standalone_task_id = self._extract_task_id_from_task_card(content, fallback=match.group(1))
+                standalone_title = self._extract_title(content)
+                standalone_status = self._parse_task_card_status(frontmatter.get("status"))
+                standalone_priority = self._infer_priority(
+                    standalone_task_id,
+                    standalone_title,
+                    frontmatter.get("priority"),
+                )
+                self._state.setdefault("tasks", {})[standalone_task_id] = TaskInfo(
+                    id=standalone_task_id,
+                    name=standalone_title,
+                    cli=self._infer_cli(standalone_task_id, standalone_title),
+                    status=standalone_status,
+                    priority=standalone_priority,
+                    agent_task_path=md_file,
+                )
+
+    def _extract_task_id_from_task_card(self, content: str, *, fallback: str) -> str:
+        match = re.search(r"^#\s+Agent Task\s+([^:]+):", content, re.MULTILINE)
+        if match:
+            return self._normalize_task_id(match.group(1))
+        return self._normalize_task_id(fallback)
+
+    def _parse_task_card_status(self, raw_status: Optional[str]) -> TaskStatus:
+        normalized = (raw_status or "").strip()
+        if not normalized:
+            return TaskStatus.PLANNED
+
+        lowered = normalized.lower()
+        if lowered in {"open", "todo", "planned"}:
+            return TaskStatus.PLANNED
+        if lowered in {"in progress", "running", "doing"}:
+            return TaskStatus.IN_PROGRESS
+        if lowered in {"done", "completed", "closed"}:
+            return TaskStatus.DONE
+        if lowered in {"blocked", "failed"}:
+            return TaskStatus.BLOCKED
+
+        parsed = self._parse_status_text(normalized)
+        return parsed or TaskStatus.PLANNED
 
     @staticmethod
     def _format_task_board_cell(value: str) -> str:
@@ -2441,6 +2695,11 @@ class Orchestrator:
         task = self._state.get("tasks", {}).get(normalized_id)
         if task:
             return task.name
+        task_card = self.load_task_card(normalized_id)
+        if "error" not in task_card:
+            title = str(task_card.get("name", "")).strip()
+            if title:
+                return title
         return normalized_id
 
     def discover_tasks(self, scope: str = "v5.2") -> List[TaskInfo]:
@@ -2553,6 +2812,165 @@ class Orchestrator:
 
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    @staticmethod
+    def _task_id_file_token(task_id: str) -> str:
+        token = re.sub(r"[^a-z0-9]+", "-", task_id.strip().lower()).strip("-")
+        return token or "task"
+
+    @staticmethod
+    def _title_file_slug(title: str) -> str:
+        slug = re.sub(r"[^a-z0-9]+", "-", title.strip().lower()).strip("-")
+        return slug[:48] or "task"
+
+    @staticmethod
+    def _normalize_markdown_block(text: str) -> str:
+        normalized = text.strip()
+        return normalized if normalized else "- 待补充"
+
+    @staticmethod
+    def _normalize_bullet_lines(items: Optional[List[str]], fallback: List[str]) -> List[str]:
+        normalized = [item.strip() for item in (items or []) if item and item.strip()]
+        source = normalized or fallback
+        return [f"- {item}" for item in source]
+
+    def _infer_task_card_class(
+        self,
+        task_id: str,
+        title: str,
+        goal: str,
+        related_files: Optional[List[str]] = None,
+    ) -> str:
+        haystack = " ".join([task_id, title, goal, *(related_files or [])]).lower()
+        if any(
+            token in haystack
+            for token in ("readme", "文档", "草案", "proposal", "index", "索引", "profile", "架构")
+        ):
+            return "docs"
+        if any(
+            token in haystack
+            for token in ("pytest", "测试", "回归", "test_", "tests/")
+        ):
+            return "test"
+        if any(
+            token in haystack
+            for token in (
+                "scheduler",
+                "调度",
+                "governance",
+                "治理",
+                "coordination",
+                "worktree",
+                "branch",
+                "gate",
+                "preflight",
+                "pr_ready",
+                "task packet",
+                "自动化",
+            )
+        ):
+            return "governance"
+        return "implementation"
+
+    def _default_task_card_sections(
+        self,
+        task_class: str,
+        *,
+        cli_hint: str,
+    ) -> Dict[str, List[str]]:
+        if task_class == "docs":
+            return {
+                "deliverables": [
+                    "完成与目标直接对应的最小文档更新",
+                    "统一直接相关文档中的术语、边界或入口表述",
+                    "准备 `dimc scheduler complete` 所需的交付信息",
+                ],
+                "acceptance": [
+                    "正文口径与当前正式结论一致",
+                    "相关旧术语、旧引用或旧入口残留已复扫",
+                    "变更范围与文档目标一致",
+                ],
+                "steps": [
+                    "先核对当前正式口径和直接相关文档",
+                    "只修改与任务直接相关的文档",
+                    "完成后复扫旧术语、旧入口和旧引用",
+                ],
+                "out_of_scope": [
+                    "不得顺手扩写无关设计文档",
+                    "不得把文档任务升级成跨层重写",
+                    "不得改写与本任务无关的产品结论",
+                ],
+            }
+        if task_class == "test":
+            return {
+                "deliverables": [
+                    "补齐与目标直接相关的最小测试或验证",
+                    "覆盖本轮要保证的关键行为或回归点",
+                    "准备 `dimc scheduler complete` 所需的交付信息",
+                ],
+                "acceptance": [
+                    "新增或更新的测试能表达任务目标",
+                    "至少一条直接相关的 pytest 验证通过",
+                    "测试范围没有反向扩大业务改动",
+                ],
+                "steps": [
+                    "先定位现有测试入口和缺失覆盖点",
+                    "只补与本任务直接相关的测试或断言",
+                    "完成后运行最小必要测试并记录结果",
+                ],
+                "out_of_scope": [
+                    "不得借测试任务顺手扩写业务范围",
+                    "不得跳过失败原因直接改大量实现",
+                    "不得把局部验证升级成全仓重构",
+                ],
+            }
+        if task_class == "governance":
+            return {
+                "deliverables": [
+                    "完成与目标直接对应的最小治理脚本、模板或入口变更",
+                    "同步直接相关的共享入口或规则说明",
+                    "准备 `dimc scheduler complete` 所需的交付信息",
+                ],
+                "acceptance": [
+                    "治理规则、入口和边界表述保持自洽",
+                    f"至少一条与 `{cli_hint}` 或对应治理链路相关的验证通过"
+                    if cli_hint != "-"
+                    else "至少一条直接相关的验证链路通过",
+                    "共享范围与本地控制范围仍然清楚",
+                ],
+                "steps": [
+                    "先核对当前规则、入口和直接相关的治理文件",
+                    "只修改与当前治理目标直接相关的文件",
+                    "完成后复扫入口一致性并运行对应验证",
+                ],
+                "out_of_scope": [
+                    "不得顺手改写产品定义或项目落地结论",
+                    "不得把治理任务升级成跨模块产品重构",
+                    "不得无根据扩大共享提交范围",
+                ],
+            }
+        return {
+            "deliverables": [
+                "完成与目标直接对应的最小代码或文档变更",
+                "运行至少一条与该任务直接相关的验证链路",
+                "准备 `dimc scheduler complete` 所需的交付信息",
+            ],
+            "acceptance": [
+                "变更范围与任务目标一致",
+                "白名单文件范围可解释",
+                "至少一条对应验证链路通过",
+            ],
+            "steps": [
+                "先阅读相关文件并确认最小改动边界",
+                "只修改与任务直接相关的文件",
+                "完成后运行最小必要验证并准备收口信息",
+            ],
+            "out_of_scope": [
+                "不得扩大任务范围",
+                "不得顺手修改受保护设计文档",
+                "不得把当前任务升级成跨模块重构",
+            ],
+        }
+
     # === V1.0 新增功能 ===
 
     def find_task_card(self, task_id: str) -> Optional[Path]:
@@ -2569,18 +2987,217 @@ class Orchestrator:
         if not agent_tasks_dir.exists():
             return None
 
-        # 尝试精确匹配: agent_h2_*.md
-        pattern = f"agent_{task_id.lower()}_*.md"
-        matches = list(agent_tasks_dir.glob(pattern))
-        if matches:
-            return matches[0]
+        token = self._task_id_file_token(task_id)
+
+        for pattern in (f"agent_{task_id.lower()}_*.md", f"agent_{token}_*.md"):
+            matches = list(agent_tasks_dir.glob(pattern))
+            if matches:
+                return matches[0]
 
         # 尝试宽松匹配: *h2*.md
         for md_file in agent_tasks_dir.glob("*.md"):
-            if task_id.lower() in md_file.name.lower():
+            lower_name = md_file.name.lower()
+            if task_id.lower() in lower_name or token in lower_name:
                 return md_file
 
         return None
+
+    def materialize_agent_task_card(
+        self,
+        task_id: str,
+        *,
+        title: str,
+        goal: str,
+        priority: str = "P2",
+        related_files: Optional[List[str]] = None,
+        deliverables: Optional[List[str]] = None,
+        acceptance_criteria: Optional[List[str]] = None,
+        steps: Optional[List[str]] = None,
+        out_of_scope: Optional[List[str]] = None,
+        overwrite: bool = False,
+    ) -> Path:
+        task_id = task_id.strip()
+        title = title.strip()
+        goal = goal.strip()
+        if not task_id:
+            raise ValueError("task_id 不能为空")
+        if not title:
+            raise ValueError("title 不能为空")
+        if not goal:
+            raise ValueError("goal 不能为空")
+
+        normalized_priority = priority.strip().upper() if priority.strip() else "P2"
+        if normalized_priority not in TaskPriority.__members__:
+            raise ValueError(f"无效优先级: {priority}")
+
+        agent_tasks_dir = self.root / self.AGENT_TASKS_DIR
+        agent_tasks_dir.mkdir(parents=True, exist_ok=True)
+
+        existing = self.find_task_card(task_id)
+        if existing is not None and existing.exists() and not overwrite:
+            raise FileExistsError(f"任务卡已存在: {existing}")
+
+        task_token = self._task_id_file_token(task_id)
+        title_slug = self._title_file_slug(title)
+        card_path = existing or (agent_tasks_dir / f"agent_{task_token}_{title_slug}.md")
+
+        cli_hint = self._infer_cli(task_id, title)
+        inferred_related = list(self.TASK_FILE_HINTS.get(cli_hint, [])) if cli_hint in self.TASK_FILE_HINTS else []
+        related = [item.strip() for item in (related_files or []) if item and item.strip()] or inferred_related
+        task_class = self._infer_task_card_class(task_id, title, goal, related)
+        default_sections = self._default_task_card_sections(task_class, cli_hint=cli_hint)
+        deliverable_lines = self._normalize_bullet_lines(
+            deliverables,
+            default_sections["deliverables"],
+        )
+        acceptance_lines = self._normalize_bullet_lines(
+            acceptance_criteria,
+            default_sections["acceptance"],
+        )
+        step_lines = self._normalize_bullet_lines(
+            steps,
+            default_sections["steps"],
+        )
+        out_of_scope_lines = self._normalize_bullet_lines(
+            out_of_scope,
+            default_sections["out_of_scope"],
+        )
+
+        frontmatter_lines = [
+            "---",
+            f"priority: {normalized_priority}",
+            "status: Open",
+            f"task_class: {task_class}",
+        ]
+        if cli_hint != "-":
+            frontmatter_lines.append(f"cli_hint: {cli_hint}")
+        if related:
+            frontmatter_lines.append("related_docs:")
+            frontmatter_lines.extend(f"  - {item}" for item in related)
+        frontmatter_lines.append("---")
+
+        body_lines = [
+            *frontmatter_lines,
+            "",
+            f"# Agent Task {task_id}: {title}",
+            "",
+            "## 目标",
+            self._normalize_markdown_block(goal),
+            "",
+            "## 非目标",
+            *out_of_scope_lines,
+            "",
+            "## 交付物",
+            *deliverable_lines,
+            "",
+            "## 验收标准",
+            *acceptance_lines,
+            "",
+            "## Step 规划",
+            *step_lines,
+        ]
+
+        if related:
+            body_lines.extend(
+                [
+                    "",
+                    "## 相关文件",
+                    *[f"- `{item}`" for item in related],
+                ]
+            )
+
+        body_lines.extend(["", f"_Generated by scheduler intake at {self._now()}_"])
+        card_path.write_text("\n".join(body_lines) + "\n", encoding="utf-8")
+        return card_path
+
+    def _infer_goal_title(self, goal: str) -> str:
+        normalized = re.sub(r"\s+", " ", goal).strip()
+        if not normalized:
+            raise ValueError("goal 不能为空")
+
+        first_segment = re.split(r"[。！？!?；;\n]+", normalized, maxsplit=1)[0].strip()
+        title = first_segment or normalized
+        title = title.strip(" ，,、；;:：")
+        if len(title) > 28:
+            title = title[:28].rstrip(" ，,、；;:：")
+        return title or "未命名任务"
+
+    def _ensure_unique_task_id(self, task_id: str) -> str:
+        candidate = self._normalize_task_id(task_id)
+        if not self.find_task_card(candidate):
+            return candidate
+
+        suffix = 2
+        while True:
+            next_candidate = f"{candidate}-{suffix:02d}"
+            if not self.find_task_card(next_candidate):
+                return next_candidate
+            suffix += 1
+
+    def _infer_goal_task_id(self, title: str, goal: str, *, task_class: str) -> str:
+        seed = f"{title} {goal}".lower()
+        ascii_part = re.sub(r"[^a-z0-9]+", "-", seed).strip("-")
+        if not ascii_part:
+            ascii_part = {
+                "docs": "docs",
+                "test": "test",
+                "governance": "governance",
+                "implementation": "task",
+            }.get(task_class, "task")
+        digest = hashlib.sha1(f"{title}\n{goal}".encode("utf-8")).hexdigest()[:6]
+        candidate = f"{ascii_part[:24]}-{digest}"
+        return self._ensure_unique_task_id(candidate)
+
+    def materialize_goal_task_card(
+        self,
+        *,
+        goal: str,
+        title: Optional[str] = None,
+        task_id: Optional[str] = None,
+        priority: str = "P2",
+        related_files: Optional[List[str]] = None,
+        deliverables: Optional[List[str]] = None,
+        acceptance_criteria: Optional[List[str]] = None,
+        steps: Optional[List[str]] = None,
+        out_of_scope: Optional[List[str]] = None,
+        overwrite: bool = False,
+    ) -> Dict[str, str]:
+        normalized_goal = re.sub(r"\s+", " ", goal).strip()
+        if not normalized_goal:
+            raise ValueError("goal 不能为空")
+
+        resolved_title = (title or "").strip() or self._infer_goal_title(normalized_goal)
+        inferred_class = self._infer_task_card_class(
+            task_id or "",
+            resolved_title,
+            normalized_goal,
+            related_files,
+        )
+        resolved_task_id = (task_id or "").strip() or self._infer_goal_task_id(
+            resolved_title,
+            normalized_goal,
+            task_class=inferred_class,
+        )
+        card_path = self.materialize_agent_task_card(
+            resolved_task_id,
+            title=resolved_title,
+            goal=normalized_goal,
+            priority=priority,
+            related_files=related_files,
+            deliverables=deliverables,
+            acceptance_criteria=acceptance_criteria,
+            steps=steps,
+            out_of_scope=out_of_scope,
+            overwrite=overwrite,
+        )
+        task_card = self.load_task_card(resolved_task_id)
+        return {
+            "task_id": resolved_task_id,
+            "title": resolved_title,
+            "card_path": str(card_path),
+            "task_class": str(task_card.get("task_class") or inferred_class),
+            "cli_hint": str(task_card.get("cli_hint") or "-"),
+        }
 
     def load_task_card(self, task_id: str) -> Dict:
         """
@@ -2624,6 +3241,16 @@ class Orchestrator:
             "name": self._extract_title(content),
             "priority": frontmatter.get("priority", "P2"),
             "status": frontmatter.get("status", "Open"),
+            "auto_closeout": frontmatter.get("auto_closeout", ""),
+            "task_class": frontmatter.get("task_class", "").strip()
+            or self._infer_task_card_class(
+                task_id,
+                self._extract_title(content),
+                self._extract_section(content, ["背景", "Background", "目标", "Goal"]),
+                self._extract_related_files(content),
+            ),
+            "cli_hint": frontmatter.get("cli_hint", "").strip()
+            or self._infer_cli(task_id, self._extract_title(content)),
             "description": self._extract_section(content, ["背景", "Background", "目标", "Goal"]),
             "deliverables": self._extract_section(content, ["交付物", "Deliverables"]),
             "acceptance_criteria": self._extract_section(
@@ -2636,6 +3263,15 @@ class Orchestrator:
         }
 
         return result
+
+    def infer_work_class_for_task(self, task_id: str) -> str:
+        task_card = self.load_task_card(task_id)
+        task_class = str(task_card.get("task_class") or "").strip().lower()
+        if task_class in {"docs", "governance"}:
+            return "ops"
+        if task_class == "test":
+            return "product"
+        return "product"
 
     def _build_synthetic_task_card(self, task_id: str) -> Optional[Dict]:
         if not self._state:
@@ -2711,7 +3347,7 @@ class Orchestrator:
     def _extract_title(self, content: str) -> str:
         """提取任务标题"""
         # 匹配 # Agent Task H2: Hybrid Timeline
-        match = re.search(r"^#\s+(?:Agent Task \w+:\s*)?(.+)$", content, re.MULTILINE)
+        match = re.search(r"^#\s+(?:Agent Task [^:]+:\s*)?(.+)$", content, re.MULTILINE)
         if match:
             return match.group(1).strip()
         return "Unknown Task"

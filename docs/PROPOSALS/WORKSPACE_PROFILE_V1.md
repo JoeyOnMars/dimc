@@ -2,11 +2,16 @@
 
 ## 文档定位
 
-1. 本文是当前 `dimc` 仓库的 **workspace profile** 提案文档，目标是解释：在既有产品内核约束不变的前提下，这个仓库当前如何把 DIMCAUSE 的产品抽象映射为一个默认的本地工作空间实例。
+1. 本文是当前 `dimc` 仓库的 **workspace profile** 提案文档；在五层结构中，它对应第三层“项目落地层”。
 2. 本文不是产品架构重写稿，不是存储架构重写稿，不是对象模型重写稿，也不是证据政策重写稿。相关产品本体已经由正式架构文档与上位 proposal 约束。
 3. 本文也不是当前仓库内部 workflow 规则汇编。分支纪律、`[PR_READY]`、预写入检查、`worktree`、格式化 gate、虚拟环境、审计模板等内容属于当前 repo 的治理与协作规则，不属于 workspace profile 本体。
 4. 本文将当前 `dimc` 仓库视为一个**默认 kernel workspace profile 的实例**，而不是把整个仓库直接等同于产品本体。
-5. 更准确地说：当前 `dimc` 仓库同时承载了**产品内核实现**、**默认 workspace profile 映射**以及**当前 repo 内部治理**；本文只解释其中的 **profile 映射部分**。
+5. 更准确地说：当前 `dimc` 共享仓库同时承载了五层结构中的前四层共享内容：
+   - 产品定义层
+   - 产品实现层
+   - 项目落地层
+   - 仓库治理层
+6. 第五层“本地开发控制层”在本项目中同样存在，但它默认保留在本地开发目录，不属于本文的正式范围。
 
 ## 已知事实
 
@@ -17,7 +22,7 @@
    - `Storage`: `Evidence / Runtime / Knowledge / Derived Index` 四层职责分离
 3. 正式产品架构文档与正式存储架构文档已经在 `main` 上重写完成，并继续作为受保护设计文档存在。
 4. `STORAGE_ARCHITECTURE_DRAFT_V1`、`CORE_OBJECT_MODEL_V1` 与 `EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1` 已经形成当前 workspace profile 的上位 proposal 约束。
-5. 产品架构、workspace/default profile、当前 repo 内部 workflow 必须严格切开，不能互相代写。
+5. 产品定义层、产品实现层、项目落地层、仓库治理层、本地开发控制层必须严格切开，不能互相代写。
 6. 产品架构已经明确禁止从当前 repo 目录结构反推产品本体；当前目录结构最多只能说明一个具体 workspace profile 的当前实现现实。
 7. 当前仓库现实中同时存在以下几类区域：
    - `src/dimcause/` 及其子模块，承载产品内核实现的主要代码表面
@@ -58,10 +63,16 @@
 3. 本文选择把它解释为“默认 kernel workspace profile 的实例”，目的不是把仓库整体神圣化，而是把其中真正属于 profile 映射的部分单独抽出来，避免继续污染产品架构与 repo workflow。
 4. 这里的“默认”只表示：在当前阶段，`dimc` 仓库是产品内核最主要的 dogfooding 工作空间，并且提供了一套可运行的本地默认映射；它不表示未来所有部署或所有 profile 都必须照搬这里的布局。
 
-### 3. 当前 `dimc` 仓库同时承载的三类内容
+### 3. 当前 `dimc` 共享仓库同时承载的四类共享内容
 
-先说明：这三类只是当前仓库现实中的并存层次，不等于三者都属于 workspace profile 本体；本文只解释其中的 profile 映射部分。
-1. **产品内核实现**
+先说明：这四类是当前共享仓库中的并存层次，不等于四者都属于项目落地层；本文只解释第三层“项目落地层”的部分。
+1. **产品定义**
+   - 主要承载面是正式架构文档和上位 proposal，例如：
+   - `docs/PROJECT_ARCHITECTURE.md`
+   - `docs/STORAGE_ARCHITECTURE.md`
+   - `docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md`
+   - `docs/PROPOSALS/EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md`
+2. **产品内核实现**
    - 主要承载面是 `src/dimcause/` 及其相关入口文件，例如：
    - `src/dimcause/cli.py`
    - `src/dimcause/cli_export.py`
@@ -76,14 +87,17 @@
    - `src/dimcause/audit/`
    - `src/dimcause/services/`
    - `src/dimcause/tui/`
-2. **默认 workspace profile 映射**
+3. **默认 workspace profile 映射**
    - 主要承载面是当前仓库中被用作本地材料、证据工件、报告工件、索引/存储支撑面的那些表面。
    - 当前仓库里最清晰的材料与证据承载面是 `docs/logs/` 与 `docs/logs/raw/`。
    - 当前仓库里一部分生成型证据工件和报告工件也会出现在 `docs/audit/`、`docs/audit_reports/`、`docs/reports/` 这类目录中。
    - 当前仓库中的本地索引、知识建模与检索能力则主要通过 `src/dimcause/core/`、`src/dimcause/storage/`、`src/dimcause/reasoning/`、`src/dimcause/search/` 这些代码表面来实现。
-3. **当前 repo 内部治理**
+4. **当前 repo 内部治理**
    - 主要承载面包括 `.agent/rules/`、`docs/coordination/`、本地开发控制层中的临时协作目录、`scripts/check.zsh`、`scripts/preflight_guard.py` 等。
    - 它们属于当前仓库的协作与门禁现实，不属于 workspace profile 本体。
+5. **本地开发控制层**
+   - 它在本项目中真实存在，但默认不进入共享入口。
+   - 本文只在边界判断中承认它的存在，不把它写成本层正式内容。
 
 ### 4. 当前 Default Workspace Profile 回答的核心问题
 
@@ -227,12 +241,13 @@
 
 ## 当前结论
 
-1. 当前 `dimc` 仓库应被理解为一个**同时承载产品内核实现、默认 workspace profile 映射和当前 repo 内部治理**的现实工作空间。
-2. `WORKSPACE_PROFILE_V1` 的任务，不是把这个仓库整体上升为产品本体，而是只把其中**属于默认 profile 映射**的部分单独解释出来。
+1. 当前 `dimc` 仓库应被理解为一个**同时承载产品定义、产品实现、项目落地和仓库治理**的共享工作空间；本地开发控制层则默认保留在本地开发目录中。
+2. `WORKSPACE_PROFILE_V1` 的任务，不是把这个仓库整体上升为产品本体，而是只把其中**属于第三层“项目落地层”**的部分单独解释出来。
 3. 因而，后续若将本文继续收敛为更正式版本，应坚持三条线：
-   - 产品架构继续留在正式架构文档与上位 proposal 中
-   - workspace profile 只写“当前默认工作空间如何映射产品内核”
-   - repo 内部 workflow 另文处理，不回流进本文
+   - 产品定义继续留在正式架构文档与上位 proposal 中
+   - 产品实现继续由 `src/`、`tests/` 和相关运行入口承载
+   - 项目落地层只写“本项目如何承载并默认运行产品”
+   - 仓库治理层另文处理，不回流进本文
 
 ## 起草约束与审计附录
 

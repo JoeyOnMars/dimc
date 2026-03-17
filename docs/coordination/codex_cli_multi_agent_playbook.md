@@ -9,7 +9,7 @@
 ## 2. 当前仓库的正式控制面
 
 1. Task Packet 模板：
-   - `docs/PROPOSALS/TASK_PACKET_TEMPLATE.md`
+   - `docs/coordination/task_packet.template.md`
 2. 运行时任务包目录：
    - `tmp/coordination/task_packets/`
 3. 任务看板：
@@ -50,12 +50,17 @@
 
 ## 6. 最小工作流
 
-1. 司令官先生成或填写 Task Packet。
-2. 为任务分配分支与 worktree。
-3. 执行工位只按 Task Packet 改动白名单文件。
-4. 执行工位完成后输出 `[PR_READY]`。
-5. 司令官审查是否允许进入收口。
-6. 精炼官独立复核并做 `ff-only` 合流。
+1. 司令官先用 `dimc scheduler intake <task_id> --title ... --goal ...` 物化本地任务卡。
+   - 这类任务卡会进入 `scheduler plan/status` 的本地调度视图。
+   - intake 会按任务文本自动补齐最小骨架，并推断 `task_class`、`cli_hint` 与建议相关文件。
+2. 如果只有高层目标，没有稳定的 `task_id` 和标题，直接使用 `dimc scheduler kickoff --goal ...`。
+   - kickoff 会自动生成 `task_id`、标题和任务卡，并立即进入 `scheduler run`。
+3. `scheduler run <task_id> --yes` 会分配分支、worktree、Task Packet 与 session bundle。
+4. 执行工位只按 Task Packet 改动白名单文件。
+5. 执行工位完成后执行 `dimc scheduler complete <task_id>`，生成 `[PR_READY]` 并回写运行时状态。
+6. `dimc scheduler summary <task_id>` 汇总 runtime、任务卡、证据和收口资格。
+7. 对低风险任务，执行 `dimc scheduler closeout <task_id> --yes` 做本地 `ff-only` 收口。
+8. 非低风险任务仍由司令官与精炼官人工裁决。
 
 ## 7. 当前仓库里的最小命令约定
 
@@ -68,7 +73,14 @@
 ## 8. 当前边界
 
 1. 当前仓库已有 Task Packet 模板、运行时任务包目录、任务看板和 worktree 物化能力。
-2. 当前仓库还没有一个统一的自动入口，把“高层目标 -> Issue -> Task Packet -> 执行 -> 收口”全部串起来。
-3. 因此当前阶段的最小可信做法是：
+2. 当前仓库现在已有第一档和第二档入口：
+   - `scheduler intake/run/complete`
+   - `scheduler kickoff`
+3. 当前仓库也已有第三档的最小收口入口：
+   - `scheduler summary`
+   - `scheduler closeout`
+4. 这些入口仍然是本地控制层能力，不会自动生成 Issue，也不会自动做多任务拆解。
+5. 因此当前阶段的最小可信做法是：
    - 用正式模板和运行时目录约束人工编排；
+   - 用 `scheduler intake/run/complete`、`scheduler kickoff`、`scheduler summary/closeout` 打通分档自动化闭环；
    - 不假装已经有完整 autopilot。
