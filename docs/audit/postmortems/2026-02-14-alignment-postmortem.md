@@ -1,4 +1,8 @@
-# 2026-02-14 深度复盘报告 (Deep Post-Mortem)
+Status: 历史复盘（保留用于方法论追溯，不作为当前代码与文档状态依据）
+Type: Postmortem
+Date: 2026-02-14
+
+# 2026-02-14 深度复盘报告
 
 ## 1. 核心问题指出 (Core Failures)
 
