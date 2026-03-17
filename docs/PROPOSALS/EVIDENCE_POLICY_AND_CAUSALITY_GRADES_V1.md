@@ -9,26 +9,26 @@
 
 ## 已知事实
 
-1. 当前正式产品架构已经收口为：**DIMCAUSE 是一套面向本地异构材料的证据驱动因果调查系统。**[`docs/PROJECT_ARCHITECTURE.md`; `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md`]
-2. 产品核心目标不是通用知识库、通用 RAG 平台或通用开发调度器，而是从给定材料中抽取、验证、组织尽可能强的因果关系，并输出可追溯、可分级、可解释的调查结论。[`docs/PROJECT_ARCHITECTURE.md`]
-3. 当前正式产品架构已经把系统主线收敛为：接收本地材料、提升为结构化对象、生成并验证因果关系、输出带证据链和等级的解释结论。[`docs/PROJECT_ARCHITECTURE.md`]
-4. 正式产品架构已经明确要求把两组分级拆开：证据覆盖等级 `E1-E4`，关系确定性等级 `C0-C4`；并要求用户界面同时展示当前等级、主要证据来源、缺失证据说明与等级历史。[`docs/PROJECT_ARCHITECTURE.md`]
-5. 当前正式产品架构已经明确了两组等级的职责分工：`E` 回答“当前证据面有多完整”，`C` 回答“在这些证据下，这条关系有多能成立”；两组等级必须同时展示，不能压成单一总分。[`docs/PROJECT_ARCHITECTURE.md`]
-6. 正式产品架构已经明确：Layer 3 不是单纯 ontology，而是 `Ontology and Evidence Policy`；它需要同时约束对象类型、关系类型、证据政策、等级表达以及缺失/反证处理。[`docs/PROJECT_ARCHITECTURE.md`]
-7. 当前正式产品架构与正式存储架构已经明确三项根本判断：统一运行单位应是 `Run`；系统要从开发材料偏置升级到通用本地材料对象化与证据化因果推理；存储要切成 `Evidence / Runtime / Knowledge / Derived Index` 四层。[`docs/PROJECT_ARCHITECTURE.md`; `docs/STORAGE_ARCHITECTURE.md`]
+1. 当前正式产品架构已经收口为：**DIMCAUSE 是一套面向本地异构材料的证据驱动因果调查系统。**依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)；[WORKSPACE_PROFILE_V1.md](./WORKSPACE_PROFILE_V1.md)。
+2. 产品核心目标不是通用知识库、通用 RAG 平台或通用开发调度器，而是从给定材料中抽取、验证、组织尽可能强的因果关系，并输出可追溯、可分级、可解释的调查结论。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
+3. 当前正式产品架构已经把系统主线收敛为：接收本地材料、提升为结构化对象、生成并验证因果关系、输出带证据链和等级的解释结论。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
+4. 正式产品架构已经明确要求把两组分级拆开：证据覆盖等级 `E1-E4`，关系确定性等级 `C0-C4`；并要求用户界面同时展示当前等级、主要证据来源、缺失证据说明与等级历史。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
+5. 当前正式产品架构已经明确了两组等级的职责分工：`E` 回答“当前证据面有多完整”，`C` 回答“在这些证据下，这条关系有多能成立”；两组等级必须同时展示，不能压成单一总分。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
+6. 正式产品架构已经明确：Layer 3 不是单纯 ontology，而是 `Ontology and Evidence Policy`；它需要同时约束对象类型、关系类型、证据政策、等级表达以及缺失/反证处理。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
+7. 当前正式产品架构与正式存储架构已经明确三项根本判断：统一运行单位应是 `Run`；系统要从开发材料偏置升级到通用本地材料对象化与证据化因果推理；存储要切成 `Evidence / Runtime / Knowledge / Derived Index` 四层。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)；[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
 8. 当前《存储架构草案 v1》已经要求：
    - `Evidence Layer` 保存 `Source Materials` 与 `Generated Evidence Artifacts`
    - `Knowledge Layer` 保存对象、关系、证据绑定、等级和关系状态历史
    - “当前状态”只是投影，不得成为唯一记录  
-   依据: [`docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md`]
+   依据：[STORAGE_ARCHITECTURE_DRAFT_V1.md](./STORAGE_ARCHITECTURE_DRAFT_V1.md)。
 9. 当前《Core Object Model v1》已经把 `Run`、`Material`、`MaterialVersion`、`Entity`、`Event`、`Decision`、`Claim`、`Task`、`Symbol`、`Artifact`、`Check`、`Result`、`Relation` 定义为产品通用内核的一等对象家族，并明确：
    - `Run` 是 `Runtime-first`
    - `Material / MaterialVersion` 是 `Knowledge + Evidence` 双重对象
    - `Claim != Relation`
    - `Check != Result`
    - `Artifact != Generated Evidence Artifacts`  
-   依据: [`docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md`]
-10. 当前正式共享文档已经明确：产品架构、workspace/default profile、当前项目开发流程必须切开；任何内部治理规则与具体 workspace 现实都不应混入产品架构正文。[`docs/ARCHITECTURE_INDEX.md`; `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md`; `docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md`]
+   依据：[CORE_OBJECT_MODEL_V1.md](./CORE_OBJECT_MODEL_V1.md)。
+10. 当前正式共享文档已经明确：产品架构、workspace/default profile、当前项目开发流程必须切开；任何内部治理规则与具体 workspace 现实都不应混入产品架构正文。依据：[ARCHITECTURE_INDEX.md](../ARCHITECTURE_INDEX.md)；[WORKSPACE_PROFILE_V1.md](./WORKSPACE_PROFILE_V1.md)；[REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](./REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)。
 
 ## 推测与假设
 

@@ -18,7 +18,7 @@
 4. `IDE_INTEGRATION.md` 代码落地情况: 文档展示的 `WatchersConfig` 模型与 `src/dimcause/watchers/detector.py` 经全库 `grep_search` (Step Id: 2293, 2294) 返回结果为 0。文档存在超前于代码库的未落地设计声明。[grep_search src/]
 5. `USER_GUIDE.md` 操作命令: 指南中介绍的 `dimc data-import` 工具链在 `src/dimcause/cli.py` 中确有实际挂载点。[src/dimcause/cli.py]
 6. `GUIDE.md` 与 `USER_GUIDE.md` 命令交叉校验: 当时审计确认 `GUIDE.md` 内存在大量过期 V5.x 命令（如 `daily-start`、`daily-end`）；后续清理已保留并精修 `USER_GUIDE.md`，同时将 `GUIDE.md` 移出当前共享文档面。
-8. `STORAGE_ARCHITECTURE.md` 的废弃目录结构: 依据对 `src/dimcause/utils/state.py` 的研读，系统通过扫描 `docs/logs/` 中的 `XX-start.md` 和 `XX-end.md` 动态推断活跃会话。文档中曾声明的 `~/.dimcause/sessions/active.json` 与 `history/git_commits.jsonl` 完全属虚假或被废弃的设计，已从架构树中摘除。[src/dimcause/utils/state.py]
+7. `STORAGE_ARCHITECTURE.md` 的废弃目录结构: 依据对 `src/dimcause/utils/state.py` 的研读，系统通过扫描 `docs/logs/` 中的 `XX-start.md` 和 `XX-end.md` 动态推断活跃会话。文档中曾声明的 `~/.dimcause/sessions/active.json` 与 `history/git_commits.jsonl` 完全属虚假或被废弃的设计，已从架构树中摘除。[src/dimcause/utils/state.py]
 
 ### 推测与假设
 
