@@ -303,6 +303,8 @@ class Orchestrator:
             "durable_session_file",
             "session_preflight_script",
             "session_launch_script",
+            "session_codex_run_script",
+            "session_codex_output_file",
             "session_launch_log",
         )
         artifacts: List[Dict[str, object]] = []
@@ -551,6 +553,8 @@ class Orchestrator:
         durable_session_file: Optional[Path] = None,
         session_preflight_script: Optional[Path] = None,
         session_launch_script: Optional[Path] = None,
+        session_codex_run_script: Optional[Path] = None,
+        session_codex_output_file: Optional[Path] = None,
         session_launch_command: Optional[str] = None,
         session_launch_pid: Optional[int] = None,
         session_launch_log: Optional[Path] = None,
@@ -578,6 +582,12 @@ class Orchestrator:
                 else None,
                 "session_launch_script": str(session_launch_script)
                 if session_launch_script
+                else None,
+                "session_codex_run_script": str(session_codex_run_script)
+                if session_codex_run_script
+                else None,
+                "session_codex_output_file": str(session_codex_output_file)
+                if session_codex_output_file
                 else None,
                 "session_launch_command": session_launch_command,
                 "session_launch_pid": session_launch_pid,
@@ -619,6 +629,8 @@ class Orchestrator:
         durable_session_file: Optional[Path] = None,
         session_preflight_script: Optional[Path] = None,
         session_launch_script: Optional[Path] = None,
+        session_codex_run_script: Optional[Path] = None,
+        session_codex_output_file: Optional[Path] = None,
         session_launch_command: Optional[str] = None,
         session_launch_pid: Optional[int] = None,
         session_launch_log: Optional[Path] = None,
@@ -652,6 +664,12 @@ class Orchestrator:
             if session_preflight_script
             else None,
             "session_launch_script": str(session_launch_script) if session_launch_script else None,
+            "session_codex_run_script": str(session_codex_run_script)
+            if session_codex_run_script
+            else None,
+            "session_codex_output_file": str(session_codex_output_file)
+            if session_codex_output_file
+            else None,
             "session_launch_command": session_launch_command,
             "session_launch_pid": session_launch_pid,
             "session_launch_log": str(session_launch_log) if session_launch_log else None,
@@ -843,6 +861,8 @@ class Orchestrator:
         durable_session_file: Optional[Path] = None,
         session_preflight_script: Optional[Path] = None,
         session_launch_script: Optional[Path] = None,
+        session_codex_run_script: Optional[Path] = None,
+        session_codex_output_file: Optional[Path] = None,
         session_launch_command: Optional[str] = None,
         session_launch_pid: Optional[int] = None,
         session_launch_log: Optional[Path] = None,
@@ -876,6 +896,8 @@ class Orchestrator:
             durable_session_file=durable_session_file,
             session_preflight_script=session_preflight_script,
             session_launch_script=session_launch_script,
+            session_codex_run_script=session_codex_run_script,
+            session_codex_output_file=session_codex_output_file,
             session_launch_command=session_launch_command,
             session_launch_pid=session_launch_pid,
             session_launch_log=session_launch_log,
@@ -924,6 +946,7 @@ class Orchestrator:
                     "- `task-packet.md`: scope, allowed files, required checks, PR_READY contract",
                     "- `session.json`: machine-readable session manifest",
                     "- `preflight.sh`: explicit pre-write / pre-launch guard",
+                    "- `codex-run.sh`: invoke Codex CLI against the frozen `context.md`",
                     "",
                     "## Why This Exists",
                     "- keep each assigned agent in an isolated execution space",
@@ -935,6 +958,7 @@ class Orchestrator:
                     f"- durable session manifest: {job_dir / 'session.json'}",
                     f"- preflight script: {session_dir / 'preflight.sh'}",
                     f"- launch script: {session_dir / 'launch.sh'}",
+                    f"- codex run script: {session_dir / 'codex-run.sh'}",
                 ]
             ),
         )
@@ -965,6 +989,25 @@ class Orchestrator:
             ),
         )
         preflight_script.chmod(0o755)
+        codex_output_file = session_dir / "codex-last.md"
+        codex_run_script = self._write_text(
+            session_dir / "codex-run.sh",
+            "\n".join(
+                [
+                    "#!/usr/bin/env zsh",
+                    "set -euo pipefail",
+                    f'SESSION_DIR="{session_dir}"',
+                    f'WORKTREE="{worktree}"',
+                    f'OUTPUT_FILE="{codex_output_file}"',
+                    'if [[ ! -f "$SESSION_DIR/context.md" ]]; then',
+                    '  echo "Missing scheduler context: $SESSION_DIR/context.md" >&2',
+                    "  exit 1",
+                    "fi",
+                    'exec codex exec --full-auto -C "$WORKTREE" -o "$OUTPUT_FILE" "$@" - < "$SESSION_DIR/context.md"',
+                ]
+            ),
+        )
+        codex_run_script.chmod(0o755)
         launch_script = self._write_text(
             session_dir / "launch.sh",
             "\n".join(
@@ -981,8 +1024,9 @@ class Orchestrator:
                     '  echo "task_packet: $SESSION_DIR/task-packet.md"',
                     '  echo "context: $SESSION_DIR/context.md"',
                     '  echo "preflight: $PREFLIGHT_SCRIPT"',
+                    '  echo "codex_run: $SESSION_DIR/codex-run.sh"',
                     '  echo "usage: launch.sh <command> [args...]"',
-                    '  echo "example: launch.sh bash"',
+                    '  echo "example: launch.sh $SESSION_DIR/codex-run.sh"',
                     "  exit 0",
                     "fi",
                     'cd "$WORKTREE"',
@@ -1004,6 +1048,8 @@ class Orchestrator:
             "task_packet_file": str(task_packet_copy),
             "preflight_script": str(preflight_script),
             "launch_script": str(launch_script),
+            "codex_run_script": str(codex_run_script),
+            "codex_output_file": str(codex_output_file),
             "generated_at": datetime.now().isoformat(),
         }
         session_file = self._write_json(session_dir / "session.json", session_payload)
@@ -1015,6 +1061,8 @@ class Orchestrator:
             "durable_session_file": durable_session_file,
             "session_preflight_script": preflight_script,
             "session_launch_script": launch_script,
+            "session_codex_run_script": codex_run_script,
+            "session_codex_output_file": codex_output_file,
         }
 
     def update_task_session_launch(

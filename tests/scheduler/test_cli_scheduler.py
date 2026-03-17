@@ -225,6 +225,111 @@ def test_scheduler_run_forwards_launch_option(tmp_path, monkeypatch):
     assert recorded["launch"] == "bash -lc echo launched"
 
 
+def test_scheduler_codex_run_forwards_options(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    recorded = {}
+
+    class DummyRunner:
+        def __init__(self, orchestrator):
+            recorded["orchestrator_root"] = orchestrator.root
+
+        def run_codex_task(
+            self,
+            task,
+            *,
+            auto_approve=False,
+            dry_run=False,
+            model=None,
+            profile=None,
+            json_output=False,
+        ):
+            recorded["task"] = task
+            recorded["auto_approve"] = auto_approve
+            recorded["dry_run"] = dry_run
+            recorded["model"] = model
+            recorded["profile"] = profile
+            recorded["json_output"] = json_output
+            return {
+                "status": "running",
+                "launch_command": "/tmp/session/codex-run.sh --profile fast --model gpt-5.4 --json",
+                "launch_pid": 12345,
+                "launch_log": str(tmp_path / "launch.log"),
+            }
+
+    monkeypatch.setattr("dimcause.scheduler.runner.TaskRunner", DummyRunner)
+
+    result = runner.invoke(
+        app,
+        [
+            "scheduler",
+            "codex-run",
+            "L0 调度",
+            "--yes",
+            "--model",
+            "gpt-5.4",
+            "--profile",
+            "fast",
+            "--json",
+        ],
+    )
+
+    assert result.exit_code == 0, result.stdout
+    assert recorded["task"] == "L0 调度"
+    assert recorded["auto_approve"] is True
+    assert recorded["dry_run"] is False
+    assert recorded["model"] == "gpt-5.4"
+    assert recorded["profile"] == "fast"
+    assert recorded["json_output"] is True
+    assert "Codex CLI 已启动。" in result.stdout
+    assert "12345" in result.stdout
+
+
+def test_scheduler_codex_run_dry_run_renders_command_preview(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    class DummyRunner:
+        def __init__(self, orchestrator):
+            pass
+
+        def run_codex_task(
+            self,
+            task,
+            *,
+            auto_approve=False,
+            dry_run=False,
+            model=None,
+            profile=None,
+            json_output=False,
+        ):
+            assert task == "L0 调度"
+            assert dry_run is True
+            return {
+                "task_id": task,
+                "command": "/tmp/session/codex-run.sh --profile fast",
+                "worktree": str(tmp_path / "worktree"),
+                "session_dir": str(tmp_path / "session"),
+                "output_file": str(tmp_path / "session" / "codex-last.md"),
+            }
+
+    monkeypatch.setattr("dimcause.scheduler.runner.TaskRunner", DummyRunner)
+
+    result = runner.invoke(
+        app,
+        [
+            "scheduler",
+            "codex-run",
+            "L0 调度",
+            "--dry-run",
+            "--profile",
+            "fast",
+        ],
+    )
+
+    assert result.exit_code == 0, result.stdout
+    assert "Codex 启动命令预览" in result.stdout
+    assert "/tmp/session/codex-run.sh --profile fast" in result.stdout
+
+
 def test_scheduler_intake_materializes_local_task_card(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 

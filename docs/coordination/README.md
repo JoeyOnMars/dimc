@@ -25,11 +25,13 @@
 
 1. 第一档：`dimc scheduler intake <task_id> --title ... --goal ...` -> `dimc scheduler run <task_id>` -> `dimc scheduler complete <task_id>`
 2. 第二档：`dimc scheduler kickoff --goal ...` 直接把高层目标物化为任务卡并启动执行
-3. 第三档：`dimc scheduler summary <task_id>` 汇总收口资格，`dimc scheduler closeout <task_id> --yes` 对低风险任务执行 ff-only 收口
-4. `dimc scheduler plan` / `status` 会把这类 standalone 任务卡纳入本地调度视图
-5. `scheduler intake` / `kickoff` 会自动生成最小任务骨架，并按任务文本推断默认 `task_class`、`cli_hint` 与建议相关文件
+3. 执行桥接：`dimc scheduler codex-run <task_id>` 复用现有 session bundle 调用 `codex exec`
+4. 第三档：`dimc scheduler summary <task_id>` 汇总收口资格，`dimc scheduler closeout <task_id> --yes` 对低风险任务执行 ff-only 收口
+5. `dimc scheduler plan` / `status` 会把这类 standalone 任务卡纳入本地调度视图
+6. `scheduler intake` / `kickoff` 会自动生成最小任务骨架，并按任务文本推断默认 `task_class`、`cli_hint` 与建议相关文件
 
 说明：
 
 1. `.agent/agent-tasks/` 属于本地开发控制层，默认不进入共享提交范围
 2. `tmp/coordination/` 承载运行时实例，不替代版本化模板
+3. `scheduler codex-run` 只负责把任务卡与 `Codex CLI` 接起来，不负责通用 swarm 编排

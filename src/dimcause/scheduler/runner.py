@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import typer
 from rich.console import Console
 from rich.panel import Panel
@@ -83,6 +85,67 @@ class TaskRunner:
     def _infer_work_class(self, task_id: str) -> str:
         return self.orchestrator.infer_work_class_for_task(task_id)
 
+    def _build_codex_launch_command(
+        self,
+        codex_run_script: Path,
+        *,
+        model: str | None = None,
+        profile: str | None = None,
+        json_output: bool = False,
+    ) -> str:
+        import shlex
+
+        command = [str(codex_run_script)]
+        if profile:
+            command.extend(["--profile", profile])
+        if model:
+            command.extend(["--model", model])
+        if json_output:
+            command.append("--json")
+        return shlex.join(command)
+
+    def run_codex_task(
+        self,
+        task_id: str,
+        *,
+        auto_approve: bool = False,
+        dry_run: bool = False,
+        model: str | None = None,
+        profile: str | None = None,
+        json_output: bool = False,
+    ):
+        runtime = self.orchestrator.get_task_runtime(task_id)
+        if runtime is None:
+            self.run_task(task_id, auto_approve=auto_approve)
+            runtime = self.orchestrator.get_task_runtime(task_id)
+        if runtime is None:
+            raise RuntimeError(f"No runtime state found for task: {task_id}")
+
+        codex_run_script_raw = runtime.get("session_codex_run_script")
+        codex_run_script = (
+            Path(str(codex_run_script_raw))
+            if isinstance(codex_run_script_raw, str) and codex_run_script_raw.strip()
+            else None
+        )
+        if codex_run_script is None or not codex_run_script.exists():
+            raise RuntimeError(f"Missing codex-run script for task: {task_id}")
+
+        command = self._build_codex_launch_command(
+            codex_run_script,
+            model=model,
+            profile=profile,
+            json_output=json_output,
+        )
+        if dry_run:
+            return {
+                "task_id": task_id,
+                "command": command,
+                "session_dir": runtime.get("session_dir"),
+                "worktree": runtime.get("worktree"),
+                "output_file": runtime.get("session_codex_output_file"),
+            }
+        return self.orchestrator.resume_task_launch(task_id, launch=command)
+
     def _execute_job_start(self, task_id: str, prompt: str, launch: str | None = None):
         """
         调用 dimc job-start
@@ -164,6 +227,8 @@ class TaskRunner:
             durable_session_file=session_bundle["durable_session_file"],
             session_preflight_script=session_bundle["session_preflight_script"],
             session_launch_script=session_bundle["session_launch_script"],
+            session_codex_run_script=session_bundle["session_codex_run_script"],
+            session_codex_output_file=session_bundle["session_codex_output_file"],
         )
         task_board_file = self.orchestrator.task_board_path()
         console.print(f"[blue]📦 Task packet saved to: {task_packet_file}[/]")
@@ -189,6 +254,8 @@ class TaskRunner:
             durable_session_file=session_bundle["durable_session_file"],
             session_preflight_script=session_bundle["session_preflight_script"],
             session_launch_script=session_bundle["session_launch_script"],
+            session_codex_run_script=session_bundle["session_codex_run_script"],
+            session_codex_output_file=session_bundle["session_codex_output_file"],
             session_launch_command=None,
             session_launch_pid=None,
             session_launch_log=None,
@@ -237,6 +304,8 @@ class TaskRunner:
                 durable_session_file=session_bundle["durable_session_file"],
                 session_preflight_script=session_bundle["session_preflight_script"],
                 session_launch_script=session_bundle["session_launch_script"],
+                session_codex_run_script=session_bundle["session_codex_run_script"],
+                session_codex_output_file=session_bundle["session_codex_output_file"],
                 session_launch_command=launch,
                 session_launch_pid=launch_pid,
                 session_launch_log=launch_log,
@@ -258,6 +327,8 @@ class TaskRunner:
             "durable_session_file": session_bundle["durable_session_file"],
             "session_preflight_script": session_bundle["session_preflight_script"],
             "session_launch_script": session_bundle["session_launch_script"],
+            "session_codex_run_script": session_bundle["session_codex_run_script"],
+            "session_codex_output_file": session_bundle["session_codex_output_file"],
             "launch_command": launch,
             "launch_pid": launch_pid,
             "launch_log": launch_log,

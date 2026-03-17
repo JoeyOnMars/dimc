@@ -65,6 +65,8 @@ def test_execute_job_start_uses_dimcause_cli_module(tmp_path, monkeypatch):
     assert result["durable_session_file"] == result["job_dir"] / "session.json"
     assert result["session_preflight_script"] == result["session_dir"] / "preflight.sh"
     assert result["session_launch_script"] == result["session_dir"] / "launch.sh"
+    assert result["session_codex_run_script"] == result["session_dir"] / "codex-run.sh"
+    assert result["session_codex_output_file"] == result["session_dir"] / "codex-last.md"
     assert (result["job_dir"] / "meta.json").exists()
     assert (result["job_dir"] / "task-packet.md").exists()
     assert result["session_dir"].exists()
@@ -72,6 +74,7 @@ def test_execute_job_start_uses_dimcause_cli_module(tmp_path, monkeypatch):
     assert (result["session_dir"] / "task-packet.md").exists()
     assert (result["session_dir"] / "preflight.sh").exists()
     assert (result["session_dir"] / "launch.sh").exists()
+    assert (result["session_dir"] / "codex-run.sh").exists()
     assert (result["job_dir"] / "session.json").exists()
     assert provisioned["branch"] in (result["job_dir"] / "meta.json").read_text(encoding="utf-8")
     assert provisioned["worktree"] in (result["job_dir"] / "meta.json").read_text(encoding="utf-8")
@@ -218,6 +221,8 @@ def test_execute_job_start_materializes_runtime_assets(tmp_path, monkeypatch):
     assert '"durable_session_file"' in runtime_state
     assert '"session_preflight_script"' in runtime_state
     assert '"session_launch_script"' in runtime_state
+    assert '"session_codex_run_script"' in runtime_state
+    assert '"session_codex_output_file"' in runtime_state
     task_board = result["task_board_file"].read_text(encoding="utf-8")
     assert provisioned["branch"] in task_board
     assert provisioned["worktree"] in task_board
@@ -228,6 +233,7 @@ def test_execute_job_start_materializes_runtime_assets(tmp_path, monkeypatch):
     assert (result["session_dir"] / "task-packet.md").exists()
     assert (result["session_dir"] / "preflight.sh").exists()
     assert (result["session_dir"] / "launch.sh").exists()
+    assert (result["session_dir"] / "codex-run.sh").exists()
     assert (result["job_dir"] / "session.json").exists()
     assert "protected_doc_override" in task_packet_body
     assert "## 4. Allowed Files" in task_packet_body
@@ -236,10 +242,16 @@ def test_execute_job_start_materializes_runtime_assets(tmp_path, monkeypatch):
         result["session_dir"] / "session.json"
     ).read_text(encoding="utf-8")
     assert "preflight.sh" in (result["session_dir"] / "README.md").read_text(encoding="utf-8")
+    assert "codex-run.sh" in (result["session_dir"] / "README.md").read_text(encoding="utf-8")
     assert "usage: launch.sh <command> [args...]" in (
         result["session_dir"] / "launch.sh"
     ).read_text(encoding="utf-8")
-    assert 'preflight.sh' in (result["session_dir"] / "launch.sh").read_text(encoding="utf-8")
+    launch_script_body = (result["session_dir"] / "launch.sh").read_text(encoding="utf-8")
+    assert "preflight.sh" in launch_script_body
+    assert "codex-run.sh" in launch_script_body
+    codex_run_body = (result["session_dir"] / "codex-run.sh").read_text(encoding="utf-8")
+    assert "codex exec --full-auto" in codex_run_body
+    assert "context.md" in codex_run_body
 
 
 def test_execute_job_start_can_auto_launch_session_command(tmp_path, monkeypatch):
@@ -317,3 +329,101 @@ def test_execute_job_start_can_auto_launch_session_command(tmp_path, monkeypatch
     meta_payload = (result["job_dir"] / "meta.json").read_text(encoding="utf-8")
     assert '"session_launch_command": "bash -lc echo launched"' in meta_payload
     assert '"session_launch_pid": 43210' in meta_payload
+
+
+def test_run_codex_task_bootstraps_runtime_and_resumes_launch(tmp_path, monkeypatch):
+    orchestrator = Orchestrator(project_root=tmp_path)
+    runner = TaskRunner(orchestrator)
+    bootstrap_calls = {"count": 0}
+    recorded = {}
+    session_dir = tmp_path / "worktrees" / "scheduler-l0" / ".agent" / "sessions" / "l0-auto"
+    session_dir.mkdir(parents=True, exist_ok=True)
+    codex_run_script = session_dir / "codex-run.sh"
+    codex_run_script.write_text("#!/usr/bin/env zsh\nexit 0\n", encoding="utf-8")
+    codex_run_script.chmod(0o755)
+
+    def fake_run_task(task_id, dry_run=False, auto_approve=False, launch=None):
+        bootstrap_calls["count"] += 1
+        assert task_id == "L0 调度"
+        assert dry_run is False
+        assert auto_approve is True
+        runtime_dir = tmp_path / ".agent"
+        runtime_dir.mkdir(parents=True, exist_ok=True)
+        (runtime_dir / "scheduler_state.json").write_text(
+            (
+                '{\n'
+                '  "tasks": {\n'
+                '    "L0 调度": {\n'
+                '      "status": "running",\n'
+                f'      "session_dir": "{session_dir}",\n'
+                f'      "session_codex_run_script": "{codex_run_script}",\n'
+                f'      "session_codex_output_file": "{session_dir / "codex-last.md"}"\n'
+                "    }\n"
+                "  }\n"
+                "}\n"
+            ),
+            encoding="utf-8",
+        )
+
+    def fake_resume(task_id, *, launch=None):
+        recorded["task_id"] = task_id
+        recorded["launch"] = launch
+        return {
+            "status": "running",
+            "launch_command": launch,
+            "launch_pid": 24680,
+            "launch_log": str(session_dir / "launch.log"),
+        }
+
+    monkeypatch.setattr(runner, "run_task", fake_run_task)
+    monkeypatch.setattr(orchestrator, "resume_task_launch", fake_resume)
+
+    result = runner.run_codex_task(
+        "L0 调度",
+        auto_approve=True,
+        model="gpt-5.4",
+        profile="fast",
+        json_output=True,
+    )
+
+    assert bootstrap_calls["count"] == 1
+    assert recorded["task_id"] == "L0 调度"
+    assert recorded["launch"] == (
+        f"{codex_run_script} --profile fast --model gpt-5.4 --json"
+    )
+    assert result["launch_pid"] == 24680
+
+
+def test_run_codex_task_dry_run_returns_command_preview(tmp_path):
+    orchestrator = Orchestrator(project_root=tmp_path)
+    runner = TaskRunner(orchestrator)
+    session_dir = tmp_path / "worktrees" / "scheduler-l0" / ".agent" / "sessions" / "l0-auto"
+    session_dir.mkdir(parents=True, exist_ok=True)
+    codex_run_script = session_dir / "codex-run.sh"
+    codex_run_script.write_text("#!/usr/bin/env zsh\nexit 0\n", encoding="utf-8")
+    codex_run_script.chmod(0o755)
+    runtime_dir = tmp_path / ".agent"
+    runtime_dir.mkdir(parents=True, exist_ok=True)
+    (runtime_dir / "scheduler_state.json").write_text(
+        (
+            '{\n'
+            '  "tasks": {\n'
+            '    "L0 调度": {\n'
+            '      "status": "running",\n'
+            f'      "session_dir": "{session_dir}",\n'
+            f'      "worktree": "{tmp_path / "worktrees" / "scheduler-l0"}",\n'
+            f'      "session_codex_run_script": "{codex_run_script}",\n'
+            f'      "session_codex_output_file": "{session_dir / "codex-last.md"}"\n'
+            "    }\n"
+            "  }\n"
+            "}\n"
+        ),
+        encoding="utf-8",
+    )
+
+    result = runner.run_codex_task("L0 调度", dry_run=True)
+
+    assert result["task_id"] == "L0 调度"
+    assert result["command"] == str(codex_run_script)
+    assert result["session_dir"] == str(session_dir)
+    assert result["output_file"] == str(session_dir / "codex-last.md")

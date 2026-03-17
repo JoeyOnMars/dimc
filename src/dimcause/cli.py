@@ -4998,6 +4998,95 @@ def scheduler_run(
         raise typer.Exit(1) from None
 
 
+@scheduler_app.command("codex-run")
+def scheduler_codex_run(
+    task: str = typer.Argument(..., help="Task ID / 任务 ID"),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Preview Codex launch command without executing / 仅预览 Codex 启动命令",
+    ),
+    auto_approve: bool = typer.Option(
+        False,
+        "--yes",
+        "-y",
+        help="Skip confirm when bootstrap is needed / 需要补建 runtime 时跳过确认",
+    ),
+    model: Optional[str] = typer.Option(
+        None,
+        "--model",
+        help="Codex model override / Codex 模型覆盖",
+    ),
+    profile: Optional[str] = typer.Option(
+        None,
+        "--profile",
+        help="Codex profile override / Codex profile 覆盖",
+    ),
+    json_output: bool = typer.Option(
+        False,
+        "--json",
+        help="Forward --json to codex exec / 向 codex exec 透传 --json",
+    ),
+):
+    """
+    Launch Codex CLI for an existing scheduler task/session bundle.
+    基于现有 scheduler 任务卡和 session bundle 启动 Codex CLI。
+    """
+    if hasattr(task, "default"):
+        task = task.default
+    if hasattr(dry_run, "default"):
+        dry_run = dry_run.default
+    if hasattr(auto_approve, "default"):
+        auto_approve = auto_approve.default
+    if hasattr(model, "default"):
+        model = model.default
+    if hasattr(profile, "default"):
+        profile = profile.default
+    if hasattr(json_output, "default"):
+        json_output = json_output.default
+
+    task = task.strip()
+    console.print(
+        Panel.fit(
+            f"[bold blue] Dimcause Scheduler - Codex Run: {task}[/]",
+            border_style="blue",
+        )
+    )
+
+    try:
+        from dimcause.scheduler.orchestrator import Orchestrator
+        from dimcause.scheduler.runner import TaskRunner
+
+        orchestrator = Orchestrator()
+        runner = TaskRunner(orchestrator)
+        result = runner.run_codex_task(
+            task,
+            auto_approve=auto_approve,
+            dry_run=dry_run,
+            model=model,
+            profile=profile,
+            json_output=json_output,
+        )
+        if dry_run:
+            console.print("[yellow]Codex 启动命令预览：[/]")
+            console.print(f"  task: {result.get('task_id')}")
+            console.print(f"  command: {result.get('command')}")
+            console.print(f"  worktree: {result.get('worktree')}")
+            console.print(f"  session_dir: {result.get('session_dir')}")
+            console.print(f"  output_file: {result.get('output_file')}")
+            return
+
+        console.print("[green]Codex CLI 已启动。[/]")
+        console.print(f"  task: {task}")
+        console.print(f"  status: {result.get('status')}")
+        console.print(f"  command: {result.get('launch_command')}")
+        console.print(f"  pid: {result.get('launch_pid')}")
+        console.print(f"  log: {result.get('launch_log')}")
+    except Exception as e:
+        console.print(f"[red] : {e}[/]")
+        raise typer.Exit(1) from None
+
+
 @scheduler_app.command("complete")
 def scheduler_complete(
     task: str = typer.Argument(..., help="Task ID / 任务 ID"),

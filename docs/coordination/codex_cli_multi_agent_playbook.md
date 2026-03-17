@@ -56,11 +56,13 @@
 2. 如果只有高层目标，没有稳定的 `task_id` 和标题，直接使用 `dimc scheduler kickoff --goal ...`。
    - kickoff 会自动生成 `task_id`、标题和任务卡，并立即进入 `scheduler run`。
 3. `scheduler run <task_id> --yes` 会分配分支、worktree、Task Packet 与 session bundle。
-4. 执行工位只按 Task Packet 改动白名单文件。
-5. 执行工位完成后执行 `dimc scheduler complete <task_id>`，生成 `[PR_READY]` 并回写运行时状态。
-6. `dimc scheduler summary <task_id>` 汇总 runtime、任务卡、证据和收口资格。
-7. 对低风险任务，执行 `dimc scheduler closeout <task_id> --yes` 做本地 `ff-only` 收口。
-8. 非低风险任务仍由司令官与精炼官人工裁决。
+4. 执行工位使用 `dimc scheduler codex-run <task_id>`，基于已有 session bundle 调用 `codex exec`。
+5. `scheduler codex-run` 只做执行桥接，不替代 Codex App 的 swarm/subagent 调度。
+6. 执行工位只按 Task Packet 改动白名单文件。
+7. 执行工位完成后执行 `dimc scheduler complete <task_id>`，生成 `[PR_READY]` 并回写运行时状态。
+8. `dimc scheduler summary <task_id>` 汇总 runtime、任务卡、证据和收口资格。
+9. 对低风险任务，执行 `dimc scheduler closeout <task_id> --yes` 做本地 `ff-only` 收口。
+10. 非低风险任务仍由司令官与精炼官人工裁决。
 
 ## 7. 当前仓库里的最小命令约定
 
@@ -76,11 +78,14 @@
 2. 当前仓库现在已有第一档和第二档入口：
    - `scheduler intake/run/complete`
    - `scheduler kickoff`
-3. 当前仓库也已有第三档的最小收口入口：
+3. 当前仓库现在也有执行桥接入口：
+   - `scheduler codex-run`
+4. 当前仓库也已有第三档的最小收口入口：
    - `scheduler summary`
    - `scheduler closeout`
-4. 这些入口仍然是本地控制层能力，不会自动生成 Issue，也不会自动做多任务拆解。
-5. 因此当前阶段的最小可信做法是：
+5. 这些入口仍然是本地控制层能力，不会自动生成 Issue，也不会自动做多任务拆解。
+6. `scheduler codex-run` 的定位是“项目控制层到 Codex CLI 的桥接”，不是通用多 Agent 编排器。
+7. 因此当前阶段的最小可信做法是：
    - 用正式模板和运行时目录约束人工编排；
-   - 用 `scheduler intake/run/complete`、`scheduler kickoff`、`scheduler summary/closeout` 打通分档自动化闭环；
+   - 用 `scheduler intake/run/complete`、`scheduler kickoff`、`scheduler codex-run`、`scheduler summary/closeout` 打通分档自动化闭环；
    - 不假装已经有完整 autopilot。
