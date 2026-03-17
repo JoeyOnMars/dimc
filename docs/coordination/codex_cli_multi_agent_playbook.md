@@ -63,6 +63,10 @@
 8. `dimc scheduler summary <task_id>` 汇总 runtime、任务卡、证据和收口资格。
 9. 对低风险任务，执行 `dimc scheduler closeout <task_id> --yes` 做本地 `ff-only` 收口。
 10. 非低风险任务仍由司令官与精炼官人工裁决。
+11. 产品线任务收口后，司令官必须同步第四层共享治理文档，至少复核并更新：
+   - `docs/STATUS.md`
+   - `docs/dev/BACKLOG.md`
+   - 对应 roadmap / 执行计划文档
 
 ## 7. 当前仓库里的最小命令约定
 

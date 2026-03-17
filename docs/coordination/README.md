@@ -35,3 +35,7 @@
 1. `.agent/agent-tasks/` 属于本地开发控制层，默认不进入共享提交范围
 2. `tmp/coordination/` 承载运行时实例，不替代版本化模板
 3. `scheduler codex-run` 只负责把任务卡与 `Codex CLI` 接起来，不负责通用 swarm 编排
+4. 产品线任务完成并收口后，必须同步第四层共享治理文档；当前仓库最少要检查：
+   - `docs/STATUS.md`
+   - `docs/dev/BACKLOG.md`
+   - 相关 roadmap / 执行计划文档
