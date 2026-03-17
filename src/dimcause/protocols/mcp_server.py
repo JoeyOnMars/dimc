@@ -10,6 +10,7 @@ from dimcause.utils.state import get_today_dir
 
 # Initialize FastMCP server
 mcp = FastMCP("dimcause")
+VALID_TRANSPORTS = {"stdio", "http"}
 
 
 def _get_services():
@@ -225,6 +226,11 @@ def run(transport: str = "stdio"):
     Args:
         transport: 传输方式 ("stdio" 或 "http")
     """
+    if transport not in VALID_TRANSPORTS:
+        raise ValueError(
+            f"Unsupported MCP transport: {transport}. Expected one of: {', '.join(sorted(VALID_TRANSPORTS))}"
+        )
+
     if transport == "http":
         mcp.run(transport="http", host="127.0.0.1", port=14243)
     else:

@@ -16,11 +16,16 @@ Usage:
     dimc capture        #
 """
 
-#   import  httpx/requests
-#  localhost  Antigravity Tools
 import logging
 import os
 import sys
+from datetime import datetime
+from enum import Enum
+from pathlib import Path
+from typing import Any, Optional, cast
+
+#   import  httpx/requests
+#  localhost  Antigravity Tools
 
 os.environ["NO_PROXY"] = "127.0.0.1,localhost,::1"
 os.environ["no_proxy"] = "127.0.0.1,localhost,::1"
@@ -50,10 +55,6 @@ try:
 except Exception:
     pass
 
-from datetime import datetime
-from pathlib import Path
-from typing import Any, Optional, cast
-
 import typer
 from rich.console import Console
 from rich.markdown import Markdown
@@ -74,6 +75,12 @@ app = typer.Typer(
 app.add_typer(graph_app, name="graph")
 app.add_typer(export_app, name="export")
 
+
+class MCPTransport(str, Enum):
+    STDIO = "stdio"
+    HTTP = "http"
+
+
 # MCP Sub-command group
 mcp_app = typer.Typer(help="MCP Protocol Interface / MCP 协议接口")
 app.add_typer(mcp_app, name="mcp")
@@ -85,7 +92,7 @@ app.add_typer(config_app, name="config")
 
 @mcp_app.command("serve")
 def mcp_serve(
-    transport: str = typer.Option(
+    transport: MCPTransport = typer.Option(
         "stdio", "--transport", "-t", help="传输方式: stdio (默认) 或 http"
     ),
 ):
@@ -93,9 +100,9 @@ def mcp_serve(
     try:
         from dimcause.protocols.mcp_server import run
 
-        if transport == "http":
+        if transport is MCPTransport.HTTP:
             console.print("[bold blue]启动 MCP Server (HTTP, 端口 14243)...[/]")
-        run(transport=transport)
+        run(transport=transport.value)
     except ImportError as e:
         console.print(f"[red]MCP Error: {e}[/]")
         console.print("[yellow]Please run: pip install -e .[/]")

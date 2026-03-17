@@ -209,3 +209,16 @@ class TestGetGraphContext:
         result = get_graph_context()
 
         assert "图谱概览获取失败" in result
+
+
+def test_run_rejects_invalid_transport():
+    from dimcause.protocols.mcp_server import run
+
+    try:
+        run("bad")
+    except ValueError as exc:
+        assert "Unsupported MCP transport" in str(exc)
+        assert "http" in str(exc)
+        assert "stdio" in str(exc)
+    else:
+        raise AssertionError("run() 应拒绝非法 transport，而不是静默回退")

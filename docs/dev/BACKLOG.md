@@ -138,8 +138,9 @@
 ### ~~P2-4: MCP Server 配置修复（任务 1.7）~~ (FIXED)
 - **修复事实**:
   - `dimc mcp serve` 已支持 `stdio` / `http` 两种传输模式
+  - `--transport` 非法值现在会直接报错，不再静默回退到 `stdio`
   - `docs/guides/MCP_SETUP.md`、`docs/USER_GUIDE.md` 与 `docs/IDE_INTEGRATION.md` 已按 live 代码口径纠偏
-  - `tests/test_mcp.py` 与 `tests/test_mcp_server.py` 当前为 `12/12` 通过
+  - `tests/test_mcp.py`、`tests/test_mcp_server.py` 与 `tests/test_cli_mcp.py` 当前为 `16/16` 通过，已覆盖 CLI 启动层 smoke test
 - **后续说明**: 后续若继续扩展，只剩特定外部客户端接入验证；这不再属于“配置修复未完成”。
 
 ### P2-5: README 和发布文档对齐（任务 1.9）

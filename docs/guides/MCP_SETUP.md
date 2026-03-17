@@ -21,6 +21,7 @@ dimc mcp serve --help
 当前 live 命令支持：
 - `stdio`（默认）
 - `http`（`--transport http`，监听 `127.0.0.1:14243`）
+- 非法 `--transport` 会直接报错，不再静默退回默认模式
 
 ## 2. 当前服务端启动方式
 

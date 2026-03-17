@@ -80,7 +80,7 @@
 | Task 015 | CI净化（Ruff 48错清零 + check.zsh 环境加固） | ✅ 完成 (Exit Code 0，24 passed) |
 | Task 016 | 解释器因果引擎接入加深与纯化 | ✅ 完成 (SQL因果严丝剔透 + 跨库安全降级查询) |
 | Task 017 | SearchEngine 混合检索接入 UNIX 通道 | ✅ 完成 (`semantic + graph + unix + text` 四通道候选融合) |
-| 任务 1.7 | MCP Server 配置修复 | ✅ 完成 (`dimc mcp serve` stdio/http + `tests/test_mcp*.py` 12/12 通过) |
+| 任务 1.7 | MCP Server 配置修复 | ✅ 完成 (`dimc mcp serve` stdio/http + transport 校验 + MCP CLI smoke test 16/16 通过) |
 | 任务 1.9 | 发布前文档对齐 (README等) | 🔄 部分完成（README 已对齐，剩余 release 清单核销） |
 | 流程设施 | 信任梯度 (Risk Level) 分级落地 | ✅ 完成 (Task Packet + scheduler risk gate + closeout policy) |
 | L3 防波堤 | SchemaValidator 运行时卡口 | 🔄 部分完成（EventIndex 写入链路已接入） |
