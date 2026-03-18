@@ -26,7 +26,7 @@
 6. 产品架构已经明确禁止从当前 repo 目录结构反推产品本体；当前目录结构最多只能说明一个具体 workspace profile 的当前实现现实。
 7. 当前工作目录现实中同时存在以下几类区域：
    - `src/dimcause/` 及其子模块，承载产品内核实现的主要代码表面
-   - `docs/logs/` 与仓库外原始导出材料目录这类本地材料与证据承载面
+   - `docs/logs/` 与仓库外原始导出材料目录这类本地材料与证据承载面（`docs/logs/` 默认不进入 git，不属于共享文档入口）
    - `docs/audit/` 这类共享审计工件承载面
    - `.agent/rules/`、`docs/coordination/`、本地开发控制层中的临时协作目录、`scripts/check.zsh`、`scripts/preflight_guard.py` 这类仓库治理与协作表面
 8. 当前仓库中的 `docs/` 并不是单一职责目录。它同时包含产品正式设计文档、proposal、研究材料、日志材料、报告工件和协作模板，因此 `docs/` 本身不能直接等同于某一产品层。
@@ -88,7 +88,7 @@
    - `src/dimcause/services/`
    - `src/dimcause/tui/`
 3. **默认 workspace profile 映射**
-   - 主要承载面是当前仓库中被用作本地材料、证据工件、报告工件、索引/存储支撑面的那些表面。
+   - 主要承载面是当前工作目录中被用作本地材料、证据工件、报告工件、索引/存储支撑面的那些表面。
    - 当前工作目录中最清晰的本地材料承载面之一是 `docs/logs/`；原始导出材料默认保留在仓库外导出目录。
    - 当前共享仓库里仍保留的生成型审计工件主要出现在 `docs/audit/`。
    - 当前仓库中的本地索引、知识建模与检索能力则主要通过 `src/dimcause/core/`、`src/dimcause/storage/`、`src/dimcause/reasoning/`、`src/dimcause/search/` 这些代码表面来实现。
