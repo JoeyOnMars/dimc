@@ -1,5 +1,5 @@
 #!/bin/bash
-# MAL Daemon launchd Uninstallation Script
+# Dimcause Daemon launchd Uninstallation Script
 
 set -e
 
@@ -8,19 +8,19 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${YELLOW}   MAL Daemon - launchd Uninstallation${NC}"
+echo -e "${YELLOW}   Dimcause Daemon - launchd Uninstallation${NC}"
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
 PLIST_PATH="${HOME}/Library/LaunchAgents/com.dimcause.daemon.plist"
 
 if [ ! -f "${PLIST_PATH}" ]; then
-    echo -e "${GREEN}✅ MAL Daemon is not installed${NC}"
+    echo -e "${GREEN}✅ Dimcause Daemon is not installed${NC}"
     exit 0
 fi
 
 # 停止服务
-echo -e "${YELLOW}[1/2]${NC} Stopping MAL Daemon service..."
+echo -e "${YELLOW}[1/2]${NC} Stopping Dimcause Daemon service..."
 launchctl unload "${PLIST_PATH}" 2>/dev/null || true
 echo -e "  ✅ Service stopped"
 echo ""
@@ -35,6 +35,6 @@ echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━
 echo -e "${GREEN}       Uninstallation Complete! 👋${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
-echo "MAL Daemon has been removed from launchd."
+echo "Dimcause Daemon has been removed from launchd."
 echo "To reinstall, run: ./scripts/install_daemon.sh"
 echo ""

@@ -322,10 +322,10 @@ class TestLLMConfig:
 
 
 class TestDimcauseConfig:
-    """测试 MAL 完整配置"""
+    """测试 Dimcause 完整配置"""
 
-    def test_default_mal_config(self):
-        """测试默认 MAL 配置"""
+    def test_default_dimcause_config(self):
+        """测试默认 Dimcause 配置"""
         from dimcause.core.models import DimcauseConfig
 
         config = DimcauseConfig()

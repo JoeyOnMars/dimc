@@ -339,7 +339,7 @@ class TestSearchEngineIntegration:
 class TestConfigIntegration:
     """测试配置集成"""
 
-    def test_mal_config_defaults(self):
+    def test_dimcause_config_defaults(self):
         """测试 DimcauseConfig 默认值"""
         from dimcause.core.models import DimcauseConfig
 

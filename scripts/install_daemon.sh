@@ -1,7 +1,7 @@
 #!/bin/bash
-# MAL Daemon launchd Installation Script
+# Dimcause Daemon launchd Installation Script
 # 
-# 用途: 将MAL Daemon安装为macOS后台服务
+# 用途: 将 Dimcause Daemon 安装为 macOS 后台服务
 # 要求: macOS 10.10+
 
 set -e
@@ -13,7 +13,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}   MAL Daemon - launchd Installation${NC}"
+echo -e "${GREEN}   Dimcause Daemon - launchd Installation${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
@@ -25,15 +25,15 @@ echo -e "Current user: ${GREEN}${CURRENT_USER}${NC}"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PLIST_TEMPLATE="${PROJECT_DIR}/scripts/com.dimcause.daemon.plist"
 PLIST_DEST="${HOME}/Library/LaunchAgents/com.dimcause.daemon.plist"
-MAL_DIR="${HOME}/.mal"
+DIMCAUSE_DIR="${HOME}/.dimcause"
 
 echo -e "Project directory: ${GREEN}${PROJECT_DIR}${NC}"
 echo ""
 
-# 创建 .mal 目录
-echo -e "${YELLOW}[1/6]${NC} Creating MAL directory..."
-mkdir -p "${MAL_DIR}"
-echo -e "  ✅ ${MAL_DIR}"
+# 创建 .dimcause 目录
+echo -e "${YELLOW}[1/6]${NC} Creating Dimcause directory..."
+mkdir -p "${DIMCAUSE_DIR}"
+echo -e "  ✅ ${DIMCAUSE_DIR}"
 echo ""
 
 # 检查plist模板是否存在
@@ -70,27 +70,27 @@ fi
 echo -e "  ✅ Python: ${GREEN}${PYTHON_PATH}${NC}"
 echo ""
 
-# 检测mal命令路径
+# 检测 dimc 命令路径
 echo -e "${YELLOW}[3/6]${NC} Detecting dimc command..."
 DIMC_PATH=""
 
 # 尝试1: .venv
-if [ -f "${PROJECT_DIR}/.venv/bin/mal" ]; then
-    DIMC_PATH="${PROJECT_DIR}/.venv/bin/mal"
+if [ -f "${PROJECT_DIR}/.venv/bin/dimc" ]; then
+    DIMC_PATH="${PROJECT_DIR}/.venv/bin/dimc"
 fi
 
 # 尝试2: global pip install
 if [ -z "${DIMC_PATH}" ] && command -v dimc &> /dev/null; then
-    DIMC_PATH=$(which mal)
+    DIMC_PATH=$(which dimc)
 fi
 
 if [ -z "${DIMC_PATH}" ]; then
     echo -e "${RED}❌ Error: dimc command not found${NC}"
-    echo "  Please install MAL first: pip install -e ."
+    echo "  Please install Dimcause first: pip install -e ."
     exit 1
 fi
 
-echo -e "  ✅ mal: ${GREEN}${DIMC_PATH}${NC}"
+echo -e "  ✅ dimc: ${GREEN}${DIMC_PATH}${NC}"
 echo ""
 
 # 生成plist文件
@@ -99,8 +99,8 @@ echo -e "${YELLOW}[4/6]${NC} Generating plist file..."
 # 读取模板并替换变量
 sed -e "s|/Users/YOUR_USERNAME|${HOME}|g" \
     -e "s|/Users/YOUR_USERNAME/.pyenv/versions/3.13.7/bin/python|${PYTHON_PATH}|g" \
-    -e "s|/Users/YOUR_USERNAME/projects/multi-agent-logger/.venv/bin/mal|${DIMC_PATH}|g" \
-    -e "s|/Users/YOUR_USERNAME/projects/multi-agent-logger|${PROJECT_DIR}|g" \
+    -e "s|/Users/YOUR_USERNAME/projects/dimc/.venv/bin/dimc|${DIMC_PATH}|g" \
+    -e "s|/Users/YOUR_USERNAME/projects/dimc|${PROJECT_DIR}|g" \
     "${PLIST_TEMPLATE}" > "${PLIST_DEST}"
 
 echo -e "  ✅ ${PLIST_DEST}"
@@ -113,7 +113,7 @@ echo -e "  ✅ Done"
 echo ""
 
 # 加载服务
-echo -e "${YELLOW}[6/6]${NC} Loading MAL Daemon service..."
+echo -e "${YELLOW}[6/6]${NC} Loading Dimcause Daemon service..."
 launchctl load "${PLIST_DEST}"
 
 # 等待1秒让服务启动
@@ -121,7 +121,7 @@ sleep 1
 
 # 检查服务状态
 if launchctl list | grep -q "com.dimcause.daemon"; then
-    echo -e "  ${GREEN}✅ MAL Daemon service loaded successfully${NC}"
+    echo -e "  ${GREEN}✅ Dimcause Daemon service loaded successfully${NC}"
 else
     echo -e "  ${RED}❌ Failed to load service${NC}"
     exit 1
@@ -132,10 +132,10 @@ echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━
 echo -e "${GREEN}          Installation Complete! 🎉${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
-echo "MAL Daemon is now running as a background service."
+echo "Dimcause Daemon is now running as a background service."
 echo ""
 echo "Useful commands:"
-echo "  • Check status:   launchctl list | grep mal"
+echo "  • Check status:   launchctl list | grep dimcause"
 echo "  • View logs:      tail -f ~/.dimcause/daemon.log"
 echo "  • View errors:    tail -f ~/.dimcause/daemon.error.log"
 echo "  • Restart:        launchctl unload ~/Library/LaunchAgents/com.dimcause.daemon.plist"

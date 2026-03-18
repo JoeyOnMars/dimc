@@ -68,8 +68,8 @@
 
 #### A. `tests/integration/test_cli_event_index.py` (`2`)
 
-1. `test_mal_tasks_command_output`
-2. `test_mal_index_rebuild`
+1. `test_cli_tasks_command_output`
+2. `test_cli_index_rebuild`
 
 原因：需要完整 CLI 环境与真实命令执行。
 

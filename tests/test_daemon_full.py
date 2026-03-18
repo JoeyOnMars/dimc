@@ -327,7 +327,7 @@ class TestCreateDaemon:
 
         assert daemon is not None
 
-    def test_create_daemon_returns_mal_daemon(self):
+    def test_create_daemon_returns_dimcause_daemon(self):
         """测试返回 DimcauseDaemon 实例"""
         from dimcause.daemon import DimcauseDaemon, create_daemon
 

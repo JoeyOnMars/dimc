@@ -108,7 +108,7 @@ class DirectoryImporter:
                 if p.suffix.lower() in self.extensions and p.is_file()
             ]
 
-        files = [f for f in files if ".mal" not in str(f) and ".git" not in str(f)]
+        files = [f for f in files if ".dimcause" not in str(f) and ".git" not in str(f)]
 
         count = 0
         failed_files = []
@@ -319,7 +319,7 @@ class DirectoryImporter:
         )
 
         # Save
-        self.markdown_store.save(event)  # This will copy it to .mal/events
+        self.markdown_store.save(event)  # This will copy it to .dimcause/events
 
         if self.vector_store:
             # Add to vector store for semantic search

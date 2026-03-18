@@ -39,32 +39,14 @@ class AutoRepairQueue:
     """
 
     DEFAULT_DIR = ".dimcause"
-    LEGACY_DIR = ".mal"
     QUEUE_FILE = "repair_queue.jsonl"
     TEST_QUEUE_FILE = "/tmp/dimcause_test_repair_queue.jsonl"
 
     @classmethod
     def _resolve_default_queue_file(cls) -> Path:
-        """解析默认队列文件路径，并在首次启动时迁移 legacy .mal 路径。"""
+        """解析默认队列文件路径。"""
         home = Path.home()
-        default_path = home / cls.DEFAULT_DIR / cls.QUEUE_FILE
-        legacy_path = home / cls.LEGACY_DIR / cls.QUEUE_FILE
-
-        if default_path.exists() or not legacy_path.exists():
-            return default_path
-
-        default_path.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            legacy_path.replace(default_path)
-            logger.info("Repair queue migrated from %s to %s", legacy_path, default_path)
-            return default_path
-        except OSError as exc:
-            logger.warning(
-                "Repair queue migration failed, fallback to legacy path %s: %s",
-                legacy_path,
-                exc,
-            )
-            return legacy_path
+        return home / cls.DEFAULT_DIR / cls.QUEUE_FILE
 
     def __init__(
         self,

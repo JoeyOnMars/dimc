@@ -401,7 +401,7 @@ def end_job_workflow(job_id: Optional[str] = None) -> WorkflowResult:
             return WorkflowResult(
                 success=False,
                 message="未检测到进行中的任务",
-                data={"hint": "请指定任务 ID: mal job-end <job-id>"},
+                data={"hint": "请指定任务 ID: dimc job-end <job-id>"},
             )
         job_id = job_info[0]  # get_active_job returns (job_id, path) tuple
 

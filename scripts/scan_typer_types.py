@@ -40,7 +40,7 @@ def scan_file(path):
 
 
 if __name__ == "__main__":
-    issues = scan_file("src/mal/cli.py")
+    issues = scan_file("src/dimcause/cli.py")
     if not issues:
         print("✅ No missing type hints found!")
     else:

@@ -1,7 +1,7 @@
 """
 Migration 001: Add Event Vectors
 
-为 MAL-SEARCH-001 添加向量存储表结构。
+为 SEARCH-001 添加向量存储表结构。
 
 创建:
 - event_vectors: 事件分块及其向量
@@ -11,7 +11,7 @@ Migration 001: Add Event Vectors
 环境变量:
 - DIMCAUSE_SKIP_EMBED_MIGRATION=1: 跳过批量向量初始化
 
-MAL-SEARCH-001 v5.2
+SEARCH-001 v5.2
 """
 
 import logging

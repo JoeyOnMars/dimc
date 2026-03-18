@@ -436,7 +436,7 @@ MAJOR.MINOR.PATCH
 ```bash
 # 1. 更新版本号
 # - pyproject.toml
-# - mal/__init__.py
+# - src/dimcause/__init__.py
 # - docs/V5.1/README.md
 
 # 2. 更新 CHANGELOG.md

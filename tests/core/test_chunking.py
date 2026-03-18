@@ -1,7 +1,7 @@
 """
 测试 EventChunker 分块模块
 
-MAL-SEARCH-001 v5.2
+SEARCH-001 v5.2
 """
 
 import pytest

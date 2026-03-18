@@ -16,14 +16,14 @@ from dimcause.core.event_index import EventIndex
 
 
 @pytest.fixture
-def temp_mal_dir():
+def temp_dimcause_dir():
     """创建临时 .dimcause 目录"""
     with tempfile.TemporaryDirectory() as tmpdir:
-        mal_dir = Path(tmpdir) / ".dimcause"
-        mal_dir.mkdir()
+        dimcause_dir = Path(tmpdir) / ".dimcause"
+        dimcause_dir.mkdir()
 
         # 创建 events 目录
-        events_dir = mal_dir / "events"
+        events_dir = dimcause_dir / "events"
         events_dir.mkdir()
 
         # 创建测试事件文件
@@ -48,17 +48,17 @@ schema_version: 2
 This is a test task.
 """)
 
-        yield mal_dir
+        yield dimcause_dir
 
 
 @pytest.fixture
-def event_index_with_data(temp_mal_dir):
+def event_index_with_data(temp_dimcause_dir):
     """创建包含测试数据的 EventIndex"""
-    db_path = temp_mal_dir / "index.db"
+    db_path = temp_dimcause_dir / "index.db"
     event_index = EventIndex(str(db_path))
 
     # 同步事件
-    events_dir = temp_mal_dir / "events"
+    events_dir = temp_dimcause_dir / "events"
     event_index.sync(
         [str(events_dir)],
         base_data_dir=str(events_dir),
@@ -139,7 +139,7 @@ class TestEventIndexQueryConsistency:
 
 
 @pytest.mark.skip(reason="需要完整 CLI 环境，手动测试")
-def test_mal_tasks_command_output():
+def test_cli_tasks_command_output():
     """测试 dimc tasks 命令输出格式"""
     # 这个测试需要在真实环境中手动运行：
     # 1. DIMCAUSE_USE_EVENT_INDEX=true dimc tasks
@@ -149,7 +149,7 @@ def test_mal_tasks_command_output():
 
 
 @pytest.mark.skip(reason="需要完整 CLI 环境，手动测试")
-def test_mal_index_rebuild():
+def test_cli_index_rebuild():
     """测试 dimc index --rebuild 命令"""
     # 手动测试：
     # dimc index --rebuild

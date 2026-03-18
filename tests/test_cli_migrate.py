@@ -1,5 +1,5 @@
 """
-Tests for 'mal migrate' CLI command.
+Tests for `dimc migrate` CLI command.
 """
 
 import pytest

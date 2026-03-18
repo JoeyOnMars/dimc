@@ -1,7 +1,7 @@
 """
 Git History Extractor
 
-Extracts file modification history for Causal Chain (mal why) feature.
+Extracts file modification history for Causal Chain (`dimc why`) feature.
 """
 
 from dataclasses import dataclass
@@ -37,7 +37,7 @@ def get_file_history(
         List of GitCommit objects, ordered from newest to oldest
 
     Example:
-        >>> history = get_file_history("src/mal/cli.py", max_count=5)
+        >>> history = get_file_history("src/dimcause/cli.py", max_count=5)
         >>> for commit in history:
         ...     print(f"{commit.date}: {commit.message}")
     """

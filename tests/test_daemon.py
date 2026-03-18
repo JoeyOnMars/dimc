@@ -41,7 +41,7 @@ def _isolated_daemon_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
 
 
 class TestDimcauseDaemon:
-    """测试 MAL Daemon"""
+    """测试 Dimcause Daemon"""
 
     def test_daemon_creation(self):
         """测试 Daemon 创建"""
@@ -71,14 +71,14 @@ class TestDimcauseDaemon:
         from dimcause.daemon import create_daemon
 
         config = DimcauseConfig(
-            data_dir="/tmp/mal-test",
+            data_dir="/tmp/dimcause-test",
             llm_primary=LLMConfig(provider="ollama", model="test"),
-            watcher_claude={"enabled": False, "path": "/tmp/mal-test/claude.jsonl"},
+            watcher_claude={"enabled": False, "path": "/tmp/dimcause-test/claude.jsonl"},
         )
 
         daemon = create_daemon(config=config)
 
-        assert daemon.config.data_dir == "/tmp/mal-test"
+        assert daemon.config.data_dir == "/tmp/dimcause-test"
         assert daemon.config.llm_primary.model == "test"
 
     def test_daemon_has_watchers(self):

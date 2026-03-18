@@ -310,7 +310,7 @@ class VectorStore:
         return {"count": count, "model": self.embedding_model_name, "backend": "sqlite"}
 
     # =========================================================================
-    # MAL-SEARCH-001: SQLite-based Vector Operations
+    # SEARCH-001: SQLite-based Vector Operations
     # 以下方法用于 EventIndex 数据库中的向量存储和检索
     # =========================================================================
 

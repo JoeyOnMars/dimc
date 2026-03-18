@@ -1,7 +1,7 @@
 """
 Code Indexer - AST & Dependency Indexing (Phase 3)
 
-This module handles indexing source code to support 'mal trace'.
+This module handles indexing source code to support `dimc trace`.
 """
 
 import logging
@@ -438,9 +438,9 @@ class CodeIndexer:
     def _generated_module_names(self, file_path: str) -> List[str]:
         """
         根据文件路径生成可能的模块名
-        e.g. src/mal/core/auth.py ->
-             src.mal.core.auth
-             mal.core.auth
+        e.g. src/dimcause/core/auth.py ->
+             src.dimcause.core.auth
+             dimcause.core.auth
              core.auth
              auth
         """
@@ -450,14 +450,14 @@ class CodeIndexer:
         candidates = {stem}
 
         # 构建点分路径
-        parts = list(p.parts)  # ('src', 'mal', 'core', 'auth.py')
+        parts = list(p.parts)  # ('src', 'dimcause', 'core', 'auth.py')
         # 去掉扩展名
         parts[-1] = stem
 
         # 从后往前组合
         # 1. auth
         # 2. core.auth
-        # 3. mal.core.auth
+        # 3. dimcause.core.auth
         # ...
 
         current = ""

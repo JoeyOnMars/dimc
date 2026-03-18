@@ -192,11 +192,11 @@ class TestWAL:
         assert wal.wal_path == expected
         assert expected.exists()
 
-    def test_default_path_migrates_legacy_mal(self, tmp_path, monkeypatch):
-        """若仅存在 legacy ~/.mal/wal.log，应自动迁移到 ~/.dimcause/wal.log"""
+    def test_default_path_ignores_legacy_oldbrand_dir(self, tmp_path, monkeypatch):
+        """存在 legacy 目录下 wal.log 时，默认路径仍应保持 ~/.dimcause/wal.log。"""
         monkeypatch.setenv("HOME", str(tmp_path))
 
-        legacy = tmp_path / ".mal" / "wal.log"
+        legacy = tmp_path / ".legacy_dimcause" / "wal.log"
         legacy.parent.mkdir(parents=True, exist_ok=True)
         legacy_content = '{"id":"evt_legacy","event_type":"pending","data":{},"timestamp":1.0}\n'
         legacy.write_text(legacy_content, encoding="utf-8")
@@ -206,8 +206,8 @@ class TestWAL:
 
         assert wal.wal_path == expected
         assert expected.exists()
-        assert expected.read_text(encoding="utf-8") == legacy_content
-        assert not legacy.exists()
+        assert expected.read_text(encoding="utf-8") == ""
+        assert legacy.exists()
 
 
 class TestWALSingleton:

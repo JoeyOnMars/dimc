@@ -92,7 +92,7 @@ def verify_indexing():
     scan_paths = [SANDBOX_LOGS]
 
     # Bypass safeguard by including required dirs if they exist
-    for req in ["docs/logs", str(Path.home() / ".mal" / "events")]:
+    for req in ["docs/logs", str(Path.home() / ".dimcause" / "events")]:
         p = Path(req).resolve()
         if p.exists():
             scan_paths.append(p)

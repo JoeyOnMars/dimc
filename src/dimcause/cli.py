@@ -1175,7 +1175,7 @@ def _show_index_status(use_event_index: bool):
                 conn.close()
         else:
             console.print("[yellow] [/]")
-            console.print("[dim] `mal index` [/]")
+            console.print("[dim] `dimc index` [/]")
     else:
         console.print("[dim] indexer[/]")
         console.print("[dim] DIMCAUSE_USE_EVENT_INDEX=true [/]")
@@ -1348,7 +1348,7 @@ def add(
     if not summary:
         summary = content[:50].replace("\n", " ")
 
-    console.print(Panel.fit("[bold blue]  MAL[/]", border_style="blue"))
+    console.print(Panel.fit("[bold blue]  DIMCAUSE[/]", border_style="blue"))
 
     ai_summary = None
 
@@ -1389,7 +1389,7 @@ def add(
             final_type = EventType(type)
 
         # Parse Metadata
-        metadata = {"added_via": "mal add", "type_hint": type}
+        metadata = {"added_via": "dimc add", "type_hint": type}
         if status:
             metadata["status"] = status
 
@@ -1470,7 +1470,7 @@ def tasks(
     console.print(Panel.fit(f"[bold blue]  ({status})[/]", border_style="blue"))
 
     if not tasks:
-        console.print("[dim] 'mal add --type task --status pending' [/]")
+        console.print("[dim] 'dimc add --type task --status pending' [/]")
         return
 
     for t in tasks:
@@ -1523,7 +1523,7 @@ def _fetch_tasks_via_event_index(status=None):
 
     except Exception as e:
         console.print(f"[yellow] EventIndex : {e}[/]")
-        console.print("[dim]:  `mal index update` [/]")
+        console.print("[dim]:  `dimc index update` [/]")
         return []
 
 
@@ -1558,7 +1558,7 @@ def _fetch_tasks_legacy(status=None):
     except Exception as e:
         # Fallback:
         console.print(f"[yellow] : {e}[/]")
-        console.print("[dim]:  `mal index update` [/]")
+        console.print("[dim]:  `dimc index update` [/]")
         return []
 
 
@@ -2760,8 +2760,8 @@ def daemon(
 
 # Import at module level for easier mocking?
 # Or just keep it local but understand patch target.
-# If `from dimcause.audit.engine import AuditEngine` is inside `audit()`, patching `mal.audit.engine.AuditEngine` works IF it's not already imported.
-# But `mal.cli` might have been imported before testing?
+# If `from dimcause.audit.engine import AuditEngine` is inside `audit()`, patching `dimcause.audit.engine.AuditEngine` works IF it's not already imported.
+# But `dimcause.cli` might have been imported before testing?
 # Let's import at top of file (or lazily but globally).
 
 
@@ -6154,29 +6154,6 @@ def main():
     Entry point for the CLI.
     CLI 入口点。
     """
-    # -------------------------------------------------------------------------
-    # Auto-migration: ~/.mal -> ~/.dimcause
-    # -------------------------------------------------------------------------
-    try:
-        mal_dir = Path("~/.mal").expanduser()
-        dimc_dir = Path("~/.dimcause").expanduser()
-
-        # Only migrate if ~/.mal exists and ~/.dimcause does NOT exist
-        # This prevents accidental overwrites if user keeps both
-        if mal_dir.exists() and not dimc_dir.exists():
-            print(f"[DIMC] Migrating data from {mal_dir} to {dimc_dir}...")
-            try:
-                mal_dir.rename(dimc_dir)
-                print("[DIMC] Migration successful.")
-            except Exception as e:
-                print(f"[DIMC] Migration failed: {e}")
-                print(
-                    "[DIMC] Continuing with ~/.dimcause (new empty directory will be created if needed)."
-                )
-    except Exception:
-        # Don't let migration errors crash the app
-        pass
-
     app()
 
 

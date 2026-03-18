@@ -30,7 +30,7 @@
 | V6.0 | Ontology Engine | ✅ 完成 | 本体定义 + 因果推理 + 最终验证 |
 | V6.1 | Production Polish | 🔄 进行中 | 审计修复 + 模型内存管理 |
 
-> **说明**: V5.3 Core Polish 已并入 V6.0 Phase 1。品牌迁移（MAL → DIMCAUSE）已完成。
+> **说明**: V5.3 Core Polish 已并入 V6.0 Phase 1。历史品牌迁移已完成。
 
 ---
 

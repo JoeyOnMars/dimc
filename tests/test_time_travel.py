@@ -9,7 +9,7 @@ def test_get_file_at_commit():
     """Test retrieving file content at specific commit"""
     # This will only work if there's actual git history
     # Just test that it returns None or content
-    result = get_file_at_commit("src/mal/cli.py", "HEAD")
+    result = get_file_at_commit("src/dimcause/cli.py", "HEAD")
 
     # Should either get content or None
     assert result is None or isinstance(result, str)
@@ -22,7 +22,7 @@ def test_get_file_at_commit():
 def test_get_file_diff():
     """Test getting diff between commits"""
     # Test against HEAD (should return None or empty string for identical)
-    result = get_file_diff("src/mal/cli.py", "HEAD", "HEAD")
+    result = get_file_diff("src/dimcause/cli.py", "HEAD", "HEAD")
 
     assert result is not None  # Should at least return empty string
     assert isinstance(result, str)
@@ -32,7 +32,7 @@ def test_get_file_snapshots():
     """Test getting file content at multiple dates"""
     dates = ["2026-01-19", "2026-01-18"]
 
-    snapshots = get_file_snapshots("src/mal/cli.py", dates)
+    snapshots = get_file_snapshots("src/dimcause/cli.py", dates)
 
     assert isinstance(snapshots, list)
     assert len(snapshots) == len(dates)
@@ -47,13 +47,13 @@ def test_get_file_snapshots():
 
 def test_get_file_at_nonexistent_commit():
     """Test that nonexistent commit returns None"""
-    result = get_file_at_commit("src/mal/cli.py", "nonexistent123")
+    result = get_file_at_commit("src/dimcause/cli.py", "nonexistent123")
 
     assert result is None
 
 
 def test_get_file_diff_nonexistent():
     """Test diff with nonexistent commit returns None"""
-    result = get_file_diff("src/mal/cli.py", "nonexistent123", "HEAD")
+    result = get_file_diff("src/dimcause/cli.py", "nonexistent123", "HEAD")
 
     assert result is None

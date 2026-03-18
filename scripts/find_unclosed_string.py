@@ -1,4 +1,4 @@
-path = "src/mal/cli.py"
+path = "src/dimcause/cli.py"
 with open(path, encoding="utf-8") as f:
     lines = f.readlines()
 

@@ -1,8 +1,8 @@
 # ============================================================================
 # Dimcause v4.0 - Makefile
 # 
-# 这是兼容层，调用新的 `mal` CLI 命令
-# 推荐直接使用: mal <command>
+# 这是兼容层，调用 `dimc` CLI 命令
+# 推荐直接使用: dimc <command>
 # ============================================================================
 
 .PHONY: daily-start daily-end job-start job-end index capture test lint install
@@ -27,7 +27,7 @@ job-start:
 ifndef JOB
 	@echo "❌ 错误：请指定任务名称"
 	@echo "   使用方式: make job-start JOB=ui-polish"
-	@echo "   或直接: mal job-start ui-polish"
+	@echo "   或直接: dimc job-start ui-polish"
 	@exit 1
 else
 	@dimc job-start $(JOB)

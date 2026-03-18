@@ -14,7 +14,7 @@ from dimcause.extractors.git_history import (
 def test_get_file_history(tmp_path):
     """Test basic file history retrieval"""
     # Test on a real file in the project
-    history = get_file_history("src/mal/cli.py", max_count=5)
+    history = get_file_history("src/dimcause/cli.py", max_count=5)
 
     assert isinstance(history, list)
     if history:  # Only check if we're in a git repo
@@ -25,7 +25,7 @@ def test_get_file_history(tmp_path):
 
 def test_get_file_creation_date(tmp_path):
     """Test file creation date extraction"""
-    creation_date = get_file_creation_date("src/mal/cli.py")
+    creation_date = get_file_creation_date("src/dimcause/cli.py")
 
     # Should return None or a valid date string
     if creation_date:
@@ -35,7 +35,7 @@ def test_get_file_creation_date(tmp_path):
 
 def test_get_recent_changes():
     """Test recent changes retrieval"""
-    changes = get_recent_changes("src/mal/cli.py", since_date="2026-01-01")
+    changes = get_recent_changes("src/dimcause/cli.py", since_date="2026-01-01")
 
     assert isinstance(changes, list)
     if changes:

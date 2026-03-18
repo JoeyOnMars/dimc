@@ -456,7 +456,7 @@ class EventIndex:
         查询与指定源文件相关的事件 (H2 Hybrid Timeline)
 
         Args:
-            file_path: 文件相对路径 (e.g. src/mal/cli.py)
+            file_path: 文件相对路径 (e.g. src/dimcause/cli.py)
             limit: 返回数量限制
             type_filter: (H1) 按事件类型过滤 (e.g. "decision", "git_commit")
             time_window_days: 时间窗口过滤（天数），只返回该天数范围内的事件

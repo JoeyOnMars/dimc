@@ -67,7 +67,7 @@ class ProcessManager:
         print("🚀 Starting Dimcause Daemon (Background)...")
 
         # Prepare command
-        # Assumes 'mal' is in path, or use sys.executable + script
+        # Assumes 'dimc' is in path, or use sys.executable + script
         # Using sys.executable to ensure same python environment
         cmd = [sys.executable, "-m", "dimcause.daemon.entrypoint"]
 

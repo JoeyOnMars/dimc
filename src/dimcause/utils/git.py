@@ -114,10 +114,10 @@ class GitRepo:
                 pass  # Allow initializing on non-repo, methods might fail
 
     def get_file_history(self, file_path: str, max_count: int = 10) -> list:
-        """Wrapper around mal.extractors.git_history.get_file_history"""
+        """Wrapper around dimcause.extractors.git_history.get_file_history"""
         # Circular import avoidance: Import inside method
         try:
-            # Check if mal.extractors.git_history exists (it should)
+            # Check if dimcause.extractors.git_history exists
             from dimcause.extractors.git_history import get_file_history
 
             return get_file_history(file_path, max_count, cwd=self.path)

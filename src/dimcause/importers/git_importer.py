@@ -90,7 +90,7 @@ class GitImporter:
                     tags=["git_history", "legacy_import"],
                 )
 
-                # 3. 存入 MAL (Markdown always per event for safety/atomicity)
+                # 3. 存入 Dimcause (Markdown always per event for safety/atomicity)
                 self.markdown_store.save(event)
 
                 # Add to batch
@@ -110,7 +110,7 @@ class GitImporter:
                 batch_events = []
 
         console.print(f"[bold green]✅ 成功导入 {count} 条历史记录！[/]")
-        console.print("现在的 'mal search' 和 'mal why' 可以使用这些数据了。")
+        console.print("现在的 'dimc search' 和 'dimc why' 可以使用这些数据了。")
 
 
 # 为了 CLI 调用方便的封装函数

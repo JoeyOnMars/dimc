@@ -86,4 +86,4 @@ def apply_fix(path):
 
 
 if __name__ == "__main__":
-    apply_fix("src/mal/cli.py")
+    apply_fix("src/dimcause/cli.py")

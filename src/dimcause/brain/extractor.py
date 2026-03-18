@@ -36,7 +36,7 @@ Target Event Types:
 3. **reasoning**: The intellectual "Why" behind a tricky implementation.
    - *Key*: Explain the logic, trade-off, or algorithm choice.
 4. **convention**: Establishment of new project rules, patterns, or architecture constraints.
-   - Example: "All timestamps must be UTC", "Use 'mal' prefix for CLI commands".
+   - Example: "All timestamps must be UTC", "Use 'dimc' prefix for CLI commands".
 5. **ai_conversation**: Critical interactions with AI that shaped the outcome.
    - Example: Prompt engineering refinements, AI-suggested refactoring plans.
 

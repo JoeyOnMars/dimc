@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Multi-Agent Logger (MAL) will be documented in this file.
+All notable changes to Dimcause will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 代码级别追溯 (Code-level tracing)
 - AST 分析 (AST analysis)
 - 因果链推理 (Causal chain reasoning)
-- 模板系统 (`mal template`)
+- 模板系统 (`dimc template`)
 - Web Dashboard
 
 ---
@@ -26,27 +26,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added - 代码实现 (2026-01-19)
 
 #### 四层架构核心
-- `src/mal/watchers/` - Layer 1: Ghost Mode 监听器
+- `src/dimcause/watchers/` - Layer 1: Ghost Mode 监听器
   - `ClaudeWatcher` - Claude Code 对话监听
   - `CursorWatcher` - Cursor IDE 监听
   - `WindsurfWatcher` - Windsurf IDE 监听
-- `src/mal/extractors/` - Layer 2: LLM Refinery
+- `src/dimcause/extractors/` - Layer 2: LLM Refinery
   - `LiteLLMClient` - 统一 LLM 接口
   - `BasicExtractor` - LLM + Regex 降级提取
   - `ASTAnalyzer` - 代码 AST 分析
-- `src/mal/storage/` - Layer 3: Hybrid Storage
+- `src/dimcause/storage/` - Layer 3: Hybrid Storage
   - `MarkdownStore` - 人类可读持久化
   - `VectorStore` - ChromaDB 语义索引
   - `GraphStore` - NetworkX 关系图谱
-- `src/mal/search/` - Layer 4: Query Interface
+- `src/dimcause/search/` - Layer 4: Query Interface
   - `SearchEngine` - 统一搜索（text/semantic/hybrid）
 
 #### CLI 命令
-- `mal daemon start/stop/status` - 后台服务管理
-- `mal search <query>` - 多模式搜索
+- `dimc daemon start/stop/status` - 后台服务管理
+- `dimc search <query>` - 多模式搜索
 
 #### 后台服务
-- `src/mal/daemon.py` - MALDaemon 守护进程
+- `src/dimcause/daemon.py` - DimcauseDaemon 守护进程
   - 自动启动 Watchers
   - 数据处理流水线
   - 优雅依赖降级
@@ -61,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `pyproject.toml` - PEP 621 项目配置
   - 依赖分组: core, full, dev, ast
   - pytest/coverage/mypy/ruff 配置
-- `src/mal/__init__.py` - 包入口，导出 __version__
+- `src/dimcause/__init__.py` - 包入口，导出 __version__
 
 ### Added - 文档体系 (2026-01-18)
 #### 核心文档 (14份)
@@ -145,7 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Links
 
-[Unreleased]: https://github.com/JoeyOnMars/multi-agent-logger/compare/v5.1.0...HEAD
-[5.1.0]: https://github.com/JoeyOnMars/multi-agent-logger/compare/v5.0.0...v5.1.0
-[5.0.0]: https://github.com/JoeyOnMars/multi-agent-logger/compare/v4.0.0...v5.0.0
-[4.0.0]: https://github.com/JoeyOnMars/multi-agent-logger/releases/tag/v4.0.0
+[Unreleased]: https://github.com/JoeyOnMars/dimc/compare/v5.1.0...HEAD
+[5.1.0]: https://github.com/JoeyOnMars/dimc/compare/v5.0.0...v5.1.0
+[5.0.0]: https://github.com/JoeyOnMars/dimc/compare/v4.0.0...v5.0.0
+[4.0.0]: https://github.com/JoeyOnMars/dimc/releases/tag/v4.0.0

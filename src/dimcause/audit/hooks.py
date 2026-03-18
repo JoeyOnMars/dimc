@@ -7,26 +7,26 @@ logger = logging.getLogger(__name__)
 
 HOOK_TEMPLATE = """#!/bin/sh
 # Dimcause Audit Hook
-# Installed by `mal audit --install-hooks`
+# Installed by `dimc audit --install-hooks`
 
 echo "📝 Dimcause Audit Gate: Running pre-commit checks..."
 
-# Check if mal is available
-if ! command -v mal &> /dev/null; then
+# Check if dimc is available
+if ! command -v dimc &> /dev/null; then
     # Try using the venv from the project root if visible
     # Assuming hook runs from repository root
-    if [ -f ".venv/bin/mal" ]; then
-        DIMCAUSE_CMD=".venv/bin/mal"
+    if [ -f ".venv/bin/dimc" ]; then
+        DIMCAUSE_CMD=".venv/bin/dimc"
     else
-        echo "⚠️  'mal' command not found. Skipping audit."
+        echo "⚠️  'dimc' command not found. Skipping audit."
         exit 0
     fi
 else
-    DIMCAUSE_CMD="mal"
+    DIMCAUSE_CMD="dimc"
 fi
 
 # Run audit on staged files?
-# Currently `mal audit` runs on . (all files).
+# Currently `dimc audit` runs on . (all files).
 # Ideally we should filter staged files, but for now we run full scan.
 # Faster if we respect gitignore.
 

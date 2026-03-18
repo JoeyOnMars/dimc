@@ -1,7 +1,7 @@
 """
 Dimcause Agent Authentication - Agent认证机制
 
-Critical P1 Implementation: 防止未授权进程写入MAL数据
+Critical P1 Implementation: 防止未授权进程写入系统数据
 """
 
 import json
@@ -56,31 +56,13 @@ class AgentRegistry:
     """
 
     DEFAULT_DIR = ".dimcause"
-    LEGACY_DIR = ".mal"
     REGISTRY_FILE = "agents.json"
 
     @classmethod
     def _resolve_default_registry_file(cls) -> Path:
-        """解析默认注册文件路径，并在首次启动时迁移 legacy .mal 路径。"""
+        """解析默认注册文件路径。"""
         home = Path.home()
-        default_path = home / cls.DEFAULT_DIR / cls.REGISTRY_FILE
-        legacy_path = home / cls.LEGACY_DIR / cls.REGISTRY_FILE
-
-        if default_path.exists() or not legacy_path.exists():
-            return default_path
-
-        default_path.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            legacy_path.replace(default_path)
-            logger.info("Agent registry migrated from %s to %s", legacy_path, default_path)
-            return default_path
-        except OSError as exc:
-            logger.warning(
-                "Agent registry migration failed, fallback to legacy path %s: %s",
-                legacy_path,
-                exc,
-            )
-            return legacy_path
+        return home / cls.DEFAULT_DIR / cls.REGISTRY_FILE
 
     def __init__(self, registry_file: Optional[str] = None):
         """
@@ -186,11 +168,11 @@ class AgentRegistry:
         """
         生成安全的随机Token
 
-        格式: mal_<32字节hex> (类似GitHub PAT)
+        格式: dimc_<32字节hex> (类似GitHub PAT)
         """
         random_bytes = secrets.token_bytes(32)
         token_hex = random_bytes.hex()
-        return f"mal_{token_hex}"
+        return f"dimc_{token_hex}"
 
     def verify_token(self, token: str) -> Optional[AgentToken]:
         """

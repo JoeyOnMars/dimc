@@ -7,7 +7,6 @@
 防止误传参数导致丢失数据源。
 """
 
-from pathlib import Path
 
 import pytest
 
@@ -24,11 +23,11 @@ def test_sync_requires_both_directories(tmp_path):
 
     # 准备测试目录
     docs_logs = tmp_path / "docs" / "logs"
-    mal_events = tmp_path / ".dimcause" / "events"
+    dimcause_events = tmp_path / ".dimcause" / "events"
     docs_logs.mkdir(parents=True, exist_ok=True)
-    mal_events.mkdir(parents=True, exist_ok=True)
+    dimcause_events.mkdir(parents=True, exist_ok=True)
 
-    kwargs = {"base_docs_dir": docs_logs, "base_data_dir": mal_events}
+    kwargs = {"base_docs_dir": docs_logs, "base_data_dir": dimcause_events}
 
     # 测试1：只传 docs/logs/ -> 应该失败
     with pytest.raises(ValueError, match="缺少必需的数据源目录"):
@@ -36,14 +35,14 @@ def test_sync_requires_both_directories(tmp_path):
 
     # 测试2：只传 .dimcause/events/ -> 应该失败
     with pytest.raises(ValueError, match="缺少必需的数据源目录"):
-        index.sync([str(mal_events)], **kwargs)
+        index.sync([str(dimcause_events)], **kwargs)
 
     # 测试3：传空列表 -> 应该失败
     with pytest.raises(ValueError, match="缺少必需的数据源目录"):
         index.sync([], **kwargs)
 
     # 测试4：同时传两个 -> 应该成功
-    result = index.sync([str(docs_logs), str(mal_events)], **kwargs)
+    result = index.sync([str(docs_logs), str(dimcause_events)], **kwargs)
     assert isinstance(result, dict)
     assert "added" in result
     assert "updated" in result
@@ -58,16 +57,16 @@ def test_sync_accepts_parent_directories(tmp_path):
     index = EventIndex(str(tmp_path / "index.db"))
 
     docs_dir = tmp_path / "docs"
-    mal_dir = tmp_path / ".dimcause"
+    dimcause_dir = tmp_path / ".dimcause"
     docs_logs = docs_dir / "logs"
-    mal_events = mal_dir / "events"
+    dimcause_events = dimcause_dir / "events"
     docs_logs.mkdir(parents=True, exist_ok=True)
-    mal_events.mkdir(parents=True, exist_ok=True)
+    dimcause_events.mkdir(parents=True, exist_ok=True)
 
-    kwargs = {"base_docs_dir": docs_logs, "base_data_dir": mal_events}
+    kwargs = {"base_docs_dir": docs_logs, "base_data_dir": dimcause_events}
 
     # 这应该成功，因为扫描会深入子目录
-    result = index.sync([str(docs_dir), str(mal_dir)], **kwargs)
+    result = index.sync([str(docs_dir), str(dimcause_dir)], **kwargs)
     assert isinstance(result, dict)
 
 
@@ -82,22 +81,22 @@ def test_sync_with_nonexistent_directories(tmp_path):
     index = EventIndex(str(tmp_path / "index.db"))
 
     docs_logs = tmp_path / "docs" / "logs"
-    mal_events = tmp_path / ".dimcause" / "events"
-    kwargs = {"base_docs_dir": docs_logs, "base_data_dir": mal_events}
+    dimcause_events = tmp_path / ".dimcause" / "events"
+    kwargs = {"base_docs_dir": docs_logs, "base_data_dir": dimcause_events}
 
     # 场景1：都不存在时传空列表 (内部检查发现目录不存在不会报错缺少)
     index.sync([], **kwargs)
 
     # 场景2：如果两个目录都存在，必须都传入
     docs_logs.mkdir(parents=True, exist_ok=True)
-    mal_events.mkdir(parents=True, exist_ok=True)
+    dimcause_events.mkdir(parents=True, exist_ok=True)
 
     # 这是真实的强制约束：不能只扫描一个
     with pytest.raises(ValueError, match="缺少必需的数据源目录"):
         index.sync([str(docs_logs)], **kwargs)  # 缺少 .dimcause/events/
 
     with pytest.raises(ValueError, match="缺少必需的数据源目录"):
-        index.sync([str(mal_events)], **kwargs)  # 缺少 docs/logs/
+        index.sync([str(dimcause_events)], **kwargs)  # 缺少 docs/logs/
 
 
 def test_sync_error_message_is_helpful(tmp_path):
@@ -107,11 +106,11 @@ def test_sync_error_message_is_helpful(tmp_path):
     index = EventIndex(str(tmp_path / "index.db"))
 
     docs_logs = tmp_path / "docs" / "logs"
-    mal_events = tmp_path / ".dimcause" / "events"
+    dimcause_events = tmp_path / ".dimcause" / "events"
     docs_logs.mkdir(parents=True, exist_ok=True)
-    mal_events.mkdir(parents=True, exist_ok=True)
-    
-    kwargs = {"base_docs_dir": docs_logs, "base_data_dir": mal_events}
+    dimcause_events.mkdir(parents=True, exist_ok=True)
+
+    kwargs = {"base_docs_dir": docs_logs, "base_data_dir": dimcause_events}
 
     try:
         index.sync([str(docs_logs)], **kwargs)  # 故意只传一个
@@ -119,6 +118,6 @@ def test_sync_error_message_is_helpful(tmp_path):
     except ValueError as e:
         error_msg = str(e)
         # 错误消息应该提到缺失的目录
-        assert "events" in error_msg or mal_events.name in error_msg
+        assert "events" in error_msg or dimcause_events.name in error_msg
         # 错误消息应该说明原因
         assert "兼容" in error_msg or "必需" in error_msg

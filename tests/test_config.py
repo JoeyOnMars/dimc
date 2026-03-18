@@ -9,8 +9,8 @@ from dimcause.utils.config import (
     CONFIG_FILENAME,
     Config,
     create_config_from_file,
-    get_config_value,
     get_config,
+    get_config_value,
     load_config_file,
     normalize_config_key_path,
     parse_config_value,
@@ -194,7 +194,7 @@ class TestConfigSave:
 class TestConfigEnvVar:
     """环境变量测试"""
 
-    def test_mal_root_env(self, tmp_path, monkeypatch):
+    def test_dimcause_root_env(self, tmp_path, monkeypatch):
         """DIMCAUSE_ROOT 环境变量"""
         monkeypatch.setenv("DIMCAUSE_ROOT", str(tmp_path))
 
@@ -291,7 +291,8 @@ class TestConfigRootFromPyproject:
 
         # Mock __file__ to be config.py
         monkeypatch.setattr(
-            "dimcause.utils.config.__file__", str(tmp_path / "src" / "mal" / "core" / "config.py")
+            "dimcause.utils.config.__file__",
+            str(tmp_path / "src" / "dimcause" / "utils" / "config.py"),
         )
 
         config = Config()
@@ -301,7 +302,7 @@ class TestConfigRootFromPyproject:
 class TestConfigCwdDetection:
     """从 cwd 检测根目录"""
 
-    def test_detect_from_cwd_with_malconf(self, tmp_path, monkeypatch):
+    def test_detect_from_cwd_with_dimcauseconf(self, tmp_path, monkeypatch):
         """从 cwd 检测 .dimcauseconf"""
         # 创建 .dimcauseconf
         (tmp_path / ".dimcauseconf").write_text("PROJECT_NAME=test")

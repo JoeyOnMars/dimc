@@ -7,7 +7,7 @@
 - 不依赖具体模型或数据库
 - 只负责 Event -> Chunk 转换
 
-MAL-SEARCH-001 v5.2
+SEARCH-001 v5.2
 """
 
 from dataclasses import dataclass

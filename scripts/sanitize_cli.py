@@ -1,6 +1,6 @@
 from pathlib import Path
 
-target = Path("src/mal/cli.py")
+target = Path("src/dimcause/cli.py")
 content = target.read_bytes()
 
 # Decode as utf-8, ignore errors if any (though we expect valid utf-8 with invisible chars?)

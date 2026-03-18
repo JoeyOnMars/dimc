@@ -48,7 +48,7 @@ def test_trace_unicode_characters():
 
 def test_trace_with_path_separators():
     """Test tracing with path-like strings"""
-    result = trace_code("src/mal/cli.py")
+    result = trace_code("src/dimcause/cli.py")
 
     # Should handle gracefully
     assert isinstance(result, dict)

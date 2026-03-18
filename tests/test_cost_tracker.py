@@ -57,7 +57,7 @@ class TestCostTracker:
 
     def test_csv_persistence(self, tracker):
         """测试 CSV 写入"""
-        test_path = Path("/tmp/mal_test_usage_patched.csv")
+        test_path = Path("/tmp/dimcause_test_usage_patched.csv")
         if test_path.exists():
             test_path.unlink()
 

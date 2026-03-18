@@ -39,27 +39,13 @@ class WriteAheadLog:
     """
 
     DEFAULT_DIR = ".dimcause"
-    LEGACY_DIR = ".mal"
     WAL_FILE = "wal.log"
 
     @classmethod
     def _resolve_default_wal_path(cls) -> Path:
-        """解析默认 WAL 路径，并在首次启动时迁移 legacy .mal 路径。"""
+        """解析默认 WAL 路径。"""
         home = Path.home()
-        default_path = home / cls.DEFAULT_DIR / cls.WAL_FILE
-        legacy_path = home / cls.LEGACY_DIR / cls.WAL_FILE
-
-        if default_path.exists() or not legacy_path.exists():
-            return default_path
-
-        default_path.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            legacy_path.replace(default_path)
-            logger.info("WAL migrated from %s to %s", legacy_path, default_path)
-            return default_path
-        except OSError as exc:
-            logger.warning("WAL migration failed, fallback to legacy path %s: %s", legacy_path, exc)
-            return legacy_path
+        return home / cls.DEFAULT_DIR / cls.WAL_FILE
 
     def __init__(self, wal_path: Optional[str] = None):
         """

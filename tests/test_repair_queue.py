@@ -120,12 +120,12 @@ More content
         assert queue.queue_file == expected
         assert expected.parent.exists()
 
-    def test_default_queue_migrates_legacy_mal(self, tmp_path, monkeypatch):
-        """若仅存在 legacy ~/.mal/repair_queue.jsonl，应自动迁移到 ~/.dimcause/repair_queue.jsonl"""
+    def test_default_queue_ignores_legacy_oldbrand_dir(self, tmp_path, monkeypatch):
+        """存在 legacy 目录下 repair_queue.jsonl 时，默认路径仍应保持 ~/.dimcause。"""
         monkeypatch.delenv("PYTEST_CURRENT_TEST", raising=False)
         monkeypatch.setenv("HOME", str(tmp_path))
 
-        legacy = tmp_path / ".mal" / "repair_queue.jsonl"
+        legacy = tmp_path / ".legacy_dimcause" / "repair_queue.jsonl"
         legacy.parent.mkdir(parents=True, exist_ok=True)
         legacy_content = '{"sync_id":"legacy_1","issue_type":"both","markdown_file":"/tmp/x.md","discovered_at":1.0,"retry_count":0,"last_retry_at":0.0}\n'
         legacy.write_text(legacy_content, encoding="utf-8")
@@ -134,9 +134,8 @@ More content
         expected = tmp_path / ".dimcause" / "repair_queue.jsonl"
 
         assert queue.queue_file == expected
-        assert expected.exists()
-        assert expected.read_text(encoding="utf-8") == legacy_content
-        assert not legacy.exists()
+        assert expected.parent.exists()
+        assert legacy.exists()
 
 
 class TestRepairTask:

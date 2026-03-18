@@ -16,7 +16,7 @@ class TaskRunner:
 
     核心职责:
     1. 获取任务上下文 (Context Prompt)
-    2. 启动子 Agent (mal job-start)
+    2. 启动子 Agent (dimc job-start)
     3. (Future) 自动提交结果
     """
 
@@ -75,8 +75,8 @@ class TaskRunner:
             console.print("[yellow]Cancelled[/]")
             return
 
-        # 4. 执行 job-start (通过 subprocess 调用 mal CLI 或直接调用函数)
-        # 为了保证上下文隔离，建议调用 mal CLI
+        # 4. 执行 job-start (通过 subprocess 调用 dimc CLI 或直接调用函数)
+        # 为了保证上下文隔离，建议调用 dimc CLI
         return self._execute_job_start(task_id, prompt, launch=launch)
 
     def _build_auto_job_id(self, task_id: str) -> str:

@@ -112,7 +112,7 @@ print("\nVerifying imported content...")
 
 # Helper to find event by filename
 # DirectoryImporter generates ID: doc_{md5(path)[:12]}
-# We can just list all files in .mal/events/resource/file/ and check summary/content
+# We can just list all files in .dimcause/events/resource/file/ and check summary/content
 
 # from dimcause.storage.markdown_store import MarkdownStore # Already imported above
 # store = MarkdownStore() # Not needed for this verification loop

@@ -71,7 +71,7 @@ class TestCLIE2EScenarios:
         root_dir, logs_dir = temp_workspace
 
         # 创建一个包含敏感信息的文件，必须在 src 目录下才能被 scanned
-        src_dir = root_dir / "src" / "mal"
+        src_dir = root_dir / "src" / "dimcause"
         src_dir.mkdir(parents=True, exist_ok=True)
         secret_file = src_dir / "config.py"
         secret_file.write_text("API_KEY = 'sk-1234567890'")

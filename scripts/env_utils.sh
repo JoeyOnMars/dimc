@@ -2,7 +2,7 @@
 # env_utils.sh: 环境探测、配置初始化与全局注册
 
 # 1. 定义全局注册表位置
-GLOBAL_CONFIG_DIR="$HOME/.multi-agent-logger"
+GLOBAL_CONFIG_DIR="$HOME/.dimcause"
 GLOBAL_REGISTRY="$GLOBAL_CONFIG_DIR/projects.registry"
 
 # 2. 查找项目根目录的辅助函数

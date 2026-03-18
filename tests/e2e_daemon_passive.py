@@ -8,11 +8,11 @@ import os
 import time
 from pathlib import Path
 
-from dimcause.utils.config import CONFIG_FILENAME
 from dimcause.daemon.process import process_manager
+from dimcause.utils.config import CONFIG_FILENAME
 
 # Configuration
-TEST_DIR = Path("~/tmp/mal_e2e_test").expanduser().resolve()
+TEST_DIR = Path("~/tmp/dimcause_e2e_test").expanduser().resolve()
 TEST_CLAUDE_LOG = TEST_DIR / "claude_history.jsonl"
 DIMCAUSE_CONFIG_PATH = TEST_DIR / CONFIG_FILENAME
 DIMCAUSE_DATA_DIR = TEST_DIR / ".dimcause"

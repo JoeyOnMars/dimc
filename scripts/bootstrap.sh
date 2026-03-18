@@ -19,15 +19,15 @@ cd "$ROOT_DIR"
 echo ""
 echo "📁 Step 1: 创建目录结构..."
 
-mkdir -p src/mal/{core,capture,utils}
+mkdir -p src/dimcause/{core,capture,utils}
 mkdir -p tests
 mkdir -p .github/workflows
 
 # 创建 __init__.py
-touch src/mal/__init__.py
-touch src/mal/core/__init__.py
-touch src/mal/capture/__init__.py
-touch src/mal/utils/__init__.py
+touch src/dimcause/__init__.py
+touch src/dimcause/core/__init__.py
+touch src/dimcause/capture/__init__.py
+touch src/dimcause/utils/__init__.py
 touch tests/__init__.py
 
 echo "   ✅ 目录结构已创建"
@@ -45,7 +45,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "multi-agent-logger"
+name = "dimcause"
 version = "4.0.0-alpha"
 description = "AI Session Context Manager - Own Your AI Conversations"
 readme = "README.md"
@@ -84,11 +84,11 @@ dev = [
 dimc = "dimcause.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/JoeyOnMars/multi-agent-logger"
-Repository = "https://github.com/JoeyOnMars/multi-agent-logger.git"
+Homepage = "https://github.com/JoeyOnMars/dimc"
+Repository = "https://github.com/JoeyOnMars/dimc.git"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/mal"]
+packages = ["src/dimcause"]
 
 [tool.ruff]
 line-length = 100
@@ -108,8 +108,8 @@ fi
 echo ""
 echo "🐍 Step 3: 创建基础模块骨架..."
 
-# src/mal/__init__.py
-cat > src/mal/__init__.py << 'EOF'
+# src/dimcause/__init__.py
+cat > src/dimcause/__init__.py << 'EOF'
 """
 Dimcause - AI Session Context Manager
 
@@ -124,7 +124,7 @@ __version__ = "4.0.0-alpha"
 EOF
 
 # 临时 CLI 骨架 (完整版在 REFACTOR_PLAN.md 中)
-cat > src/mal/cli.py << 'EOF'
+cat > src/dimcause/cli.py << 'EOF'
 """
 Dimcause CLI 入口
 
@@ -133,7 +133,7 @@ Dimcause CLI 入口
 import typer
 
 app = typer.Typer(
-    name="mal",
+    name="dimc",
     help="Dimcause - AI Session Context Manager",
     add_completion=False,
 )
@@ -256,10 +256,10 @@ echo ""
 echo "✅ Step 7: 验证安装..."
 
 if command -v dimc &> /dev/null; then
-    echo "   ✅ 'mal' 命令可用"
+    echo "   ✅ 'dimc' 命令可用"
     dimc version
 else
-    echo "   ⚠️  'mal' 命令不可用，请检查 PATH"
+    echo "   ⚠️  'dimc' 命令不可用，请检查 PATH"
     echo "   尝试: python -m dimcause.cli version"
 fi
 
@@ -270,9 +270,9 @@ echo "🎉 重构环境初始化完成!"
 echo ""
 echo "下一步:"
 echo "  1. 阅读 docs/REFACTOR_PLAN.md 了解完整计划"
-echo "  2. 运行 'mal --help' 测试 CLI"
+echo "  2. 运行 'dimc --help' 测试 CLI"
 echo "  3. 运行 'pytest' 验证测试"
 echo ""
 echo "开始 Phase 1:"
-echo "  按照 REFACTOR_PLAN.md 实现 src/mal/core/schema.py"
+echo "  按照 REFACTOR_PLAN.md 实现 src/dimcause/core/schema.py"
 echo "======================================="

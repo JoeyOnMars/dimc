@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 AG Export Auto-Importer
-Automatically imports Antigravity exported conversations into MAL logs.
+Automatically imports Antigravity exported conversations into Dimcause logs.
 
 Usage:
     python3 scripts/import_ag_export.py
@@ -60,7 +60,7 @@ def main():
     print(f"\n✨ Imported {imported_count} file(s)")
 
     if imported_count > 0:
-        print("\n🔄 Running MAL indexer...")
+        print("\n🔄 Running Dimcause indexer...")
         env = os.environ.copy()
         env["PYTHONPATH"] = str(PROJECT_ROOT / "src")
 
@@ -80,7 +80,7 @@ def main():
                 print(f"   {result.stderr[:200]}")
 
     print("\n" + "=" * 50)
-    print("🎉 All done! Your Antigravity conversations are now in MAL.")
+    print("🎉 All done! Your Antigravity conversations are now in Dimcause.")
     print("\nNext step:")
     print("  PYTHONPATH=src python3 -m dimcause.cli daily-end")
     print("=" * 50)

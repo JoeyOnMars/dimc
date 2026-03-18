@@ -50,8 +50,8 @@ full = [
     "httpx>=0.25.0",
     "sentence-transformers>=2.2.0",  # BGE 嵌入模型
     "python-frontmatter>=1.0.0",  # Markdown frontmatter 解析
-    "sqlite-vec>=0.1.1",  # sqlite-vec 向量索引扩展 (MAL-SEARCH-001)
-    "tiktoken>=0.5.0",  # Token 计数与分块 (MAL-SEARCH-001)
+    "sqlite-vec>=0.1.1",  # sqlite-vec 向量索引扩展 (SEARCH-001)
+    "tiktoken>=0.5.0",  # Token 计数与分块 (SEARCH-001)
 ]
 # 开发依赖
 dev = [

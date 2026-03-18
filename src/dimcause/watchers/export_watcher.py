@@ -2,7 +2,7 @@
 Export Watcher - 监听 Antigravity 导出目录
 
 当用户在 Antigravity 中点击 Export 导出对话为 Markdown 后，
-自动检测新文件并索引到 MAL。
+自动检测新文件并索引到 Dimcause。
 
 Usage:
     dimc capture export --watch ~/Documents/AG_Exports/

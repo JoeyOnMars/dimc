@@ -12,12 +12,12 @@
 - **修复事实**: `event_index.py:add()` 与 `add_if_not_exists()` 已调用 `get_schema_validator().validate(event)`，运行时卡口已接入。
 - **后续遗留**: 白名单治理问题保留在 `P1-2`，不再以“零接入”计为 P0。
 
-### ~~P0-2: wal.py / auth.py 路径硬编码为 `~/.mal`（品牌残留幽灵）~~ (FIXED)
+### ~~P0-2: wal.py / auth.py 路径历史命名残留（品牌残留幽灵）~~ (FIXED)
 - **修复事实**:
-  - `wal.py` 默认路径已对齐 `~/.dimcause/wal.log`，并支持 legacy `~/.mal/wal.log` 自动迁移（Task 020）。
-  - `auth.py` 默认路径已对齐 `~/.dimcause/agents.json`，并支持 legacy `~/.mal/agents.json` 自动迁移（Task 021）。
-  - `repair_queue.py` 默认路径已对齐 `~/.dimcause/repair_queue.jsonl`，并支持 legacy 迁移（Task 023）。
-- **后续说明**: 仍有部分 `.mal` 文案/测试夹具残留，但不再是运行时默认路径风险。
+  - `wal.py` 默认路径已统一为 `~/.dimcause/wal.log`，并移除旧命名目录的自动迁移逻辑。
+  - `auth.py` 默认路径已统一为 `~/.dimcause/agents.json`，并移除旧命名目录的自动迁移逻辑。
+  - `repair_queue.py` 默认路径已统一为 `~/.dimcause/repair_queue.jsonl`，并移除旧命名目录的自动迁移逻辑。
+- **后续说明**: 运行时已无旧品牌路径逻辑，剩余工作主要是历史日志资产的分层治理。
 
 ### ~~P0-3: wal.py 未与 EventIndex/Orchestrator 集成~~ (RECLASSIFIED)
 - **纠偏事实**: `WriteAheadLog` 已在 `services/pipeline.py`（`append_pending`/`mark_completed`）和 `daemon/manager.py`（`recover_pending`）被调用。
@@ -174,4 +174,4 @@
 | "Ruff 48 个历史报错" | Ruff 全绿，0 errors | Task 015 ✅ |
 | "DRY 违规：`_local_naive_to_utc` 重复" | grep 无结果，已消除 | 已修 |
 | "EventIndex 未接入 SchemaValidator" | `add()/add_if_not_exists()` 已调用 `validate(event)` | Task 008/后续整合 ✅ |
-| "wal/auth 路径硬编码 `~/.mal`" | 默认路径已切到 `~/.dimcause`，并支持 legacy 自动迁移 | Task 020/021/023 ✅ |
+| "wal/auth 路径历史命名残留" | 默认路径已切到 `~/.dimcause`，且已移除旧目录自动迁移逻辑 | Task 020/021/023 ✅ |

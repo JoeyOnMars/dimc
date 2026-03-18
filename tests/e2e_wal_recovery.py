@@ -9,13 +9,13 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from dimcause.utils.config import CONFIG_FILENAME
 from dimcause.core.models import RawData, SourceType
 from dimcause.daemon.process import process_manager
+from dimcause.utils.config import CONFIG_FILENAME
 from dimcause.utils.wal import WriteAheadLog
 
 # Configuration
-TEST_DIR = Path("~/tmp/mal_e2e_recovery").expanduser().resolve()
+TEST_DIR = Path("~/tmp/dimcause_e2e_recovery").expanduser().resolve()
 DIMCAUSE_CONFIG_PATH = TEST_DIR / CONFIG_FILENAME
 DIMCAUSE_DATA_DIR = TEST_DIR / ".dimcause"
 WAL_DIR = DIMCAUSE_DATA_DIR / "wal"

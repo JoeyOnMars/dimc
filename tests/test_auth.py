@@ -35,8 +35,8 @@ class TestAgentRegistry:
 
         token = registry.generate_token(agent_id="test_agent_001", agent_name="Test Agent")
 
-        assert token.startswith("mal_")
-        assert len(token) == 68  # mal_ + 64 hex chars
+        assert token.startswith("dimc_")
+        assert len(token) == 69  # dimc_ + 64 hex chars
 
     def test_verify_valid_token(self, temp_registry_file):
         """测试验证有效Token"""
@@ -54,7 +54,7 @@ class TestAgentRegistry:
         """测试验证无效Token"""
         registry = AgentRegistry(temp_registry_file)
 
-        invalid_token = "mal_invalidtoken123456"
+        invalid_token = "dimc_invalidtoken123456"
         agent_token = registry.verify_token(invalid_token)
 
         assert agent_token is None
@@ -196,11 +196,11 @@ class TestAgentRegistry:
         assert registry.registry_file == expected
         assert expected.parent.exists()
 
-    def test_default_registry_migrates_legacy_mal(self, tmp_path, monkeypatch):
-        """若仅存在 legacy ~/.mal/agents.json，应自动迁移到 ~/.dimcause/agents.json"""
+    def test_default_registry_ignores_legacy_oldbrand_dir(self, tmp_path, monkeypatch):
+        """存在 legacy 目录下 agents.json 时，默认路径仍应保持 ~/.dimcause/agents.json。"""
         monkeypatch.setenv("HOME", str(tmp_path))
 
-        legacy = tmp_path / ".mal" / "agents.json"
+        legacy = tmp_path / ".legacy_dimcause" / "agents.json"
         legacy.parent.mkdir(parents=True, exist_ok=True)
         legacy_content = '{"tokens": [], "updated_at": "2026-01-01T00:00:00"}'
         legacy.write_text(legacy_content, encoding="utf-8")
@@ -209,9 +209,9 @@ class TestAgentRegistry:
         expected = tmp_path / ".dimcause" / "agents.json"
 
         assert registry.registry_file == expected
-        assert expected.exists()
-        assert expected.read_text(encoding="utf-8") == legacy_content
-        assert not legacy.exists()
+        assert expected.parent.exists()
+        assert not expected.exists()
+        assert legacy.exists()
 
 
 class TestAuthMiddleware:
@@ -297,7 +297,7 @@ class TestConvenienceFunctions:
         """测试创建Token便捷函数"""
         token = create_agent_token("cli_agent", agent_name="CLI Agent")
 
-        assert token.startswith("mal_")
+        assert token.startswith("dimc_")
 
     def test_verify_agent_token(self):
         """测试验证Token便捷函数"""
@@ -308,7 +308,7 @@ class TestConvenienceFunctions:
         assert is_valid is True
 
         # 无效token
-        is_invalid = verify_agent_token("mal_invalidtoken")
+        is_invalid = verify_agent_token("dimc_invalidtoken")
         assert is_invalid is False
 
 

@@ -63,7 +63,7 @@ class TaskInfo:
 
     id: str  # D1, T1, H1, S3
     name: str  # Deep Decision Replay
-    cli: str  # mal why
+    cli: str  # dimc why
     status: TaskStatus = TaskStatus.PLANNED
     priority: TaskPriority = TaskPriority.P2
     agent_task_path: Optional[Path] = None
@@ -87,7 +87,7 @@ class Orchestrator:
     """
     Dimcause V6 任务调度器
 
-    核心使命: 自动化实现 mal-agent-loop.md 的"读取→规划→执行→验证→记录"循环
+    核心使命: 自动化实现 agent-loop 的"读取→规划→执行→验证→记录"循环
     """
 
     STATUS_FILE = MODERN_STATUS_PATH
@@ -3699,7 +3699,7 @@ Task: {task_card["id"]} - {task_card["name"]}
 
 # CLI 入口点
 def run_plan():
-    """执行 mal scheduler plan"""
+    """执行 dimc scheduler plan"""
     orchestrator = Orchestrator()
     print(orchestrator.plan())
 
