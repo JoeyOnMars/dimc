@@ -9,12 +9,12 @@ Integration Tests: Data Pipeline End-to-End
 import time
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import Mock
 
 import pytest
 
 from dimcause.core.event_index import EventIndex
-from dimcause.core.models import DimcauseConfig, Event, EventType, RawData, SourceType
+from dimcause.core.models import DimcauseConfig, EventType, RawData, SourceType
+from dimcause.extractors.extractor import BasicExtractor
 from dimcause.services.pipeline import Pipeline
 
 
@@ -22,40 +22,31 @@ class TestDataPipeline:
     """测试完整数据管道"""
 
     def test_ingest_to_markdown_write(self, tmp_path: Path):
-        """测试 ingest → Markdown 写入（当前可执行最小链路）"""
+        """测试 ingest → Markdown 写入（真实最小链路，无 extractor mock）"""
         pipeline = Pipeline(config=DimcauseConfig(data_dir=str(tmp_path)))
-        pipeline.vector_store = Mock()
-        pipeline.graph_store = Mock()
-        pipeline.reasoning_engine = None
-
-        pipeline.extractor = Mock()
-        event = Event(
-            id="evt_pipeline_ingest_markdown",
-            type=EventType.DECISION,
-            timestamp=datetime.now(),
-            summary="ingest to markdown",
-            content="验证 ingest 后 markdown 和 EventIndex 同步落地。",
-        )
-        pipeline.extractor.extract.return_value = event
+        pipeline.extractor = BasicExtractor(llm_client=None)
 
         raw = RawData(
             id="raw_pipeline_ingest_markdown",
             source=SourceType.CLAUDE_CODE,
             timestamp=datetime.now(),
-            content="我们决定先补齐 ingest -> markdown 最小链路。",
+            content="我们决定先补齐 ingest 到 markdown 最小链路。",
         )
 
+        before_count = len(pipeline.event_index.query(limit=1000))
         pipeline.process(raw)
+        rows = pipeline.event_index.query(limit=10)
+        assert len(rows) == before_count + 1
 
-        row = pipeline.event_index.get_by_id(event.id)
+        row = rows[0]
         assert row is not None
         markdown_path = Path(row["markdown_path"])
         assert markdown_path.exists()
         assert markdown_path.read_text(encoding="utf-8")
-        stored = pipeline.event_index.load_event(event.id)
+        stored = pipeline.event_index.load_event(row["id"])
         assert stored is not None
-        assert stored.summary == "ingest to markdown"
         assert stored.raw_data_id == raw.id
+        assert stored.type in {EventType.DECISION, EventType.UNKNOWN}
 
     def test_markdown_to_event_index_sync(self, tmp_path: Path):
         """测试 Markdown → EventIndex 同步"""
@@ -118,11 +109,30 @@ class TestDataPipeline:
         #       并确保失败任务进入 RepairQueue
         pass
 
-    @pytest.mark.skip(reason="待 v5.1 核心功能完成后实现")
     def test_end_to_end_query(self):
-        """测试完整查询链路"""
-        # TODO: 写入事件后，通过 EventIndex 查询并验证一致性
-        pass
+        """测试完整查询链路（ingest -> EventIndex query）"""
+        from tempfile import TemporaryDirectory
+
+        with TemporaryDirectory() as tmpdir:
+            pipeline = Pipeline(config=DimcauseConfig(data_dir=tmpdir))
+            pipeline.extractor = BasicExtractor(llm_client=None)
+
+            raw = RawData(
+                id="raw_pipeline_query_001",
+                source=SourceType.MANUAL,
+                timestamp=datetime.now(),
+                content="我们决定采用事件索引进行查询验证。",
+            )
+            pipeline.process(raw)
+
+            decision_rows = pipeline.event_index.query(type=EventType.DECISION, limit=20)
+            if not decision_rows:
+                decision_rows = pipeline.event_index.query(type=EventType.UNKNOWN, limit=20)
+
+            assert decision_rows, "ingest 后应可通过 EventIndex 查询到事件"
+            event = pipeline.event_index.load_event(decision_rows[0]["id"])
+            assert event is not None
+            assert event.raw_data_id == raw.id
 
     @staticmethod
     def _write_event_markdown(path: Path, event_id: str, summary: str) -> None:
