@@ -47,7 +47,19 @@ def test_audit_command_failure(mock_run_audit):
 
 
 @patch("dimcause.audit.runner.run_audit")
-def test_audit_command_watch(mock_run_audit):
-    # Watch mode is hard to test with runner.invoke without side effects.
-    # Placeholder test — just verifies the function exists.
-    pass
+@patch("time.sleep", side_effect=KeyboardInterrupt)
+def test_audit_command_watch(mock_sleep, mock_run_audit):
+    """Test watch mode enters loop and exits gracefully on keyboard interrupt."""
+    mock_run_audit.return_value = AuditResult(
+        mode=STANDARD_MODE,
+        success=True,
+        exit_code=0,
+        raw_results=[CheckResult("lint", True, "Lint check passed")],
+    )
+
+    result = runner.invoke(app, ["audit", "--watch"])
+    assert result.exit_code == 0
+    assert "Watching for file changes" in result.stdout
+    assert "Stopped watching" in result.stdout
+    mock_run_audit.assert_called_once()
+    mock_sleep.assert_called_once_with(2)

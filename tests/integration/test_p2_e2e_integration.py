@@ -3,9 +3,11 @@ from unittest.mock import patch
 
 import networkx as nx
 import pytest
+from typer.testing import CliRunner
 
-from dimcause.reasoning.causal import CausalLink
+from dimcause.cli import app as main_cli_app
 from dimcause.core.models import Event, EventType
+from dimcause.reasoning.causal import CausalLink
 from dimcause.reasoning.engine import HybridInferenceEngine
 from dimcause.reasoning.validator import AxiomValidator
 from dimcause.visualization.renderer import GraphRenderer
@@ -146,8 +148,11 @@ def test_p2_e2e_workflow(mock_events):
 
 
 def test_p2_cli_integration():
-    """Test CLI integration via dry run"""
+    """Test main CLI wires graph sub-commands correctly."""
+    runner = CliRunner()
+    result = runner.invoke(main_cli_app, ["graph", "--help"])
 
-    # This is harder to test without a real DB.
-    # We rely on unit tests for CLI mechanics.
-    # This E2E test focuses on the component interaction logic above.
+    assert result.exit_code == 0
+    assert "build" in result.stdout
+    assert "check" in result.stdout
+    assert "show" in result.stdout
