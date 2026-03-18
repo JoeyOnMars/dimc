@@ -34,9 +34,48 @@ class TestLLMClientMocked:
         assert config2.provider == "openai"
         assert config2.model == "gpt-4"
 
-    def test_litellm_client_with_mock(self):
-        """测试 LiteLLM 客户端（litellm 不可用时跳过）"""
-        pytest.skip("litellm not installed in test environment")
+    def test_litellm_client_with_mock(self, monkeypatch):
+        """测试 LiteLLM 客户端（不依赖真实 litellm 安装）"""
+        import importlib.util
+        import sys
+        import types
+        from pathlib import Path
+
+        from dimcause.core.models import LLMConfig
+
+        fake_litellm = types.ModuleType("litellm")
+        fake_litellm.request_timeout = 0
+
+        class _FakeMessage:
+            content = "mock-ok"
+
+        class _FakeChoice:
+            message = _FakeMessage()
+
+        class _FakeUsage:
+            prompt_tokens = 1
+            completion_tokens = 1
+
+        class _FakeResponse:
+            choices = [_FakeChoice()]
+            usage = _FakeUsage()
+
+        def _fake_completion(**_kwargs):
+            return _FakeResponse()
+
+        fake_litellm.completion = _fake_completion
+        monkeypatch.setitem(sys.modules, "litellm", fake_litellm)
+
+        module_path = Path(__file__).resolve().parents[1] / "src/dimcause/extractors/llm_client.py"
+        spec = importlib.util.spec_from_file_location("dimcause_test_llm_client_shim", module_path)
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        client = module.LiteLLMClient(
+            config=LLMConfig(provider="openai", model="gpt-4o-mini", api_key="test-key")
+        )
+        assert client.complete("hello", system="reply short") == "mock-ok"
 
 
 class TestBasicExtractorMocked:
