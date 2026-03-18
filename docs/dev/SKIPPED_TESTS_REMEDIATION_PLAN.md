@@ -6,13 +6,13 @@
 
 **审计基线**: 2026-03-18
 **审计命令**: `pytest -q -rs`  
-**审计结果**: `1115 passed, 20 skipped, 4 deselected`
+**审计结果**: `1116 passed, 19 skipped, 4 deselected`
 
 ---
 
 ## 1. 目的
 
-这份清单只解决一个问题：把当前全量测试中的 `20` 个 skipped 和 `4` 个受保护测试拆成可执行整改项。
+这份清单只解决一个问题：把当前全量测试中的 `19` 个 skipped 和 `4` 个受保护测试拆成可执行整改项。
 它不负责解释产品架构，也不替代 `BACKLOG`；它是测试债的专项处置文档。
 
 原则：
@@ -27,15 +27,15 @@
 
 当前默认全量结果分成两部分：
 
-1. `20` 个 skipped
+1. `19` 个 skipped
 2. `4` 个 deselected 受保护测试
 
-其中 `20` 个 skipped 分成四类：
+其中 `19` 个 skipped 分成四类：
 
 1. 过时测试：`0`
 2. 手工 / 完整环境测试：`2`
 3. 环境依赖缺失：`0`（已清零）
-4. 真正未实现的测试：`18`
+4. 真正未实现的测试：`17`
 
 ---
 
@@ -124,7 +124,7 @@
 **结果**:
 
 1. 环境依赖缺失类 skipped 已从 `1` 降为 `0`。
-2. 默认全量基线由 `1112/23/4` 收敛到 `1115/20/4`。
+2. 默认全量基线由 `1112/23/4` 收敛到 `1116/19/4`。
 
 ---
 
@@ -132,17 +132,16 @@
 
 这类 skipped 才是最实在的测试债。
 
-#### A. `tests/integration/test_data_pipeline.py` (`5`)
+#### A. `tests/integration/test_data_pipeline.py` (`4`)
 
 覆盖：
 
-1. markdown → EventIndex
-2. EventIndex → VectorStore
-3. 部分失败后的恢复
-4. 端到端查询
-5. 真实事件流
+1. EventIndex → VectorStore
+2. 部分失败后的恢复
+3. 端到端查询
+4. 真实事件流
 
-现状：`ingest → markdown` 已转为可执行测试并通过；其余 5 条仍是 TODO skip。
+现状：`ingest → markdown` 与 `markdown → EventIndex` 已转为可执行测试并通过；其余 `4` 条仍是 TODO skip。
 
 #### B. `tests/integration/test_fault_tolerance.py`（总计 `6`：已落地 `1`，剩余 `5`）
 

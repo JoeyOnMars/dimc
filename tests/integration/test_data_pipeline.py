@@ -6,12 +6,14 @@ Integration Tests: Data Pipeline End-to-End
 验证完整数据流：ingest → Markdown → EventIndex → Vector/Graph
 """
 
+import time
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
 
+from dimcause.core.event_index import EventIndex
 from dimcause.core.models import DimcauseConfig, Event, EventType, RawData, SourceType
 from dimcause.services.pipeline import Pipeline
 
@@ -55,11 +57,53 @@ class TestDataPipeline:
         assert stored.summary == "ingest to markdown"
         assert stored.raw_data_id == raw.id
 
-    @pytest.mark.skip(reason="待 v5.1 核心功能完成后实现")
-    def test_markdown_to_event_index_sync(self):
+    def test_markdown_to_event_index_sync(self, tmp_path: Path):
         """测试 Markdown → EventIndex 同步"""
-        # TODO: 验证 EventIndex.sync() 正确索引 Markdown 文件
-        pass
+        workspace = tmp_path / "workspace"
+        docs_logs = workspace / "docs" / "logs"
+        data_events = workspace / ".dimcause" / "events"
+        docs_logs.mkdir(parents=True, exist_ok=True)
+        data_events.mkdir(parents=True, exist_ok=True)
+
+        markdown_file = docs_logs / "event_sync.md"
+        self._write_event_markdown(markdown_file, event_id="evt_pipeline_sync", summary="sync v1")
+
+        index = EventIndex(db_path=str(workspace / ".dimcause" / "index.db"))
+        first_sync = index.sync(
+            [str(docs_logs), str(data_events)],
+            base_docs_dir=str(docs_logs),
+            base_data_dir=str(data_events),
+        )
+        assert first_sync["added"] == 1
+        assert first_sync["errors"] == 0
+
+        row = index.get_by_id("evt_pipeline_sync")
+        assert row is not None
+        assert Path(row["markdown_path"]).resolve() == markdown_file.resolve()
+        loaded = index.load_event("evt_pipeline_sync")
+        assert loaded is not None
+        assert loaded.summary == "sync v1"
+
+        second_sync = index.sync(
+            [str(docs_logs), str(data_events)],
+            base_docs_dir=str(docs_logs),
+            base_data_dir=str(data_events),
+        )
+        assert second_sync["added"] == 0
+        assert second_sync["updated"] == 0
+        assert second_sync["skipped"] >= 1
+
+        time.sleep(0.01)
+        self._write_event_markdown(markdown_file, event_id="evt_pipeline_sync", summary="sync v2")
+        third_sync = index.sync(
+            [str(docs_logs), str(data_events)],
+            base_docs_dir=str(docs_logs),
+            base_data_dir=str(data_events),
+        )
+        assert third_sync["updated"] == 1
+        refreshed = index.load_event("evt_pipeline_sync")
+        assert refreshed is not None
+        assert refreshed.summary == "sync v2"
 
     @pytest.mark.skip(reason="待 v5.1 核心功能完成后实现")
     def test_event_index_to_vector_store(self):
@@ -79,6 +123,25 @@ class TestDataPipeline:
         """测试完整查询链路"""
         # TODO: 写入事件后，通过 EventIndex 查询并验证一致性
         pass
+
+    @staticmethod
+    def _write_event_markdown(path: Path, event_id: str, summary: str) -> None:
+        content = f"""---
+id: {event_id}
+type: task
+source: manual
+timestamp: 2026-03-18T10:00:00
+summary: {summary}
+tags: []
+status: pending
+schema_version: 2
+---
+
+# {summary}
+
+content for {event_id}
+"""
+        path.write_text(content, encoding="utf-8")
 
 
 @pytest.mark.skip(reason="待 v5.1 核心功能完成后实现")

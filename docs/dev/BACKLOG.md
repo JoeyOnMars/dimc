@@ -2,7 +2,7 @@
 
 > 依据 `fix-all-bugs.md` 规则 3 创建。  
 > 统一登记所有超出当前分支 Scope 的全局 Bug、历史技术债、以及因"妥协"而遗留的未实现设计。  
-> **最后更新**: 2026-03-18（3.1 第二阶段第三刀：fault_tolerance 首条用例落地）
+> **最后更新**: 2026-03-18（3.1 第二阶段第四刀：data_pipeline 同步链路用例落地）
 
 ---
 
@@ -53,15 +53,15 @@
 - **后续说明**: 下一阶段不再是“白名单完全无治理”，而是持续收缩 legacy 生产链路，并在可行处将类型迁回 ontology 主类。
 
 ### P1-3: 全量测试红线清理（Task 3.1）
-- **现状**: `legacy_debt` 隔离标记已清零；当前主战场是剩余 `20 skipped + 4 deselected protected` 的测试债分批收口。
+- **现状**: `legacy_debt` 隔离标记已清零；当前主战场是剩余 `19 skipped + 4 deselected protected` 的测试债分批收口。
 
-### P1-9: 全量 skipped / protected 测试债清理（当前 20 skipped + 4 deselected）
-- **审计事实**: `source .venv/bin/activate && pytest -q -rs` 当前为 `1115 passed, 20 skipped, 4 deselected`。
-- **分类结果（skipped=20）**:
+### P1-9: 全量 skipped / protected 测试债清理（当前 19 skipped + 4 deselected）
+- **审计事实**: `source .venv/bin/activate && pytest -q -rs` 当前为 `1116 passed, 19 skipped, 4 deselected`。
+- **分类结果（skipped=19）**:
   1. 过时测试：`0`（已清零）
   2. 手工 / 完整环境测试：`2`
   3. 环境依赖缺失：`0`（已清零）
-  4. 真正未实现的测试：`18`
+  4. 真正未实现的测试：`17`
 - **受保护测试（deselected=4）**: 默认不进主套件，仅在 `--run-protected` 下执行。
 - **当前入口**: [`SKIPPED_TESTS_REMEDIATION_PLAN.md`](./SKIPPED_TESTS_REMEDIATION_PLAN.md)
 - **处理顺序**:
@@ -73,8 +73,9 @@
   - 已把 1 条旧 history skipped 改写为当前 `history --no-interactive` CLI 测试
   - 已将 `tests/test_extractors.py::test_litellm_client_with_mock` 从无条件 skip 改为可执行 mock 测试
   - 已将 `tests/integration/test_data_pipeline.py::test_ingest_to_markdown_write` 从 TODO skip 改为可执行集成断言
+  - 已将 `tests/integration/test_data_pipeline.py::test_markdown_to_event_index_sync` 从 TODO skip 改为可执行集成断言
   - 已将 `tests/integration/test_fault_tolerance.py::test_index_corruption_rebuild` 从 TODO skip 改为可执行集成断言
-  - 默认套件基线已从 `1103/30` 收敛到 `1115 passed, 20 skipped, 4 deselected`
+  - 默认套件基线已从 `1103/30` 收敛到 `1116 passed, 19 skipped, 4 deselected`
 
 ### ~~P1-10: 信任梯度 risk_level 未落地~~ (FIXED)
 - **修复事实**:
