@@ -1,6 +1,6 @@
 # DIMCAUSE 项目状态总表
 
-**最后更新**: 2026-03-18（3.1 第二阶段第四刀：data_pipeline 同步链路用例落地）
+**最后更新**: 2026-03-18（3.1 去假整改：受保护 audit_scan 改为真实链路验证）
 **维护者**: 人工审核 + 代码验证
 
 ---
@@ -65,7 +65,7 @@
 | RFC-003 | Multi-Agent 架构 | 📝 已创建 |
 | 任务 3.0 | 遗留测试修复 (test_config/state/cli) | ✅ 完成 (56/56 passed) |
 | 任务 3.1 Prep | 隔离历史遗留测试 | ✅ 完成 (Marker 全局硬隔离 118 个断代用例) |
-| 任务 3.1 | 全量测试红线清理 (The Big Cleanup) | 🔄 进行中（已清零 3 条过时 skipped + 1 条依赖缺失 skipped + 2 条 data pipeline TODO skip + 1 条 fault_tolerance TODO skip；当前全量基线为 `1116 passed, 19 skipped, 4 deselected`） |
+| 任务 3.1 | 全量测试红线清理 (The Big Cleanup) | 🔄 进行中（已清零 3 条过时 skipped + 1 条依赖缺失 skipped + 2 条 data pipeline TODO skip + 1 条 fault_tolerance TODO skip；`test_audit_scan` 已从 fake `run_audit` 改为受保护真实链路验证；当前全量基线为 `1116 passed, 19 skipped, 4 deselected`） |
 | 任务 3.2 | 静态分析配置基线修复 | ✅ 配置已落地（`.pyre_configuration` + `mypy_path` 均指向 `src`；live 类型检查器为 `mypy`，剩余是类型错误本身） |
 | Doc Align | 系统文档对齐 (Flow/Arch/Repo) | ✅ 完成 |
 | Log Fix | 02-19 日志补录 | ✅ 完成 |

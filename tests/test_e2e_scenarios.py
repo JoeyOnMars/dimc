@@ -61,44 +61,23 @@ class TestCLIE2EScenarios:
             yield root_dir, logs_dir
 
     @pytest.mark.protected
-    def test_audit_scan(self, runner, temp_workspace, monkeypatch):
+    def test_audit_scan(self, runner, temp_workspace):
         """测试审计命令"""
-        from dimcause.audit.engine import CheckResult
-        from dimcause.audit.mode import STANDARD_MODE
-        from dimcause.audit.result import AuditResult
         from dimcause.cli import app
 
         root_dir, logs_dir = temp_workspace
 
-        # 创建一个包含敏感信息的文件，必须在 src 目录下才能被 scanned
+        # 创建一个包含敏感信息注释的文件，触发真实 sensitive_data 检查，
+        # 同时避免被 Bandit 当作阻断性赋值漏洞。
         src_dir = root_dir / "src" / "dimcause"
         src_dir.mkdir(parents=True, exist_ok=True)
         secret_file = src_dir / "config.py"
-        secret_file.write_text("API_KEY = 'sk-1234567890'")
+        secret_file.write_text("# ghp_123456789012345678901234567890123456\n", encoding="utf-8")
 
-        def fake_run_audit(*args, **kwargs):
-            return AuditResult(
-                mode=STANDARD_MODE,
-                success=True,
-                exit_code=0,
-                raw_results=[
-                    CheckResult(
-                        check_name="sensitive_data",
-                        success=False,
-                        is_blocking=False,
-                        message="Found 1 items.",
-                        details=[f"[HIGH] {secret_file}: Found openai_key (pos: (0, 10))"],
-                    )
-                ],
-            )
-
-        monkeypatch.setattr("dimcause.audit.runner.run_audit", fake_run_audit)
-
-        # 运行 audit
+        # 运行真实 audit 链路（受保护套件，不进默认自动化）
         result = runner.invoke(app, ["audit", str(root_dir)])
         assert result.exit_code == 0
 
         # 验证是否检测到敏感信息
         assert "SENSITIVE_DATA" in result.stdout
-        assert "openai_key" in result.stdout
-        assert str(secret_file) in result.stdout
+        assert "github_token" in result.stdout

@@ -72,6 +72,7 @@
   - 已移除 2 条不再属于 live 产品面的过时 skipped
   - 已把 1 条旧 history skipped 改写为当前 `history --no-interactive` CLI 测试
   - 已将 `tests/test_extractors.py::test_litellm_client_with_mock` 从无条件 skip 改为可执行 mock 测试
+  - 已将 `tests/test_e2e_scenarios.py::test_audit_scan` 从 fake `run_audit` 改为受保护真实 audit 链路验证
   - 已将 `tests/integration/test_data_pipeline.py::test_ingest_to_markdown_write` 从 TODO skip 改为可执行集成断言
   - 已将 `tests/integration/test_data_pipeline.py::test_markdown_to_event_index_sync` 从 TODO skip 改为可执行集成断言
   - 已将 `tests/integration/test_fault_tolerance.py::test_index_corruption_rebuild` 从 TODO skip 改为可执行集成断言

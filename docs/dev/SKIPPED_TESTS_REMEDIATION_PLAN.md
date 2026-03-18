@@ -104,7 +104,7 @@
 1. 已把这 `4` 条测试从 `skip` 改为 `@pytest.mark.protected`。
 2. `pytest` 默认套件现在会自动 deselect 受保护测试；只有显式传 `--run-protected` 才运行。
 3. `tests/integration/test_eventindex_compat_legacy.py` 已改成临时工作区 + 临时 `HOME` 下的受控兼容性验证，不再依赖开发机真实 `~/.dimcause` 或历史索引。
-4. `tests/test_e2e_scenarios.py::test_audit_scan` 已改为 mock `run_audit()` 的命令面验证，不再受真实仓库 lint/security 结果波动影响。
+4. `tests/test_e2e_scenarios.py::test_audit_scan` 已改为受保护真实 audit 链路验证（不再 fake `run_audit`），在临时工作区中执行真实检查并断言敏感信息命中。
 
 **当前状态**:
 
