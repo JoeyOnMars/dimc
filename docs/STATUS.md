@@ -1,6 +1,6 @@
 # DIMCAUSE 项目状态总表
 
-**最后更新**: 2026-03-19（3.1 第二阶段第六刀：fault_tolerance WAL 启动恢复 + SchemaValidator 治理报告）
+**最后更新**: 2026-03-19（Task 081：SchemaValidator 拒绝写入观测闭环）
 **维护者**: 人工审核 + 代码验证
 
 ---
@@ -14,7 +14,7 @@
 | **契约监管不完整** | `api_contracts.yaml` 统管所有核心 API 签名 | 核心 7 条合约已核查通过（含 `search_engine_search`）；但 MCP/Timeline 等接口仍无合约覆盖。 | 🟡 中 |
 | **存储 L2.5 查询缓存层已初步落地** | `events_cache` 表 Layer 2.5 缓存，`wal.log` 崩溃恢复 | `EventIndex` 现已具备独立 `events_cache` + `event_file_refs` 写穿缓存与回填逻辑，`load_event/get_by_file` 已消费该层；剩余主要是 LRU 淘汰与更细粒度查询优化。 | 🟡 中 |
 | **L4 解释器剩余精修** | `dimc why` 穿透因果迷雾给出完美链路追踪 | `dimc why` 已通过 `get_file_history(..., use_causal_chain=True)` 接入 GraphStore 因果链，并将因果链证据与最小对象证据提升为一等输出对象；`DecisionAnalyzer` 也已显式消费 `object_projection` 中的 Material/Claim。当前剩余主要是更细粒度的排序、压缩和展示 polish。 | 🟡 中 |
-| **L3 SchemaValidator 治理收口中** | `SchemaValidator` 上帝防线拦截一切非法时空关系 | 运行时卡口已接入写入链路，且 legacy 类型已从裸 `LEGACY_WHITELIST` 收敛为显式 policy registry，并具备 provenance、库存统计与结构化治理报告；剩余主要是持续压缩 legacy 生产面，并补拒绝写入的观测闭环。 | 🟡 中 |
+| **L3 SchemaValidator 治理收口中** | `SchemaValidator` 上帝防线拦截一切非法时空关系 | 运行时卡口已接入写入链路，且 legacy 类型已从裸 `LEGACY_WHITELIST` 收敛为显式 policy registry，并具备 provenance、库存统计、结构化治理报告与拒绝写入观测；剩余主要是持续压缩 legacy 生产面。 | 🟡 中 |
 
 *详细处置清单及历史遗留测试债已转移至 [BACKLOG.md](dev/BACKLOG.md)，必须逐一清算。*
 
@@ -65,7 +65,7 @@
 | RFC-003 | Multi-Agent 架构 | 📝 已创建 |
 | 任务 3.0 | 遗留测试修复 (test_config/state/cli) | ✅ 完成 (56/56 passed) |
 | 任务 3.1 Prep | 隔离历史遗留测试 | ✅ 完成 (Marker 全局硬隔离 118 个断代用例) |
-| 任务 3.1 | 全量测试红线清理 (The Big Cleanup) | 🔄 进行中（已清零 3 条过时 skipped + 1 条依赖缺失 skipped + 3 条 data pipeline TODO skip + 2 条 fault_tolerance TODO skip；`test_audit_scan` 已从 fake `run_audit` 改为受保护真实链路验证；当前全量基线为 `1120 passed, 17 skipped, 4 deselected`） |
+| 任务 3.1 | 全量测试红线清理 (The Big Cleanup) | 🔄 进行中（已清零 3 条过时 skipped + 1 条依赖缺失 skipped + 3 条 data pipeline TODO skip + 2 条 fault_tolerance TODO skip；`test_audit_scan` 已从 fake `run_audit` 改为受保护真实链路验证；当前全量基线为 `1122 passed, 17 skipped, 4 deselected`） |
 | 任务 3.2 | 静态分析配置基线修复 | ✅ 配置已落地（`.pyre_configuration` + `mypy_path` 均指向 `src`；live 类型检查器为 `mypy`，剩余是类型错误本身） |
 | Doc Align | 系统文档对齐 (Flow/Arch/Repo) | ✅ 完成 |
 | Log Fix | 02-19 日志补录 | ✅ 完成 |
@@ -83,7 +83,7 @@
 | 任务 1.7 | MCP Server 配置修复 | ✅ 完成 (`dimc mcp serve` stdio/http + transport 校验 + MCP CLI smoke test 16/16 通过) |
 | 任务 1.9 | 发布前文档对齐 (README等) | ✅ 完成（README 已按 live 发布事实改为源码安装；PyPI 发布继续由 Release 准备跟踪） |
 | 流程设施 | 信任梯度 (Risk Level) 分级落地 | ✅ 完成 (Task Packet + scheduler risk gate + closeout policy) |
-| L3 防波堤 | SchemaValidator 运行时卡口 | 🔄 部分完成（EventIndex 写入链路 + legacy 治理报告已接入） |
+| L3 防波堤 | SchemaValidator 运行时卡口 | 🔄 部分完成（EventIndex 写入链路 + legacy 治理报告 + 拒绝写入观测已接入） |
 | L0 调度 | Orchestrator 核心调度器 | 🔄 部分完成（基础调度循环 + active job awareness + runtime completion writeback + STATUS 合成任务上下文 + branch/worktree provisioning + session bundle + launch entrypoint + optional auto-launch + loop launch forwarding + stop/resume/cleanup/prune/reconcile 生命周期回收 + run/loop auto-reconcile 自愈 + inspect 可视化检查已实现 + V6 STATUS 主干解耦已实现，仍缺更深生产化收口） |
 | L1 自动化 | dimc detect IDE 探测 | ✅ 完成（`dimc detect` + `dimc config enable` 已可用） |
 
@@ -107,7 +107,7 @@
 | CausalLink | `core/models.py` | ✅ 已实现 |
 | 因果推理引擎 | `reasoning/engine.py` | ✅ 已实现 (Hybrid: Time+Semantic) |
 | CausalEngine | `reasoning/causal_engine.py` | ✅ 已实现 (时空双锁 + Global Broadcast Override, Task 007-01) |
-| SchemaValidator | `core/schema_validator.py` | ✅ 已接入 EventIndex 写入链路，并提供 legacy policy/report 观测面（拒绝写入观测仍待补） |
+| SchemaValidator | `core/schema_validator.py` | ✅ 已接入 EventIndex 写入链路，并提供 legacy policy/report 与拒绝写入观测面 |
 | 公理验证器 | `reasoning/validator.py` | ✅ 已验证 (Audit Runner Integrated) |
 | 图谱可视化 | `cli_graph.py` | ✅ 已实现 (ASCII/Mermaid) |
 | MCP Server | `protocols/mcp_server.py` | ✅ 已实现 (6 端点, stdio/http 双模式) |
@@ -152,6 +152,7 @@
 - **Task 045 配置层补齐与 LLM 模型解硬编码** (2026-03-07): 新增 `dimc config set KEY VALUE`，支持 `llm_primary.model` 等嵌套键写入；`why()` / `get_analyst()` 已优先读取项目 `llm_primary` 配置；`LLMLinker` 也已改为按配置的 provider/model 构建 `LiteLLMClient`，不再把 `deepseek-chat` 写死在运行路径里。
 - **Task 047 EventIndex 查询缓存层落地** (2026-03-07): 新增独立 `events_cache` 与 `event_file_refs` 两层持久查询缓存，`EventIndex.add()/update_cache()` 现会写穿缓存，初始化时自动回填历史缺口；`load_event()` 可在主表 `json_cache` 缺失时回退到 `events_cache`，`get_by_file()` 也已优先走 `event_file_refs` 精确/后缀匹配，不再只靠 `json_cache LIKE` 暴力扫描。
 - **Task 080 Fault Tolerance + SchemaValidator 收口** (2026-03-19): `tests/integration/test_fault_tolerance.py::test_wal_recovery_on_startup` 已从 TODO skip 落地为真实恢复链路测试，覆盖 `WAL pending -> daemon recover -> Markdown/EventIndex 落库` 主链；同时 `SchemaValidator` / `EventIndex` 新增 `LegacyTypeGovernanceRecord` 与 `get_legacy_governance_report()`，把 legacy 治理从“只看 count”提升到“策略定义 + 当前库存”的结构化治理视图。全量基线现为 `1120 passed, 17 skipped, 4 deselected`。
+- **Task 081 Schema Rejection Observability** (2026-03-19): `EventIndex.add()` / `add_if_not_exists()` 现在会在 `SchemaValidator` 拒绝写入时输出结构化 `schema_rejection` 观测负载，至少包含 `event_id / event_type / write_mode / markdown_path / source_layer / reason / status / error_class`。新增 invalid type 与 legacy blocked 两条测试，锁住“拒绝有日志、数据库不脏写”的行为；全量基线提升到 `1122 passed, 17 skipped, 4 deselected`。
 - **Task 048 SchemaValidator 治理收口** (2026-03-07): `SchemaValidator` 不再依赖裸字符串 `LEGACY_WHITELIST`；现已引入显式 `LegacyTypePolicy` registry、结构化 `ValidationResult`、legacy provenance 注入和 `EventIndex.get_legacy_type_counts()` 存量统计，为后续逐类迁移 legacy 类型建立运行时观测面。
 - **Task 046 Timeline 会话/任务边界升格** (2026-03-07): `TimelineService` 现已提取 `session_id/job_id` 上下文，`dimc timeline` 的 recent/range 模式会按 session/job 边界分组展示，daily stats 也新增 active sessions / jobs 聚合，不再只是裸事件列表。
 - **Task 044 `dimc why` 因果证据升格** (2026-03-07): `get_file_history()` 现已保留 `from_causal_chain` provenance，`why` 输出新增“因果链证据”独立段落，`DecisionAnalyzer` prompt 也会显式提高因果证据权重，不再退回纯 Git/时间线叙事。

@@ -11,12 +11,16 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from dimcause.core.models import Event, EventType, SemanticEvent, SourceType
 from dimcause.core.ontology import get_ontology
 from dimcause.core.schema_validator import (
+    LegacyTypeGovernanceError,
     LegacyTypeGovernanceRecord,
+    OntologySchemaError,
     get_schema_validator,
 )
 from dimcause.reasoning.causal import CausalLink
 from dimcause.reasoning.relation_inference import to_ontology_event_class
 from dimcause.utils.wal import WALEntry, WriteAheadLog
+
+logger = logging.getLogger(__name__)
 
 
 class EventIndex:
@@ -978,7 +982,17 @@ class EventIndex:
         """添加/更新单个事件到索引"""
         # SchemaValidator 卡口：验证 Event.type 是否符合本体定义
         validator = get_schema_validator()
-        validation = validator.validate(event)
+        try:
+            validation = validator.validate(event)
+        except OntologySchemaError as exc:
+            self._log_schema_rejection(
+                event=event,
+                write_mode="add",
+                markdown_path=markdown_path,
+                source_layer=source_layer,
+                error=exc,
+            )
+            raise
         if validation.is_legacy:
             event.metadata.setdefault(
                 "_schema_legacy",
@@ -1384,7 +1398,17 @@ class EventIndex:
         """
         # SchemaValidator 卡口：验证 Event.type 是否符合本体定义
         validator = get_schema_validator()
-        validation = validator.validate(event)
+        try:
+            validation = validator.validate(event)
+        except OntologySchemaError as exc:
+            self._log_schema_rejection(
+                event=event,
+                write_mode="add_if_not_exists",
+                markdown_path=markdown_path,
+                source_layer=source_layer,
+                error=exc,
+            )
+            raise
         if validation.is_legacy:
             event.metadata.setdefault(
                 "_schema_legacy",
@@ -1444,6 +1468,36 @@ class EventIndex:
             return cursor.rowcount
         finally:
             conn.close()
+
+    def _log_schema_rejection(
+        self,
+        *,
+        event: Event,
+        write_mode: str,
+        markdown_path: str,
+        source_layer: Optional[str],
+        error: OntologySchemaError,
+    ) -> None:
+        """为 Schema 拒绝路径输出结构化观测信息。"""
+        type_value = event.type.value if hasattr(event.type, "value") else str(event.type)
+        payload = {
+            "event_id": event.id,
+            "event_type": type_value,
+            "write_mode": write_mode,
+            "markdown_path": markdown_path,
+            "source_layer": source_layer,
+            "reason": "legacy_blocked"
+            if isinstance(error, LegacyTypeGovernanceError)
+            else "invalid_type",
+            "status": error.policy.status if isinstance(error, LegacyTypeGovernanceError) else "rejected",
+            "error_class": error.__class__.__name__,
+        }
+
+        logger.warning(
+            "Schema validation rejected event write: %s",
+            payload,
+            extra={"schema_rejection": payload},
+        )
 
     def get_legacy_type_counts(self) -> Dict[str, int]:
         """统计当前索引中各 legacy 类型的存量，供治理迁移使用。"""

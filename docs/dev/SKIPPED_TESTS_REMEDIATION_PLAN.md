@@ -6,7 +6,7 @@
 
 **审计基线**: 2026-03-19
 **审计命令**: `pytest -q -rs`  
-**审计结果**: `1120 passed, 17 skipped, 4 deselected`
+**审计结果**: `1122 passed, 17 skipped, 4 deselected`
 
 ---
 

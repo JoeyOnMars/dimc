@@ -7,6 +7,7 @@ SchemaValidator 单元测试
 3. 老数据兼容：读取不崩溃
 """
 
+import logging
 import os
 import tempfile
 from datetime import datetime
@@ -16,10 +17,12 @@ import pytest
 # 设置测试环境变量，防止真实 IO
 os.environ["HF_HUB_OFFLINE"] = "1"
 
+import dimcause.core.event_index as event_index_module
 from dimcause.core.event_index import EventIndex
 from dimcause.core.models import Event, EventType
 from dimcause.core.schema_validator import (
     LegacyTypeGovernanceRecord,
+    LegacyTypePolicy,
     OntologySchemaError,
     SchemaValidator,
     ValidationResult,
@@ -387,6 +390,95 @@ class TestEventIndexSchemaValidation:
         # 验证事件数量未变（尝试添加非法类型会被 SchemaValidator 拦截）
         final_count = index.count()
         assert final_count == 1
+
+    def test_invalid_type_rejection_logs_structured_payload(self, temp_db, caplog):
+        index = EventIndex(db_path=temp_db)
+        invalid_event = Event.model_construct(
+            id="test-invalid-001",
+            type="totally_invalid_type",
+            timestamp=datetime.now(),
+            summary="Invalid Event",
+            content="Invalid Event Content",
+            metadata={},
+        )
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            f.write("---\nid: test-invalid-001\ntype: totally_invalid_type\n---\n")
+            temp_path = f.name
+
+        try:
+            with caplog.at_level(logging.WARNING):
+                with pytest.raises(OntologySchemaError):
+                    index.add(invalid_event, temp_path, source_layer="l2")
+
+            assert index.count() == 0
+            rejection = next(
+                record.schema_rejection
+                for record in caplog.records
+                if hasattr(record, "schema_rejection")
+            )
+            assert rejection["event_id"] == "test-invalid-001"
+            assert rejection["event_type"] == "totally_invalid_type"
+            assert rejection["write_mode"] == "add"
+            assert rejection["markdown_path"] == temp_path
+            assert rejection["source_layer"] == "l2"
+            assert rejection["reason"] == "invalid_type"
+            assert rejection["status"] == "rejected"
+        finally:
+            os.unlink(temp_path)
+
+    def test_legacy_blocked_rejection_logs_structured_payload(
+        self, temp_db, monkeypatch, caplog
+    ):
+        index = EventIndex(db_path=temp_db)
+        blocked_validator = SchemaValidator()
+        task_policy = blocked_validator.describe_legacy_type("task")
+        assert task_policy is not None
+        monkeypatch.setitem(
+            SchemaValidator.LEGACY_POLICIES,
+            "task",
+            LegacyTypePolicy(
+                canonical_class=task_policy.canonical_class,
+                status="legacy-blocked",
+                note=task_policy.note,
+                allow_write=False,
+            ),
+        )
+        blocked_validator._valid_types = None
+        monkeypatch.setattr(event_index_module, "get_schema_validator", lambda: blocked_validator)
+
+        blocked_event = Event(
+            id="test-legacy-blocked-001",
+            type=EventType.TASK,
+            timestamp=datetime.now(),
+            summary="Blocked Task Event",
+            content="Blocked Task Event Content",
+        )
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            f.write("---\nid: test-legacy-blocked-001\ntype: task\n---\n")
+            temp_path = f.name
+
+        try:
+            with caplog.at_level(logging.WARNING):
+                with pytest.raises(OntologySchemaError):
+                    index.add_if_not_exists(blocked_event, temp_path, source_layer="l2")
+
+            assert index.count() == 0
+            rejection = next(
+                record.schema_rejection
+                for record in caplog.records
+                if hasattr(record, "schema_rejection")
+            )
+            assert rejection["event_id"] == "test-legacy-blocked-001"
+            assert rejection["event_type"] == "task"
+            assert rejection["write_mode"] == "add_if_not_exists"
+            assert rejection["markdown_path"] == temp_path
+            assert rejection["source_layer"] == "l2"
+            assert rejection["reason"] == "legacy_blocked"
+            assert rejection["status"] == "legacy-blocked"
+        finally:
+            os.unlink(temp_path)
 
 
 class TestGetSchemaValidator:
