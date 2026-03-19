@@ -15,7 +15,7 @@
    - 核心对象模型回答“系统中有哪些一等对象”；
    - 证据政策回答“系统如何判断证据覆盖与关系确定性”；
    - 存储架构回答“不同职责的数据应落在哪一层，以及它们为何不能混放”。
-5. 自 `2026-03-19` 起，本文是当前仓库中**唯一正式有效**的存储架构入口；`docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md` 仅保留为历史设计记录，不再承担第一层正式真理源职责。
+5. 自 `2026-03-19` 起，本文是当前仓库中**唯一正式有效**的存储架构入口；历史 storage draft 已退出 current tree，历史追溯统一交给 git history。
 
 ## 存储架构的目标
 
@@ -358,7 +358,7 @@ Derived Index Layer 回答的是：
 
 1. `PROJECT_ARCHITECTURE.md` 定义系统整体层次和运行/解释主链；
 2. 本文定义四层存储职责与边界；
-3. `CORE_OBJECT_MODEL_V1.md` 定义一等对象家族及其最低归属；
-4. `EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md` 定义证据覆盖等级与关系确定性等级。
+3. `CORE_OBJECT_MODEL.md` 定义一等对象家族及其最低归属；
+4. `EVIDENCE_POLICY_AND_CAUSALITY_GRADES.md` 定义证据覆盖等级与关系确定性等级。
 
 这四份文档必须共同演化，但职责不能互相替代。

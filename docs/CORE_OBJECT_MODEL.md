@@ -1,26 +1,29 @@
 # Core Object Model v1
 
+> **状态**: `正式有效`
+> **归属**: 第一层产品定义层正式子规范
+
 ## 文档定位
 
-1. 本文是**产品职责层**的《Core Object Model v1》草案，目标是先定义产品的一等对象家族、对象边界、最小字段责任与层归属，再作为后续 `Evidence Policy and Causality Grades v1`、`PROJECT_ARCHITECTURE.md`、`STORAGE_ARCHITECTURE.md` 的前置约束。
+1. 本文是**产品职责层**的《Core Object Model v1》正式文档，定义产品的一等对象家族、对象边界、最小字段责任与层归属，并与 `PROJECT_ARCHITECTURE.md`、`STORAGE_ARCHITECTURE.md`、`EVIDENCE_POLICY_AND_CAUSALITY_GRADES.md` 共同构成产品定义层的稳定语义。
 2. 本文**不是**当前 repo 代码结构说明，不是当前 workspace 路径映射，也不是当前开发流程规则汇总。
 3. 本文只定义对象语义、对象边界与对象的最小责任；本文**不**冻结具体表结构、目录结构、序列化格式、物理存储后端或 profile 的实现细节。
 4. 本文默认服从已经形成的产品主链与四层存储草案：对象模型必须能落入 `Evidence / Runtime / Knowledge / Derived Index` 的职责切分，但不能反过来从当前实现路径推导对象本体。
 
 ## 已知事实
 
-1. 当前正式产品架构已经收口为：**DIMCAUSE 是一套面向本地异构材料的证据驱动因果调查系统。**依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)；[WORKSPACE_PROFILE_V1.md](./WORKSPACE_PROFILE_V1.md)。
-2. 产品核心目标不是通用知识库、通用 RAG 平台或通用开发调度器，而是从给定材料中抽取、验证、组织尽可能强的因果关系，并输出可追溯、可分级、可解释的调查结论。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
-3. 当前正式产品架构已经把系统主线收敛为：接收本地材料、提升为结构化对象、生成并验证因果关系、输出带证据链和等级的解释结论。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
-4. 正式产品架构已经要求：统一运行单位应是 `Run`，`Task` 只是某种 `Run` 的语义化特例，不是唯一入口。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
-5. 当前正式产品架构已经把 `Material`、`MaterialVersion` 归为材料接入的核心对象合同，并把 `Entity`、`Event`、`Decision`、`Claim`、`Task`、`Symbol`、`Artifact`、`Check`、`Result`、`Relation` 归入对象装配与知识构建的关键对象家族。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
-6. 当前正式产品架构已经明确：`Event` 很重要，但不能吞掉所有对象类型，Knowledge Layer 必须允许多对象共存。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
-7. 当前正式存储架构已经确定四层职责：Evidence 保存原始证据和可审计工件，Runtime 保存可变运行状态，Knowledge 保存结构化对象与关系，Derived Index 保存可重建索引与加速结构。依据：[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
-8. 当前正式存储架构已经明确：四层差异核心不在介质，而在可变性、真理源地位、生命周期、可重建性与对外语义。依据：[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
-9. 当前正式存储架构已经把 Evidence Layer 明确拆成 `Source Materials` 与 `Generated Evidence Artifacts` 两类子对象，并要求在 provenance、生命周期、版本语义、引用方式上显式区分二者。依据：[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
-10. 当前正式存储架构已经要求：Knowledge Layer 中关系状态历史必须可回放，“当前状态”只是投影，不得成为唯一记录。依据：[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
-11. 当前正式产品架构已经明确：对象模型需要单独成文，并至少覆盖 `Run`、`Material`、`Decision`、`Claim`、`Task`、`Symbol`、`Check`、`Result`、`Relation` 等关键对象家族，而不是把这些职责散落在实现目录或 profile 说明里。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)；[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
-12. 当前正式共享文档已经明确：产品架构、workspace profile、当前项目开发流程必须拆开，不能把 repo 目录、日志路径、分支纪律或治理规则写成产品本体。依据：[ARCHITECTURE_INDEX.md](../ARCHITECTURE_INDEX.md)；[WORKSPACE_PROFILE_V1.md](./WORKSPACE_PROFILE_V1.md)；[REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](./REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)。
+1. 当前正式产品架构已经收口为：**DIMCAUSE 是一套面向本地异构材料的证据驱动因果调查系统。**依据：[PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)；[WORKSPACE_PROFILE_V1.md](./PROPOSALS/WORKSPACE_PROFILE_V1.md)。
+2. 产品核心目标不是通用知识库、通用 RAG 平台或通用开发调度器，而是从给定材料中抽取、验证、组织尽可能强的因果关系，并输出可追溯、可分级、可解释的调查结论。依据：[PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)。
+3. 当前正式产品架构已经把系统主线收敛为：接收本地材料、提升为结构化对象、生成并验证因果关系、输出带证据链和等级的解释结论。依据：[PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)。
+4. 正式产品架构已经要求：统一运行单位应是 `Run`，`Task` 只是某种 `Run` 的语义化特例，不是唯一入口。依据：[PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)。
+5. 当前正式产品架构已经把 `Material`、`MaterialVersion` 归为材料接入的核心对象合同，并把 `Entity`、`Event`、`Decision`、`Claim`、`Task`、`Symbol`、`Artifact`、`Check`、`Result`、`Relation` 归入对象装配与知识构建的关键对象家族。依据：[PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)。
+6. 当前正式产品架构已经明确：`Event` 很重要，但不能吞掉所有对象类型，Knowledge Layer 必须允许多对象共存。依据：[PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)。
+7. 当前正式存储架构已经确定四层职责：Evidence 保存原始证据和可审计工件，Runtime 保存可变运行状态，Knowledge 保存结构化对象与关系，Derived Index 保存可重建索引与加速结构。依据：[STORAGE_ARCHITECTURE.md](./STORAGE_ARCHITECTURE.md)。
+8. 当前正式存储架构已经明确：四层差异核心不在介质，而在可变性、真理源地位、生命周期、可重建性与对外语义。依据：[STORAGE_ARCHITECTURE.md](./STORAGE_ARCHITECTURE.md)。
+9. 当前正式存储架构已经把 Evidence Layer 明确拆成 `Source Materials` 与 `Generated Evidence Artifacts` 两类子对象，并要求在 provenance、生命周期、版本语义、引用方式上显式区分二者。依据：[STORAGE_ARCHITECTURE.md](./STORAGE_ARCHITECTURE.md)。
+10. 当前正式存储架构已经要求：Knowledge Layer 中关系状态历史必须可回放，“当前状态”只是投影，不得成为唯一记录。依据：[STORAGE_ARCHITECTURE.md](./STORAGE_ARCHITECTURE.md)。
+11. 当前正式产品架构已经明确：对象模型需要单独成文，并至少覆盖 `Run`、`Material`、`Decision`、`Claim`、`Task`、`Symbol`、`Check`、`Result`、`Relation` 等关键对象家族，而不是把这些职责散落在实现目录或 profile 说明里。依据：[PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)；[STORAGE_ARCHITECTURE.md](./STORAGE_ARCHITECTURE.md)。
+12. 当前正式共享文档已经明确：产品架构、workspace profile、当前项目开发流程必须拆开，不能把 repo 目录、日志路径、分支纪律或治理规则写成产品本体。依据：[ARCHITECTURE_INDEX.md](./ARCHITECTURE_INDEX.md)；[WORKSPACE_PROFILE_V1.md](./PROPOSALS/WORKSPACE_PROFILE_V1.md)；[REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](./PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)。
 
 ## 推测与假设
 
@@ -151,25 +154,16 @@
 
 ### 8. 后续文档接口
 
-1. 下一份 `Evidence Policy and Causality Grades v1` 应继续回答：`Claim`、`Relation`、`Check`、`Result` 在什么证据条件下可进入哪些等级，哪些反证或缺口需要被显式记录。依据: 事实 #2, #3, #10, #11 + 推测 #6, #7。
+1. 正式 `EVIDENCE_POLICY_AND_CAUSALITY_GRADES.md` 应继续回答：`Claim`、`Relation`、`Check`、`Result` 在什么证据条件下可进入哪些等级，哪些反证或缺口需要被显式记录。依据: 事实 #2, #3, #10, #11 + 推测 #6, #7。
 2. 后续 `workspace profile` 或默认实现文档只能回答“这些对象如何映射到具体介质与目录”，不能回写这些对象的产品职责。依据: 事实 #7, #8, #12 + 推测 #1, #2, #3。
 3. 后续演化 `PROJECT_ARCHITECTURE.md` 与 `STORAGE_ARCHITECTURE.md` 时，应继续以本稿与正式存储架构中的对象边界约束为依据，而不是反过来用旧实现结构压回对象边界。依据: 事实 #7, #8, #9, #10, #11, #12 + 推测 #1, #2, #4, #5, #7。
 
-## 起草约束与审计附录
+## 附录：依据清单
 
-1. 本附录只记录本次起草所依赖的约束与依据清单，不属于对象模型正文。
+1. 本附录只记录本文当前依赖的约束与依据清单，不属于对象模型正文。
 2. 本次起草的主要依据文件包括：
-   - `.agent/rules/Honesty-And-Structure.md`
-   - `.agent/rules/agent-git-workflow.md`
    - `docs/PROJECT_ARCHITECTURE.md`
    - `docs/STORAGE_ARCHITECTURE.md`
    - `docs/ARCHITECTURE_INDEX.md`
    - `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md`
    - `docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md`
-3. 本文涉及的关键规则版本溯源如下：
-   - `.agent/rules/Honesty-And-Structure.md`: `72d53e4 2026-02-25 23:16:27 +0800`
-   - `.agent/rules/agent-git-workflow.md`: `e469d45 2026-03-08 21:53:55 +0800`
-4. 本文没有修改受保护设计文档：
-   - `docs/PROJECT_ARCHITECTURE.md`
-   - `docs/STORAGE_ARCHITECTURE.md`
-   - `docs/V6.0/DEV_ONTOLOGY.md`

@@ -41,7 +41,7 @@ Type: Repository governance boundary proposal
 3. 它以 run-centric runtime kernel、面向本地异构材料的对象化与证据支撑因果推理、以及 `Evidence / Runtime / Knowledge / Derived Index` 四层职责分离为长期稳定架构主线。
 4. `Deterministic Precision Retrieval` 已属于正式产品架构原则。
 
-这些内容应由正式架构文档和上位 proposal 负责表达，而不是由仓库治理规则负责定义。
+这些内容应由正式架构文档与正式产品子规范负责表达，而不是由仓库治理规则负责定义。
 
 ### 2.2 产品实现层回答什么问题
 
@@ -171,7 +171,7 @@ Type: Repository governance boundary proposal
 
 1. `SYSTEM_CONTEXT.md`
    - 当前问题：仍保留 `Local-first Causal Memory Engine for AI Agents` 等旧阶段产品叙事。
-   - 正确使用方式：可作为历史语境和仓库背景材料读取，但在产品层冲突时必须让位于正式架构文档、上位 proposal 和 handoff。
+   - 正确使用方式：可作为历史语境和仓库背景材料读取，但在产品层冲突时必须让位于正式架构文档、正式产品子规范、项目执行基线与 handoff。
 2. `dimcause-ai-system.md`
    - 当前问题：仍明显保留 event、WAL、日志链、旧实现中心叙事。
    - 正确使用方式：只能作为旧阶段系统理解与当前仓库局部实现语境参考，不能反向重定义产品。
@@ -272,7 +272,7 @@ Type: Repository governance boundary proposal
 当这些材料彼此冲突时，应按以下优先级处理：
 
 1. 正式架构文档
-2. 上位 proposal
+2. 正式产品子规范
 3. 最新 handoff 中已确认的产品层结论
 4. 项目落地层中对当前默认映射的说明
 5. repo workflow / governance 文档与 rules 中的仓库治理约束

@@ -1,6 +1,6 @@
 # DIMCAUSE 项目状态总表
 
-**最后更新**: 2026-03-19（Task 082：存储架构文档双轨收口）
+**最后更新**: 2026-03-19（Task 083：PROPOSALS 角色收口）
 **维护者**: 人工审核 + 代码验证
 
 ---
@@ -153,7 +153,8 @@
 - **Task 047 EventIndex 查询缓存层落地** (2026-03-07): 新增独立 `events_cache` 与 `event_file_refs` 两层持久查询缓存，`EventIndex.add()/update_cache()` 现会写穿缓存，初始化时自动回填历史缺口；`load_event()` 可在主表 `json_cache` 缺失时回退到 `events_cache`，`get_by_file()` 也已优先走 `event_file_refs` 精确/后缀匹配，不再只靠 `json_cache LIKE` 暴力扫描。
 - **Task 080 Fault Tolerance + SchemaValidator 收口** (2026-03-19): `tests/integration/test_fault_tolerance.py::test_wal_recovery_on_startup` 已从 TODO skip 落地为真实恢复链路测试，覆盖 `WAL pending -> daemon recover -> Markdown/EventIndex 落库` 主链；同时 `SchemaValidator` / `EventIndex` 新增 `LegacyTypeGovernanceRecord` 与 `get_legacy_governance_report()`，把 legacy 治理从“只看 count”提升到“策略定义 + 当前库存”的结构化治理视图。全量基线现为 `1120 passed, 17 skipped, 4 deselected`。
 - **Task 081 Schema Rejection Observability** (2026-03-19): `EventIndex.add()` / `add_if_not_exists()` 现在会在 `SchemaValidator` 拒绝写入时输出结构化 `schema_rejection` 观测负载，至少包含 `event_id / event_type / write_mode / markdown_path / source_layer / reason / status / error_class`。新增 invalid type 与 legacy blocked 两条测试，锁住“拒绝有日志、数据库不脏写”的行为；全量基线提升到 `1122 passed, 17 skipped, 4 deselected`。
-- **Task 082 Storage Architecture Convergence** (2026-03-19): `docs/STORAGE_ARCHITECTURE.md` 已从 `Draft` 元数据正式升格为唯一有效的存储架构入口；`docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md` 已降位为“历史设计记录”，不再承担第一层正式真理源职责；`ARCHITECTURE_INDEX`、`CORE_OBJECT_MODEL_V1`、`EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1` 与 `WORKSPACE_PROFILE_V1` 的引用链已同步切到正式文档，第一层存储真理源不再双轨并列。
+- **Task 082 Storage Architecture Convergence** (2026-03-19): `docs/STORAGE_ARCHITECTURE.md` 已从 `Draft` 元数据正式升格为唯一有效的存储架构入口；第一层存储真理源已完成单点化。
+- **Task 083 Proposal Role Convergence** (2026-03-19): `docs/CORE_OBJECT_MODEL.md` 与 `docs/EVIDENCE_POLICY_AND_CAUSALITY_GRADES.md` 已从 `docs/PROPOSALS/` 升格为正式产品子规范；`docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md` 已从 current tree 删除，历史追溯交给 git history；`ARCHITECTURE_INDEX` 与 `WORKSPACE_PROFILE_V1` 的共享口径已同步切到新正式路径。
 - **Task 048 SchemaValidator 治理收口** (2026-03-07): `SchemaValidator` 不再依赖裸字符串 `LEGACY_WHITELIST`；现已引入显式 `LegacyTypePolicy` registry、结构化 `ValidationResult`、legacy provenance 注入和 `EventIndex.get_legacy_type_counts()` 存量统计，为后续逐类迁移 legacy 类型建立运行时观测面。
 - **Task 046 Timeline 会话/任务边界升格** (2026-03-07): `TimelineService` 现已提取 `session_id/job_id` 上下文，`dimc timeline` 的 recent/range 模式会按 session/job 边界分组展示，daily stats 也新增 active sessions / jobs 聚合，不再只是裸事件列表。
 - **Task 044 `dimc why` 因果证据升格** (2026-03-07): `get_file_history()` 现已保留 `from_causal_chain` provenance，`why` 输出新增“因果链证据”独立段落，`DecisionAnalyzer` prompt 也会显式提高因果证据权重，不再退回纯 Git/时间线叙事。

@@ -1,34 +1,37 @@
 # Evidence Policy and Causality Grades v1
 
+> **状态**: `正式有效`
+> **归属**: 第一层产品定义层正式子规范
+
 ## 文档定位
 
-1. 本文是**产品职责层**的《Evidence Policy and Causality Grades v1》草案，目标是先定义产品级证据政策、证据覆盖等级与关系确定性等级，再作为后续正式架构文档与领域 profile 的上位约束。
+1. 本文是**产品职责层**的《Evidence Policy and Causality Grades v1》正式文档，定义产品级证据政策、证据覆盖等级与关系确定性等级，并与 `PROJECT_ARCHITECTURE.md`、`STORAGE_ARCHITECTURE.md`、`CORE_OBJECT_MODEL.md` 共同构成产品定义层的稳定语义。
 2. 本文**不是**当前 repo 的实现说明，不是当前 workspace 的目录或数据库映射，也不是当前开发流程规则汇总。
 3. 本文只定义产品为什么需要两组等级、等级分别表达什么、哪些证据足以进入某一级、缺失与冲突如何表达，以及这些规则如何与对象模型和四层存储对齐。
 4. 本文**不**冻结数据库表结构、目录布局、ID 编码规则、默认本地路径或任何当前实现 profile 的物理细节。
 
 ## 已知事实
 
-1. 当前正式产品架构已经收口为：**DIMCAUSE 是一套面向本地异构材料的证据驱动因果调查系统。**依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)；[WORKSPACE_PROFILE_V1.md](./WORKSPACE_PROFILE_V1.md)。
-2. 产品核心目标不是通用知识库、通用 RAG 平台或通用开发调度器，而是从给定材料中抽取、验证、组织尽可能强的因果关系，并输出可追溯、可分级、可解释的调查结论。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
-3. 当前正式产品架构已经把系统主线收敛为：接收本地材料、提升为结构化对象、生成并验证因果关系、输出带证据链和等级的解释结论。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
-4. 正式产品架构已经明确要求把两组分级拆开：证据覆盖等级 `E1-E4`，关系确定性等级 `C0-C4`；并要求用户界面同时展示当前等级、主要证据来源、缺失证据说明与等级历史。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
-5. 当前正式产品架构已经明确了两组等级的职责分工：`E` 回答“当前证据面有多完整”，`C` 回答“在这些证据下，这条关系有多能成立”；两组等级必须同时展示，不能压成单一总分。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
-6. 正式产品架构已经明确：Layer 3 不是单纯 ontology，而是 `Ontology and Evidence Policy`；它需要同时约束对象类型、关系类型、证据政策、等级表达以及缺失/反证处理。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
-7. 当前正式产品架构与正式存储架构已经明确三项根本判断：统一运行单位应是 `Run`；系统要从开发材料偏置升级到通用本地材料对象化与证据化因果推理；存储要切成 `Evidence / Runtime / Knowledge / Derived Index` 四层。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)；[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
+1. 当前正式产品架构已经收口为：**DIMCAUSE 是一套面向本地异构材料的证据驱动因果调查系统。**依据：[PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)；[WORKSPACE_PROFILE_V1.md](./PROPOSALS/WORKSPACE_PROFILE_V1.md)。
+2. 产品核心目标不是通用知识库、通用 RAG 平台或通用开发调度器，而是从给定材料中抽取、验证、组织尽可能强的因果关系，并输出可追溯、可分级、可解释的调查结论。依据：[PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)。
+3. 当前正式产品架构已经把系统主线收敛为：接收本地材料、提升为结构化对象、生成并验证因果关系、输出带证据链和等级的解释结论。依据：[PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)。
+4. 正式产品架构已经明确要求把两组分级拆开：证据覆盖等级 `E1-E4`，关系确定性等级 `C0-C4`；并要求用户界面同时展示当前等级、主要证据来源、缺失证据说明与等级历史。依据：[PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)。
+5. 当前正式产品架构已经明确了两组等级的职责分工：`E` 回答“当前证据面有多完整”，`C` 回答“在这些证据下，这条关系有多能成立”；两组等级必须同时展示，不能压成单一总分。依据：[PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)。
+6. 正式产品架构已经明确：Layer 3 不是单纯 ontology，而是 `Ontology and Evidence Policy`；它需要同时约束对象类型、关系类型、证据政策、等级表达以及缺失/反证处理。依据：[PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)。
+7. 当前正式产品架构与正式存储架构已经明确三项根本判断：统一运行单位应是 `Run`；系统要从开发材料偏置升级到通用本地材料对象化与证据化因果推理；存储要切成 `Evidence / Runtime / Knowledge / Derived Index` 四层。依据：[PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md)；[STORAGE_ARCHITECTURE.md](./STORAGE_ARCHITECTURE.md)。
 8. 当前正式存储架构已经要求：
    - `Evidence Layer` 保存 `Source Materials` 与 `Generated Evidence Artifacts`
    - `Knowledge Layer` 保存对象、关系、证据绑定、等级和关系状态历史
    - “当前状态”只是投影，不得成为唯一记录  
-   依据：[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
+   依据：[STORAGE_ARCHITECTURE.md](./STORAGE_ARCHITECTURE.md)。
 9. 当前《Core Object Model v1》已经把 `Run`、`Material`、`MaterialVersion`、`Entity`、`Event`、`Decision`、`Claim`、`Task`、`Symbol`、`Artifact`、`Check`、`Result`、`Relation` 定义为产品通用内核的一等对象家族，并明确：
    - `Run` 是 `Runtime-first`
    - `Material / MaterialVersion` 是 `Knowledge + Evidence` 双重对象
    - `Claim != Relation`
    - `Check != Result`
    - `Artifact != Generated Evidence Artifacts`  
-   依据：[CORE_OBJECT_MODEL_V1.md](./CORE_OBJECT_MODEL_V1.md)。
-10. 当前正式共享文档已经明确：产品架构、workspace/default profile、当前项目开发流程必须切开；任何内部治理规则与具体 workspace 现实都不应混入产品架构正文。依据：[ARCHITECTURE_INDEX.md](../ARCHITECTURE_INDEX.md)；[WORKSPACE_PROFILE_V1.md](./WORKSPACE_PROFILE_V1.md)；[REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](./REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)。
+   依据：[CORE_OBJECT_MODEL.md](./CORE_OBJECT_MODEL.md)。
+10. 当前正式共享文档已经明确：产品架构、workspace/default profile、当前项目开发流程必须切开；任何内部治理规则与具体 workspace 现实都不应混入产品架构正文。依据：[ARCHITECTURE_INDEX.md](./ARCHITECTURE_INDEX.md)；[WORKSPACE_PROFILE_V1.md](./PROPOSALS/WORKSPACE_PROFILE_V1.md)；[REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](./PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)。
 
 ## 推测与假设
 
@@ -207,17 +210,12 @@
    依据: 事实 #7, #8, #9 + 本文结论。
 3. 后续 `workspace profile` 只能解释“某个实现如何把这些证据政策映射到具体介质与路径”，不能反过来重写等级语义或把某个具体 workspace 现实写成产品规则。依据: 事实 #10 + 本文结论。
 
-## 起草约束与审计附录
+## 附录：依据清单
 
-1. 本附录只记录本次起草所依赖的约束与依据清单，不属于证据政策正文。
+1. 本附录只记录本文当前依赖的约束与依据清单，不属于证据政策正文。
 2. 本次起草的主要依据文件包括：
-   - `.agent/rules/Honesty-And-Structure.md`
-   - `.agent/rules/agent-git-workflow.md`
-   - `docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md`
+   - `docs/CORE_OBJECT_MODEL.md`
    - `docs/PROJECT_ARCHITECTURE.md`
    - `docs/ARCHITECTURE_INDEX.md`
    - `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md`
    - `docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md`
-3. 本文涉及的关键规则版本溯源如下：
-   - `.agent/rules/Honesty-And-Structure.md`: `72d53e4 2026-02-25 23:16:27 +0800`
-   - `.agent/rules/agent-git-workflow.md`: `e469d45 2026-03-08 21:53:55 +0800`

@@ -3,7 +3,7 @@
 ## 文档定位
 
 1. 本文是当前 `dimc` 仓库的 **workspace profile** 提案文档；在五层结构中，它对应第三层“项目落地层”。
-2. 本文不是产品架构重写稿，不是存储架构重写稿，不是对象模型重写稿，也不是证据政策重写稿。相关产品本体已经由正式架构文档与上位 proposal 约束。
+2. 本文不是产品架构重写稿，不是存储架构重写稿，不是对象模型重写稿，也不是证据政策重写稿。相关产品本体已经由正式架构文档与正式产品子规范约束。
 3. 本文也不是当前仓库内部 workflow 规则汇编。分支纪律、`[PR_READY]`、预写入检查、`worktree`、格式化 gate、虚拟环境、审计模板等内容属于当前 repo 的治理与协作规则，不属于 workspace profile 本体。
 4. 本文将当前 `dimc` 仓库视为一个**默认 kernel workspace profile 的实例**，而不是把整个仓库直接等同于产品本体。
 5. 更准确地说：当前 `dimc` 共享仓库同时承载了五层结构中的前四层共享内容：
@@ -21,7 +21,7 @@
    - `L1-L4`: `development-material bias -> domain-agnostic local material objectification plus evidence-backed causal reasoning`
    - `Storage`: `Evidence / Runtime / Knowledge / Derived Index` 四层职责分离
 3. 正式产品架构文档与正式存储架构文档已经在 `main` 上重写完成，并继续作为受保护设计文档存在。
-4. `CORE_OBJECT_MODEL_V1` 与 `EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1` 已经形成当前 workspace profile 的上位 proposal 约束；正式存储职责以 `docs/STORAGE_ARCHITECTURE.md` 为准。
+4. `docs/CORE_OBJECT_MODEL.md` 与 `docs/EVIDENCE_POLICY_AND_CAUSALITY_GRADES.md` 已经形成当前 workspace profile 的正式产品子规范约束；正式存储职责以 `docs/STORAGE_ARCHITECTURE.md` 为准。
 5. 产品定义层、产品实现层、项目落地层、仓库治理层、本地开发控制层必须严格切开，不能互相代写。
 6. 产品架构已经明确禁止从当前 repo 目录结构反推产品本体；当前目录结构最多只能说明一个具体 workspace profile 的当前实现现实。
 7. 当前工作目录现实中同时存在以下几类区域：
@@ -67,11 +67,11 @@
 
 先说明：这四类是当前共享仓库中的并存层次，不等于四者都属于项目落地层；本文只解释第三层“项目落地层”的部分。
 1. **产品定义**
-   - 主要承载面是正式架构文档和上位 proposal，例如：
+   - 主要承载面是正式架构文档和正式产品子规范，例如：
    - `docs/PROJECT_ARCHITECTURE.md`
    - `docs/STORAGE_ARCHITECTURE.md`
-   - `docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md`
-   - `docs/PROPOSALS/EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md`
+   - `docs/CORE_OBJECT_MODEL.md`
+   - `docs/EVIDENCE_POLICY_AND_CAUSALITY_GRADES.md`
 2. **产品内核实现**
    - 主要承载面是 `src/dimcause/` 及其相关入口文件，例如：
    - `src/dimcause/cli.py`
@@ -244,7 +244,7 @@
 1. 当前 `dimc` 仓库应被理解为一个**同时承载产品定义、产品实现、项目落地和仓库治理**的共享工作空间；本地开发控制层则默认保留在本地开发目录中。
 2. `WORKSPACE_PROFILE_V1` 的任务，不是把这个仓库整体上升为产品本体，而是只把其中**属于第三层“项目落地层”**的部分单独解释出来。
 3. 因而，后续若将本文继续收敛为更正式版本，应坚持三条线：
-   - 产品定义继续留在正式架构文档与上位 proposal 中
+   - 产品定义继续留在正式架构文档与正式产品子规范中
    - 产品实现继续由 `src/`、`tests/` 和相关运行入口承载
    - 项目落地层只写“本项目如何承载并默认运行产品”
    - 仓库治理层另文处理，不回流进本文
@@ -255,8 +255,8 @@
 2. 本文的主要上位依据包括：
    - `docs/PROJECT_ARCHITECTURE.md`
    - `docs/STORAGE_ARCHITECTURE.md`
-   - `docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md`
-   - `docs/PROPOSALS/EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md`
+   - `docs/CORE_OBJECT_MODEL.md`
+   - `docs/EVIDENCE_POLICY_AND_CAUSALITY_GRADES.md`
    - `docs/ARCHITECTURE_INDEX.md`
    - `docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md`
 3. 本文对当前仓库现实的映射，额外基于以下已核对事实：
