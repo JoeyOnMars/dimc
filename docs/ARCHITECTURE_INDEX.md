@@ -48,6 +48,7 @@
 2. 产品依靠什么长期稳定语义运行；
 3. 运行内核、对象模型、证据政策和存储职责如何分层。
 4. `docs/PROPOSALS/` 主要保留项目落地文档、仓库治理文档、实现契约与 ADR，不再承载正式产品子规范。
+5. `docs/PROPOSALS/` 的目录准入与当前清单见 [PROPOSALS/README.md](./PROPOSALS/README.md)。
 
 ### 第二层：产品实现层
 
@@ -74,6 +75,7 @@
 2. [pyproject.toml](../pyproject.toml)
 3. [README.md](../README.md)
 4. [README_zh-CN.md](../README_zh-CN.md)
+5. [PROPOSALS/README.md](./PROPOSALS/README.md)
 
 本层回答：
 1. 本项目怎样承载、组织并默认运行这个产品；
@@ -123,6 +125,7 @@
 6. [tests](../tests)
 7. [WORKSPACE_PROFILE_V1.md](./PROPOSALS/WORKSPACE_PROFILE_V1.md)
 8. [REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](./PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)
+9. [PROPOSALS/README.md](./PROPOSALS/README.md)
 
 ## 冲突优先级
 
@@ -146,3 +149,4 @@
 2. 第五层内容默认不加入本索引。
 3. 若某文档同时涉及两层以上内容，必须先拆边界，再决定入口位置。
 4. 修改本索引时，不得把本地草稿、讨论稿或临时控制文件写成正式入口。
+5. 新增 `docs/PROPOSALS/` 文档时，必须同时满足该目录 README 的准入规则。

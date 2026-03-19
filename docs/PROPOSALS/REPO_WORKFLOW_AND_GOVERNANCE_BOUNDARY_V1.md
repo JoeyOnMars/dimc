@@ -1,8 +1,9 @@
 # Repo Workflow and Governance Boundary v1
 
-Status: Draft v1 (2026-03-12)  
-Scope: Current `dimc` repository only  
-Type: Repository governance boundary proposal
+> **状态**: `当前有效`
+> **归属**: 第四层仓库治理专项文档
+> **类型**: `Repository Governance Boundary`
+> **范围**: `Current dimc repository only`
 
 ## 1. 文档目的与边界
 

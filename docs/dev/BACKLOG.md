@@ -70,6 +70,13 @@
   - `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md` 已改用新正式路径，不再把这两份文档表述为 proposal 约束
 - **后续说明**: `docs/PROPOSALS/` 现在应主要保留项目落地文档、仓库治理文档、实现契约与 ADR，不再混放正式产品子规范。
 
+### ~~P1-13: `docs/PROPOSALS/` 目录角色未固化，后续仍可能回流混层~~ (FIXED)
+- **修复事实**:
+  - `docs/PROPOSALS/README.md` 已建立目录入口与准入规则
+  - 当前 5 份保留文档已补齐 `状态 / 归属 / 类型` 元数据
+  - `ARCHITECTURE_INDEX.md` 已将 `PROPOSALS/README.md` 纳入目录级说明与维护规则
+- **后续说明**: 后续若再新增 `docs/PROPOSALS/` 文档，必须先满足目录 README 的准入规则；历史 draft 默认不再保留在 current tree。
+
 ### P1-3: 全量测试红线清理（Task 3.1）
 - **现状**: `legacy_debt` 隔离标记已清零；当前主战场是剩余 `17 skipped + 4 deselected protected` 的测试债分批收口。
 
