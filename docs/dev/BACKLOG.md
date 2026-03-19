@@ -77,6 +77,13 @@
   - `ARCHITECTURE_INDEX.md` 已将 `PROPOSALS/README.md` 纳入目录级说明与维护规则
 - **后续说明**: 后续若再新增 `docs/PROPOSALS/` 文档，必须先满足目录 README 的准入规则；历史 draft 默认不再保留在 current tree。
 
+### ~~P1-14: 第二层实现原则与第一层长期语义未切开，易导致“设计记录 = 第一层”误判~~ (FIXED)
+- **修复事实**:
+  - `PROJECT_ARCHITECTURE.md` 已吸收来自三份实现文档的长期稳定原则：精确召回底座、关系写入校验、禁止把相似度当因果、投影不抹平 provenance
+  - `STORAGE_ARCHITECTURE.md` 与 `EVIDENCE_POLICY_AND_CAUSALITY_GRADES.md` 已补对应的历史/证据约束
+  - 三份实现文档已明确写出“已抽升到第一层的原则”与“剩余正文仍是第二层实现决策”
+- **后续说明**: 后续再遇到 `Design / Contract / ADR` 文档，必须先判其内容职责，再决定是否抽升局部原则，而不是整份文档整体升层。
+
 ### P1-3: 全量测试红线清理（Task 3.1）
 - **现状**: `legacy_debt` 隔离标记已清零；当前主战场是剩余 `17 skipped + 4 deselected protected` 的测试债分批收口。
 
