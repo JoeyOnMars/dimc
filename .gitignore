@@ -35,6 +35,8 @@ conversation/
 coverage.xml
 docs/logs/
 .claude/
+tests/temp_iter2/
+tests/temp_iter3/
 
 # 内部文档与 AI 协作（不开源）
 .agent/
