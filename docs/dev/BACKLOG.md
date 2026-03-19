@@ -2,7 +2,7 @@
 
 > 依据 `fix-all-bugs.md` 规则 3 创建。  
 > 统一登记所有超出当前分支 Scope 的全局 Bug、历史技术债、以及因"妥协"而遗留的未实现设计。  
-> **最后更新**: 2026-03-19（Task 081：SchemaValidator 拒绝写入观测闭环）
+> **最后更新**: 2026-03-19（Task 082：存储架构文档双轨收口）
 
 ---
 
@@ -53,6 +53,15 @@
 - **回归测试**:
   - `tests/core/test_schema_validator.py`
 - **后续说明**: 下一阶段不再是“白名单完全无治理”，而是持续收缩 legacy 生产链路，并在可行处将类型迁回 ontology 主类。
+
+### ~~P1-11: 存储架构正式文档 / draft 双轨真理源未收口~~ (FIXED)
+- **修复事实**:
+  - `docs/STORAGE_ARCHITECTURE.md` 已从 `Draft` 元数据升格为正式有效文档，并明确自己是唯一正式存储架构入口
+  - `docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md` 已降位为历史设计记录，不再承担第一层正式真理源职责
+  - `docs/ARCHITECTURE_INDEX.md` 已移除 draft 的第一层并列入口
+  - `docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md` 与 `docs/PROPOSALS/EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md` 已停止把 draft 当作存储架构独有约束来源
+  - `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md` 已改为以正式 `STORAGE_ARCHITECTURE.md` 作为存储职责依据
+- **后续说明**: draft 仍保留在 `docs/PROPOSALS/` 中，但仅作为设计演化记录；新的正式文档与 proposal 不应再直接引用它作为产品事实依据。
 
 ### P1-3: 全量测试红线清理（Task 3.1）
 - **现状**: `legacy_debt` 隔离标记已清零；当前主战场是剩余 `17 skipped + 4 deselected protected` 的测试债分批收口。

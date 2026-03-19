@@ -21,7 +21,7 @@
    - `L1-L4`: `development-material bias -> domain-agnostic local material objectification plus evidence-backed causal reasoning`
    - `Storage`: `Evidence / Runtime / Knowledge / Derived Index` 四层职责分离
 3. 正式产品架构文档与正式存储架构文档已经在 `main` 上重写完成，并继续作为受保护设计文档存在。
-4. `STORAGE_ARCHITECTURE_DRAFT_V1`、`CORE_OBJECT_MODEL_V1` 与 `EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1` 已经形成当前 workspace profile 的上位 proposal 约束。
+4. `CORE_OBJECT_MODEL_V1` 与 `EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1` 已经形成当前 workspace profile 的上位 proposal 约束；正式存储职责以 `docs/STORAGE_ARCHITECTURE.md` 为准。
 5. 产品定义层、产品实现层、项目落地层、仓库治理层、本地开发控制层必须严格切开，不能互相代写。
 6. 产品架构已经明确禁止从当前 repo 目录结构反推产品本体；当前目录结构最多只能说明一个具体 workspace profile 的当前实现现实。
 7. 当前工作目录现实中同时存在以下几类区域：
@@ -255,7 +255,6 @@
 2. 本文的主要上位依据包括：
    - `docs/PROJECT_ARCHITECTURE.md`
    - `docs/STORAGE_ARCHITECTURE.md`
-   - `docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md`
    - `docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md`
    - `docs/PROPOSALS/EVIDENCE_POLICY_AND_CAUSALITY_GRADES_V1.md`
    - `docs/ARCHITECTURE_INDEX.md`

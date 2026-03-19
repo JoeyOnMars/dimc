@@ -17,8 +17,8 @@
 6. 当前正式产品架构已经明确：`Event` 很重要，但不能吞掉所有对象类型，Knowledge Layer 必须允许多对象共存。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
 7. 当前正式存储架构已经确定四层职责：Evidence 保存原始证据和可审计工件，Runtime 保存可变运行状态，Knowledge 保存结构化对象与关系，Derived Index 保存可重建索引与加速结构。依据：[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
 8. 当前正式存储架构已经明确：四层差异核心不在介质，而在可变性、真理源地位、生命周期、可重建性与对外语义。依据：[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
-9. 当前《存储架构草案 v1》已经把 Evidence Layer 明确拆成 `Source Materials` 与 `Generated Evidence Artifacts` 两类子对象，并要求在 provenance、生命周期、版本语义、引用方式上显式区分二者。依据：[STORAGE_ARCHITECTURE_DRAFT_V1.md](./STORAGE_ARCHITECTURE_DRAFT_V1.md)。
-10. 当前《存储架构草案 v1》已经要求：Knowledge Layer 中关系状态历史必须可回放，“当前状态”只是投影，不得成为唯一记录。依据：[STORAGE_ARCHITECTURE_DRAFT_V1.md](./STORAGE_ARCHITECTURE_DRAFT_V1.md)。
+9. 当前正式存储架构已经把 Evidence Layer 明确拆成 `Source Materials` 与 `Generated Evidence Artifacts` 两类子对象，并要求在 provenance、生命周期、版本语义、引用方式上显式区分二者。依据：[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
+10. 当前正式存储架构已经要求：Knowledge Layer 中关系状态历史必须可回放，“当前状态”只是投影，不得成为唯一记录。依据：[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
 11. 当前正式产品架构已经明确：对象模型需要单独成文，并至少覆盖 `Run`、`Material`、`Decision`、`Claim`、`Task`、`Symbol`、`Check`、`Result`、`Relation` 等关键对象家族，而不是把这些职责散落在实现目录或 profile 说明里。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)；[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
 12. 当前正式共享文档已经明确：产品架构、workspace profile、当前项目开发流程必须拆开，不能把 repo 目录、日志路径、分支纪律或治理规则写成产品本体。依据：[ARCHITECTURE_INDEX.md](../ARCHITECTURE_INDEX.md)；[WORKSPACE_PROFILE_V1.md](./WORKSPACE_PROFILE_V1.md)；[REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md](./REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md)。
 
@@ -153,7 +153,7 @@
 
 1. 下一份 `Evidence Policy and Causality Grades v1` 应继续回答：`Claim`、`Relation`、`Check`、`Result` 在什么证据条件下可进入哪些等级，哪些反证或缺口需要被显式记录。依据: 事实 #2, #3, #10, #11 + 推测 #6, #7。
 2. 后续 `workspace profile` 或默认实现文档只能回答“这些对象如何映射到具体介质与目录”，不能回写这些对象的产品职责。依据: 事实 #7, #8, #12 + 推测 #1, #2, #3。
-3. 后续重写或定稿 `PROJECT_ARCHITECTURE.md` 与 `STORAGE_ARCHITECTURE.md` 时，应以本稿和《存储架构草案 v1》作为上位约束，而不是反过来用旧实现结构压回对象边界。依据: 事实 #7, #8, #9, #10, #11, #12 + 推测 #1, #2, #4, #5, #7。
+3. 后续演化 `PROJECT_ARCHITECTURE.md` 与 `STORAGE_ARCHITECTURE.md` 时，应继续以本稿与正式存储架构中的对象边界约束为依据，而不是反过来用旧实现结构压回对象边界。依据: 事实 #7, #8, #9, #10, #11, #12 + 推测 #1, #2, #4, #5, #7。
 
 ## 起草约束与审计附录
 
@@ -163,7 +163,6 @@
    - `.agent/rules/agent-git-workflow.md`
    - `docs/PROJECT_ARCHITECTURE.md`
    - `docs/STORAGE_ARCHITECTURE.md`
-   - `docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md`
    - `docs/ARCHITECTURE_INDEX.md`
    - `docs/PROPOSALS/WORKSPACE_PROFILE_V1.md`
    - `docs/PROPOSALS/REPO_WORKFLOW_AND_GOVERNANCE_BOUNDARY_V1.md`

@@ -16,11 +16,11 @@
 5. 当前正式产品架构已经明确了两组等级的职责分工：`E` 回答“当前证据面有多完整”，`C` 回答“在这些证据下，这条关系有多能成立”；两组等级必须同时展示，不能压成单一总分。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
 6. 正式产品架构已经明确：Layer 3 不是单纯 ontology，而是 `Ontology and Evidence Policy`；它需要同时约束对象类型、关系类型、证据政策、等级表达以及缺失/反证处理。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)。
 7. 当前正式产品架构与正式存储架构已经明确三项根本判断：统一运行单位应是 `Run`；系统要从开发材料偏置升级到通用本地材料对象化与证据化因果推理；存储要切成 `Evidence / Runtime / Knowledge / Derived Index` 四层。依据：[PROJECT_ARCHITECTURE.md](../PROJECT_ARCHITECTURE.md)；[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
-8. 当前《存储架构草案 v1》已经要求：
+8. 当前正式存储架构已经要求：
    - `Evidence Layer` 保存 `Source Materials` 与 `Generated Evidence Artifacts`
    - `Knowledge Layer` 保存对象、关系、证据绑定、等级和关系状态历史
    - “当前状态”只是投影，不得成为唯一记录  
-   依据：[STORAGE_ARCHITECTURE_DRAFT_V1.md](./STORAGE_ARCHITECTURE_DRAFT_V1.md)。
+   依据：[STORAGE_ARCHITECTURE.md](../STORAGE_ARCHITECTURE.md)。
 9. 当前《Core Object Model v1》已经把 `Run`、`Material`、`MaterialVersion`、`Entity`、`Event`、`Decision`、`Claim`、`Task`、`Symbol`、`Artifact`、`Check`、`Result`、`Relation` 定义为产品通用内核的一等对象家族，并明确：
    - `Run` 是 `Runtime-first`
    - `Material / MaterialVersion` 是 `Knowledge + Evidence` 双重对象
@@ -199,7 +199,7 @@
 ### 13. 对后续文档的约束
 
 1. 后续重写或定稿 `PROJECT_ARCHITECTURE.md` 时，必须把“证据政策与因果分级”提升为正式 Layer 3 职责，而不能继续把它当作附属解释逻辑。依据: 事实 #6 + 本文结论。
-2. 后续重写或定稿 `STORAGE_ARCHITECTURE.md` 时，必须保证：
+2. 后续演化 `STORAGE_ARCHITECTURE.md` 时，必须继续保证：
    - Evidence 保存证据本体
    - Runtime 保存评估过程状态
    - Knowledge 保存等级、等级历史、缺失/反证表达
@@ -213,7 +213,6 @@
 2. 本次起草的主要依据文件包括：
    - `.agent/rules/Honesty-And-Structure.md`
    - `.agent/rules/agent-git-workflow.md`
-   - `docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md`
    - `docs/PROPOSALS/CORE_OBJECT_MODEL_V1.md`
    - `docs/PROJECT_ARCHITECTURE.md`
    - `docs/ARCHITECTURE_INDEX.md`
