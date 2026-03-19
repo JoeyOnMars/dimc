@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from dimcause.core.models import Event, EventType, SemanticEvent, SourceType
 from dimcause.core.ontology import get_ontology
 from dimcause.core.schema_validator import (
+    LegacyTypeGovernanceRecord,
     get_schema_validator,
 )
 from dimcause.reasoning.causal import CausalLink
@@ -1467,3 +1468,28 @@ class EventIndex:
             return {row["type"]: row["count"] for row in rows}
         finally:
             conn.close()
+
+    def get_legacy_governance_report(
+        self, include_zero: bool = False
+    ) -> List[LegacyTypeGovernanceRecord]:
+        """输出 legacy 类型治理报告，合并策略定义与当前库存。"""
+        validator = get_schema_validator()
+        counts = self.get_legacy_type_counts()
+        report: List[LegacyTypeGovernanceRecord] = []
+
+        for policy_record in validator.list_legacy_policies():
+            count = counts.get(policy_record.type_name, 0)
+            if not include_zero and count == 0:
+                continue
+            report.append(
+                LegacyTypeGovernanceRecord(
+                    type_name=policy_record.type_name,
+                    canonical_class=policy_record.canonical_class,
+                    status=policy_record.status,
+                    allow_write=policy_record.allow_write,
+                    note=policy_record.note,
+                    count=count,
+                )
+            )
+
+        return report

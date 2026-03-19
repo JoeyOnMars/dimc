@@ -5,7 +5,7 @@ SchemaValidator - 本体验证器 (Layer 3)
 """
 
 from dataclasses import dataclass
-from typing import Optional, Set
+from typing import List, Optional, Set
 
 from dimcause.core.models import Event
 from dimcause.core.ontology import Ontology, get_ontology
@@ -40,6 +40,18 @@ class ValidationResult:
     ontology_class: Optional[str]
     is_legacy: bool
     policy: Optional[LegacyTypePolicy] = None
+
+
+@dataclass(frozen=True)
+class LegacyTypeGovernanceRecord:
+    """Legacy 类型治理视图。"""
+
+    type_name: str
+    canonical_class: Optional[str]
+    status: str
+    allow_write: bool
+    note: str
+    count: int = 0
 
 
 class LegacyTypeGovernanceError(OntologySchemaError):
@@ -166,6 +178,19 @@ class SchemaValidator:
 
     def describe_legacy_type(self, type_value: str) -> Optional[LegacyTypePolicy]:
         return self.LEGACY_POLICIES.get(type_value.lower())
+
+    def list_legacy_policies(self) -> List[LegacyTypeGovernanceRecord]:
+        """按类型名稳定输出当前 legacy 治理策略。"""
+        return [
+            LegacyTypeGovernanceRecord(
+                type_name=type_name,
+                canonical_class=policy.canonical_class,
+                status=policy.status,
+                allow_write=policy.allow_write,
+                note=policy.note,
+            )
+            for type_name, policy in sorted(self.LEGACY_POLICIES.items())
+        ]
 
     def _map_to_ontology_class(self, event_type: str) -> str:
         """

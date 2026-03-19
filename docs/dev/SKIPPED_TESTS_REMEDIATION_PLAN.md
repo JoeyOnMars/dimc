@@ -4,15 +4,15 @@
 **定位**：测试债专项清单，用于跟踪全量 skipped 的分类、归宿与整改顺序。
 **边界**：本文不替代 `BACKLOG`、`ROADMAP` 或正式产品设计文档。
 
-**审计基线**: 2026-03-18
+**审计基线**: 2026-03-19
 **审计命令**: `pytest -q -rs`  
-**审计结果**: `1117 passed, 18 skipped, 4 deselected`
+**审计结果**: `1120 passed, 17 skipped, 4 deselected`
 
 ---
 
 ## 1. 目的
 
-这份清单只解决一个问题：把当前全量测试中的 `18` 个 skipped 和 `4` 个受保护测试拆成可执行整改项。
+这份清单只解决一个问题：把当前全量测试中的 `17` 个 skipped 和 `4` 个受保护测试拆成可执行整改项。
 它不负责解释产品架构，也不替代 `BACKLOG`；它是测试债的专项处置文档。
 
 原则：
@@ -27,15 +27,15 @@
 
 当前默认全量结果分成两部分：
 
-1. `18` 个 skipped
+1. `17` 个 skipped
 2. `4` 个 deselected 受保护测试
 
-其中 `18` 个 skipped 分成四类：
+其中 `17` 个 skipped 分成四类：
 
 1. 过时测试：`0`
 2. 手工 / 完整环境测试：`2`
 3. 环境依赖缺失：`0`（已清零）
-4. 真正未实现的测试：`16`
+4. 真正未实现的测试：`15`
 
 ---
 
@@ -142,7 +142,7 @@
 
 现状：`ingest → markdown`、`markdown → EventIndex` 与 `end_to_end_query` 已转为可执行测试并通过；其余 `3` 条仍是 TODO skip。
 
-#### B. `tests/integration/test_fault_tolerance.py`（总计 `6`：已落地 `1`，剩余 `5`）
+#### B. `tests/integration/test_fault_tolerance.py`（总计 `6`：已落地 `2`，剩余 `4`）
 
 覆盖：
 
@@ -153,7 +153,7 @@
 5. 并发写入冲突
 6. 真实崩溃场景
 
-现状：`test_index_corruption_rebuild` 已转为可执行集成断言并通过；其余 `5` 条仍为 TODO skip。
+现状：`test_index_corruption_rebuild` 与 `test_wal_recovery_on_startup` 已转为可执行集成断言并通过；其余 `4` 条仍为 TODO skip。
 
 #### C. `tests/unit/test_llm_extractor.py` (`8`)
 

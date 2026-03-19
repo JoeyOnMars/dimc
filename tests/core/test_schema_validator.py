@@ -19,9 +19,10 @@ os.environ["HF_HUB_OFFLINE"] = "1"
 from dimcause.core.event_index import EventIndex
 from dimcause.core.models import Event, EventType
 from dimcause.core.schema_validator import (
-    ValidationResult,
+    LegacyTypeGovernanceRecord,
     OntologySchemaError,
     SchemaValidator,
+    ValidationResult,
     get_schema_validator,
 )
 
@@ -130,6 +131,19 @@ class TestSchemaValidator:
         assert policy is not None
         assert policy.canonical_class == "Requirement"
         assert policy.allow_write is True
+
+    def test_list_legacy_policies_exposes_governance_records(self):
+        validator = SchemaValidator()
+        records = validator.list_legacy_policies()
+
+        assert records
+        assert all(isinstance(record, LegacyTypeGovernanceRecord) for record in records)
+
+        task_record = next(record for record in records if record.type_name == "task")
+        assert task_record.canonical_class == "Requirement"
+        assert task_record.status == "legacy-write"
+        assert task_record.allow_write is True
+        assert task_record.count == 0
 
     def test_invalid_garbage_type_rejected(self):
         """测试红线拦截：垃圾类型被拒绝"""
@@ -299,6 +313,53 @@ class TestEventIndexSchemaValidation:
         finally:
             os.unlink(legacy_path)
             os.unlink(canonical_path)
+
+    def test_get_legacy_governance_report_merges_policy_and_inventory(self, temp_db):
+        index = EventIndex(db_path=temp_db)
+
+        research_event = Event(
+            id="legacy-report-001",
+            type=EventType.RESEARCH,
+            timestamp=datetime.now(),
+            summary="Legacy Research Event",
+            content="Legacy Research Event Content",
+        )
+        task_event = Event(
+            id="legacy-report-002",
+            type=EventType.TASK,
+            timestamp=datetime.now(),
+            summary="Legacy Task Event",
+            content="Legacy Task Event Content",
+        )
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as research_file:
+            research_file.write("---\nid: legacy-report-001\ntype: research\n---\n")
+            research_path = research_file.name
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as task_file:
+            task_file.write("---\nid: legacy-report-002\ntype: task\n---\n")
+            task_path = task_file.name
+
+        try:
+            assert index.add(research_event, research_path) is True
+            assert index.add(task_event, task_path) is True
+
+            report = index.get_legacy_governance_report()
+            assert [record.type_name for record in report] == ["research", "task"]
+
+            research_record = next(record for record in report if record.type_name == "research")
+            assert research_record.count == 1
+            assert research_record.canonical_class == "Experiment"
+            assert research_record.status == "legacy-write"
+
+            all_records = index.get_legacy_governance_report(include_zero=True)
+            diagnostic_record = next(
+                record for record in all_records if record.type_name == "diagnostic"
+            )
+            assert diagnostic_record.count == 0
+            assert diagnostic_record.canonical_class == "Incident"
+        finally:
+            os.unlink(research_path)
+            os.unlink(task_path)
 
     def test_event_count_unchanged_after_rejected(self, temp_db):
         """测试拒绝非法事件后，数据库行数不变"""

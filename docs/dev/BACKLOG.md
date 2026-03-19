@@ -2,7 +2,7 @@
 
 > 依据 `fix-all-bugs.md` 规则 3 创建。  
 > 统一登记所有超出当前分支 Scope 的全局 Bug、历史技术债、以及因"妥协"而遗留的未实现设计。  
-> **最后更新**: 2026-03-18（3.1 第二阶段第五刀：data_pipeline 端到端查询用例落地）
+> **最后更新**: 2026-03-19（3.1 第二阶段第六刀：fault_tolerance WAL 启动恢复 + SchemaValidator 治理报告）
 
 ---
 
@@ -48,20 +48,21 @@
   - `validate()` / `validate_type()` 现返回结构化 `ValidationResult`，可区分 ontology / legacy
   - `EventIndex.add()` / `add_if_not_exists()` 会为 legacy 写入注入 `_schema_legacy` provenance
   - `EventIndex.get_legacy_type_counts()` 可直接统计当前索引中的 legacy 存量
+  - `SchemaValidator.list_legacy_policies()` 与 `EventIndex.get_legacy_governance_report()` 已可输出“策略定义 + 当前库存”的结构化治理视图
 - **回归测试**:
   - `tests/core/test_schema_validator.py`
 - **后续说明**: 下一阶段不再是“白名单完全无治理”，而是持续收缩 legacy 生产链路，并在可行处将类型迁回 ontology 主类。
 
 ### P1-3: 全量测试红线清理（Task 3.1）
-- **现状**: `legacy_debt` 隔离标记已清零；当前主战场是剩余 `18 skipped + 4 deselected protected` 的测试债分批收口。
+- **现状**: `legacy_debt` 隔离标记已清零；当前主战场是剩余 `17 skipped + 4 deselected protected` 的测试债分批收口。
 
-### P1-9: 全量 skipped / protected 测试债清理（当前 18 skipped + 4 deselected）
-- **审计事实**: `source .venv/bin/activate && pytest -q -rs` 当前为 `1117 passed, 18 skipped, 4 deselected`。
-- **分类结果（skipped=18）**:
+### P1-9: 全量 skipped / protected 测试债清理（当前 17 skipped + 4 deselected）
+- **审计事实**: `source .venv/bin/activate && pytest -q -rs` 当前为 `1120 passed, 17 skipped, 4 deselected`。
+- **分类结果（skipped=17）**:
   1. 过时测试：`0`（已清零）
   2. 手工 / 完整环境测试：`2`
   3. 环境依赖缺失：`0`（已清零）
-  4. 真正未实现的测试：`16`
+  4. 真正未实现的测试：`15`
 - **受保护测试（deselected=4）**: 默认不进主套件，仅在 `--run-protected` 下执行。
 - **当前入口**: [`SKIPPED_TESTS_REMEDIATION_PLAN.md`](./SKIPPED_TESTS_REMEDIATION_PLAN.md)
 - **处理顺序**:
@@ -78,7 +79,8 @@
   - 已将 `tests/integration/test_data_pipeline.py::test_end_to_end_query` 从 TODO skip 改为可执行集成断言
   - 已将 `tests/integration/test_data_pipeline.py::test_ingest_to_markdown_write` 中 extractor mock 替换为真实 `BasicExtractor(llm_client=None)` 链路
   - 已将 `tests/integration/test_fault_tolerance.py::test_index_corruption_rebuild` 从 TODO skip 改为可执行集成断言
-  - 默认套件基线已从 `1103/30` 收敛到 `1117 passed, 18 skipped, 4 deselected`
+  - 已将 `tests/integration/test_fault_tolerance.py::test_wal_recovery_on_startup` 从 TODO skip 改为可执行集成断言（真实 `WAL -> daemon recover -> Markdown/EventIndex` 主链）
+  - 默认套件基线已从 `1103/30` 收敛到 `1120 passed, 17 skipped, 4 deselected`
 
 ### ~~P1-10: 信任梯度 risk_level 未落地~~ (FIXED)
 - **修复事实**:
