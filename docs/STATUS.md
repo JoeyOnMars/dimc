@@ -1,6 +1,6 @@
 # DIMCAUSE 项目状态总表
 
-**最后更新**: 2026-03-19（Task 083：PROPOSALS 角色收口）
+**最后更新**: 2026-03-19（Task 086：第一层元数据收口）
 **维护者**: 人工审核 + 代码验证
 
 ---
@@ -157,6 +157,7 @@
 - **Task 083 Proposal Role Convergence** (2026-03-19): `docs/CORE_OBJECT_MODEL.md` 与 `docs/EVIDENCE_POLICY_AND_CAUSALITY_GRADES.md` 已从 `docs/PROPOSALS/` 升格为正式产品子规范；`docs/PROPOSALS/STORAGE_ARCHITECTURE_DRAFT_V1.md` 已从 current tree 删除，历史追溯交给 git history；`ARCHITECTURE_INDEX` 与 `WORKSPACE_PROFILE_V1` 的共享口径已同步切到新正式路径。
 - **Task 084 PROPOSALS 第二轮收口** (2026-03-19): `docs/PROPOSALS/README.md` 已落地为专项文档区目录入口；当前 5 份保留文档已补 `状态 / 归属 / 类型` 元数据，目录角色已收紧为“项目落地专项、仓库治理专项、实现契约 / 设计记录”，不再作为混合提案桶使用。
 - **Task 085 实现原则抽升收口** (2026-03-19): 已从 `UNIX_RETRIEVAL_CONTRACT`、`V6.3_CAUSAL_LINKER_DESIGN`、`V6.3_extraction_pipeline_design` 中抽升长期稳定原则到第一层正式文档；同时三份实现文档已明确“哪些原则已晋升、哪些正文仍只属于第二层实现决策”，彻底切开体裁与归层。
+- **Task 086 第一层元数据收口** (2026-03-19): `docs/PROJECT_ARCHITECTURE.md` 已从 `Draft` 元数据正式升格为唯一正式有效的产品级项目架构入口；`docs/ARCHITECTURE_INDEX.md`、`docs/CORE_OBJECT_MODEL.md`、`docs/EVIDENCE_POLICY_AND_CAUSALITY_GRADES.md` 的文件头元数据也已统一补齐，第一层不再存在“正文已正式、文件头仍是 Draft/缺字段”的治理断层。
 - **Task 048 SchemaValidator 治理收口** (2026-03-07): `SchemaValidator` 不再依赖裸字符串 `LEGACY_WHITELIST`；现已引入显式 `LegacyTypePolicy` registry、结构化 `ValidationResult`、legacy provenance 注入和 `EventIndex.get_legacy_type_counts()` 存量统计，为后续逐类迁移 legacy 类型建立运行时观测面。
 - **Task 046 Timeline 会话/任务边界升格** (2026-03-07): `TimelineService` 现已提取 `session_id/job_id` 上下文，`dimc timeline` 的 recent/range 模式会按 session/job 边界分组展示，daily stats 也新增 active sessions / jobs 聚合，不再只是裸事件列表。
 - **Task 044 `dimc why` 因果证据升格** (2026-03-07): `get_file_history()` 现已保留 `from_causal_chain` provenance，`why` 输出新增“因果链证据”独立段落，`DecisionAnalyzer` prompt 也会显式提高因果证据权重，不再退回纯 Git/时间线叙事。

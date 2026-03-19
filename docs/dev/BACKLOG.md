@@ -2,7 +2,7 @@
 
 > 依据 `fix-all-bugs.md` 规则 3 创建。  
 > 统一登记所有超出当前分支 Scope 的全局 Bug、历史技术债、以及因"妥协"而遗留的未实现设计。  
-> **最后更新**: 2026-03-19（Task 083：PROPOSALS 角色收口）
+> **最后更新**: 2026-03-19（Task 086：第一层元数据收口）
 
 ---
 
@@ -83,6 +83,13 @@
   - `STORAGE_ARCHITECTURE.md` 与 `EVIDENCE_POLICY_AND_CAUSALITY_GRADES.md` 已补对应的历史/证据约束
   - 三份实现文档已明确写出“已抽升到第一层的原则”与“剩余正文仍是第二层实现决策”
 - **后续说明**: 后续再遇到 `Design / Contract / ADR` 文档，必须先判其内容职责，再决定是否抽升局部原则，而不是整份文档整体升层。
+
+### ~~P1-15: 第一层正式文档文件头元数据未统一，导致 `PROJECT_ARCHITECTURE` 被当正式入口使用却仍标 `Draft`~~ (FIXED)
+- **修复事实**:
+  - `docs/PROJECT_ARCHITECTURE.md` 已从 `Draft` 元数据升格为 `v1.0 / 正式有效`，并明确自己是唯一正式有效的产品级项目架构入口
+  - `docs/ARCHITECTURE_INDEX.md` 已补齐 `版本 / 状态 / 范围` 元数据，并明确自己是正式共享入口索引
+  - `docs/CORE_OBJECT_MODEL.md` 与 `docs/EVIDENCE_POLICY_AND_CAUSALITY_GRADES.md` 已补齐 `版本 / 范围` 元数据，第一层正式子规范文件头口径已统一
+- **后续说明**: 今后第一层文档收口必须逐个审文件头，不得只看正文和索引；否则仍会出现 `de facto` 正式、`de jure` draft 的治理断层。
 
 ### P1-3: 全量测试红线清理（Task 3.1）
 - **现状**: `legacy_debt` 隔离标记已清零；当前主战场是剩余 `17 skipped + 4 deselected protected` 的测试债分批收口。
